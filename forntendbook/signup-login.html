@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Authentication</title>
+  <link rel="stylesheet" href="singup.css"/>
+</head>
+<body>
+  <div id="login-section">
+    <h2>Login</h2>
+    <input type="text" id="login-mobile" placeholder="Mobile Number"><br>
+    <input type="password" id="login-password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+    <p>
+      <a href="#" onclick="showSection('signup-section')">Signup</a> |
+      <a href="#" onclick="showSection('forgot-password-section')">Forgot Password?</a>
+    </p>
+  </div>
+
+  <div id="signup-section" style="display: none;">
+    <h2>Signup</h2>
+    <input type="text" id="signup-name" placeholder="Full Name"><br>
+    <input type="text" id="signup-mobile" placeholder="Mobile Number"><br>
+    <button onclick="sendOtp()">Send OTP</button><br>
+    <input type="password" id="signup-password" placeholder="Password"><br>
+    <input type="text" id="signup-otp" placeholder="OTP"><br>
+    <button onclick="signup()">Signup</button>
+    <p><a href="#" onclick="showSection('login-section')">Login</a></p>
+  </div>
+
+  <div id="forgot-password-section" style="display: none;">
+    <h2>Forgot Password</h2>
+    <input type="text" id="forgot-mobile" placeholder="Mobile Number"><br>
+    <button onclick="forgotPassword()">Send OTP</button><br>
+    <input type="text" id="forgot-otp" placeholder="Enter OTP" style="display: none;"><br>
+    <input type="password" id="new-password" placeholder="New Password" style="display: none;"><br>
+    <button onclick="resetPassword()" style="display: none;" id="reset-btn">Reset Password</button>
+    <p><a href="#" onclick="showSection('login-section')">Back to Login</a></p>
+  </div>
+
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function showSection(section) {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('signup-section').style.display = 'none';
+    document.getElementById('forgot-password-section').style.display = 'none';
+    document.getElementById(section).style.display = 'block';
+  }
+
+  async function login() {
+    const mobile = document.getElementById('login-mobile').value;
+    const password = document.getElementById('login-password').value;
+
+    const response = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile, password })
+    });
+
+    const result = await response.json();
+
+    if (response.status === 200) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Login successful!',
+        toast: true,
+        position: 'top-end',
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true
+      });
+
+      localStorage.setItem('user', JSON.stringify(result));
+
+      if (result.token) {
+        localStorage.setItem('authToken', result.token);
+        console.log('✅ Token saved:', result.token);
+      } else {
+        console.warn('⚠ No token found in response');
+      }
+
+      if (result.role === 'admin') {
+        window.location.href = "11Admin-panel.html";
+      } else if (result.role === 'user') {
+        const redirectURL = localStorage.getItem('redirectAfterLogin');
+        if (redirectURL) {
+          localStorage.removeItem('redirectAfterLogin');
+          window.location.href = redirectURL;
+        } else {
+          window.location.href = "index.html";
+        }
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Unknown role: ' + result.role,
+          toast: true,
+          position: 'top-end',
+          timer: 2000,
+          showConfirmButton: false,
+          timerProgressBar: true
+        });
+      }
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid login credentials',
+        toast: true,
+        position: 'top-end',
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true
+      });
+    }
+  }
+
+  async function sendOtp() {
+    const mobile = document.getElementById('signup-mobile').value;
+    const response = await fetch('/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile })
+    });
+    const data = await response.json();
+    Swal.fire({
+      icon: 'info',
+      title: data.message,
+      toast: true,
+      position: 'top-end',
+      timer: 2000,
+      showConfirmButton: false,
+      timerProgressBar: true
+    });
+  }
+
+  async function signup() {
+    const name = document.getElementById('signup-name').value;
+    const mobile = document.getElementById('signup-mobile').value;
+    const password = document.getElementById('signup-password').value;
+    const otp = document.getElementById('signup-otp').value;
+    const response = await fetch('/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, mobile, password, otp })
+    });
+    const data = await response.json();
+    Swal.fire({
+      icon: response.ok ? 'success' : 'error',
+      title: data.message,
+      toast: true,
+      position: 'top-end',
+      timer: 2000,
+      showConfirmButton: false,
+      timerProgressBar: true
+    });
+  }
+
+  async function forgotPassword() {
+    const mobile = document.getElementById('forgot-mobile').value;
+    const response = await fetch('/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile })
+    });
+    const data = await response.json();
+    Swal.fire({
+      icon: response.ok ? 'success' : 'error',
+      title: data.message,
+      toast: true,
+      position: 'top-end',
+      timer: 2000,
+      showConfirmButton: false,
+      timerProgressBar: true
+    });
+
+    if (response.ok) {
+      document.getElementById('forgot-otp').style.display = 'block';
+      document.getElementById('new-password').style.display = 'block';
+      document.getElementById('reset-btn').style.display = 'block';
+    }
+  }
+
+  async function resetPassword() {
+    const mobile = document.getElementById('forgot-mobile').value;
+    const otp = document.getElementById('forgot-otp').value;
+    const newPassword = document.getElementById('new-password').value;
+
+    const response = await fetch('/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile, otp, newPassword })
+    });
+
+    const data = await response.json();
+    Swal.fire({
+      icon: response.ok ? 'success' : 'error',
+      title: data.message,
+      toast: true,
+      position: 'top-end',
+      timer: 2000,
+      showConfirmButton: false,
+      timerProgressBar: true
+    });
+
+    if (response.ok) {
+      showSection('login-section');
+    }
+  }
+</script>
+
+</body>
+</html>

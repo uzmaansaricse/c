@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Your Books</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+        .review-box {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        textarea, select, input, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button {
+            background: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: darkgreen;
+        }
+        label {
+            font-weight: bold;
+        }
+        .later-btn {
+            background: gray !important;
+            margin-top: 5px;
+        }
+        .later-btn:hover {
+            background: #555 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="review-box">
+        <h2>Book Rating & Review</h2>
+        <form id="reviewForm">
+            <input type="hidden" id="orderId">
+            <input type="hidden" id="bookId">
+
+            <p id="currentBookInfo"></p>
+
+            <label>Name</label>
+            <input type="text" id="name" placeholder="Enter your name" required> <!-- Added Name Field -->
+
+            <label>Rating</label>
+            <select id="rating" required>
+                <option value="">Select Rating</option>
+                <option value="1">⭐ 1</option>
+                <option value="2">⭐ 2</option>
+                <option value="3">⭐ 3</option>
+                <option value="4">⭐ 4</option>
+                <option value="5">⭐ 5</option>
+            </select>
+
+            <label>Review</label>
+            <textarea id="reviewText" rows="4" placeholder="Write your review here..." required></textarea>
+
+            <button type="submit">Submit Review</button>
+        </form>
+
+        <button class="later-btn" onclick="skipReview()">Later</button>
+    </div>
+
+    <script>
+        // URL Params fetcher
+        function getParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        let orderId, bookIds = [], currentIndex = 0;
+
+        window.onload = function() {
+            orderId = getParam('orderId');
+            const bookIdsParam = getParam('bookIds'); // comma separated string
+
+            if (!orderId || !bookIdsParam) {
+                alert('Order ID or Book IDs missing in URL!');
+                return;
+            }
+
+            bookIds = bookIdsParam.split(',');
+            loadBookForm();
+        };
+
+        function loadBookForm() {
+            if (currentIndex >= bookIds.length) {
+                alert('All reviews processed!');
+                window.location.href = 'index.html'; // Redirect after all reviews
+                return;
+            }
+            const currentBookId = bookIds[currentIndex];
+            document.getElementById('orderId').value = orderId;
+            document.getElementById('bookId').value = currentBookId;
+            document.getElementById('currentBookInfo').innerText = `Review for Book ID: ${currentBookId}`;
+            document.getElementById('reviewForm').reset();
+        }
+
+        // Form Submit
+        const reviewForm = document.getElementById('reviewForm');
+        reviewForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const data = {
+                orderId: document.getElementById('orderId').value,
+                bookId: document.getElementById('bookId').value,
+                name: document.getElementById('name').value, // Added Name Field
+                rating: parseInt(document.getElementById('rating').value),
+                review: document.getElementById('reviewText').value
+            };
+
+            const response = await fetch('/api/reivewRating', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            const resData = await response.json();
+            if (response.ok) {
+                alert('Review submitted for Book ID: ' + data.bookId);
+                currentIndex++;
+                loadBookForm();
+            } else {
+                alert('Error: ' + resData.message);
+            }
+        });
+
+        // Skip button handler
+        function skipReview() {
+            alert('You can review this book later!');
+            currentIndex++;
+            loadBookForm();
+        }
+    </script>
+</body>
+
+</html>

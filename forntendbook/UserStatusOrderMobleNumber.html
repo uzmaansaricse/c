@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Order Status</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    .wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 220px;
+      background-color: #2c6e31;
+      color: white;
+      padding: 20px 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      transition: transform 0.3s ease;
+    }
+    .sidebar h3 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+    }
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 12px 20px;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover {
+      background-color: #3f8744;
+    }
+
+    /* Toggle Button for Mobile */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-size: 26px;
+      background: #2c6e31;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      z-index: 1000;
+      cursor: pointer;
+    }
+
+    /* Main Content */
+    .container {
+      flex: 1;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 40px;
+      padding: 20px;
+      border: 2px solid #2c6e31;
+    }
+    h1 {
+      background-color: #2c6e31;
+      color: white;
+      padding: 10px;
+      margin-bottom: 23px;
+      width: 100%;
+      text-align: center;
+      font-size: 24px;
+      border-radius: 0 0 5px 5px;
+    }
+    h2 {
+      color: #333;
+      margin-top: 20px;
+      text-align: center;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 250px;
+      margin: 10px auto;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      display: block;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #2c6e31;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      display: block;
+      margin: auto;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .table-container {
+      max-width: 90%;
+      margin: 30px auto 0;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      min-width: 600px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      font-size: 16px;
+    }
+    th {
+      background-color: #f4f4f4;
+      cursor: pointer;
+      color: #333;
+      font-weight: bold;
+    }
+    th:hover {
+      background-color: #ddd;
+    }
+    .highlight {
+      background-color: #fffae6;
+    }
+    .highlight:hover {
+      background-color: #fff7cc;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .wrapper {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        transform: translateX(-100%);
+        z-index: 999;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .sidebar.active h3 {
+        margin-top: 50px;
+      }
+      .menu-toggle {
+        display: block;
+        width: 43px;
+      }
+
+      .container {
+        margin: 80px 15px 15px;
+        padding: 15px;
+      }
+
+      input[type="text"], button {
+        width: 90%;
+        font-size: 15px;
+      }
+
+      table {
+        min-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 20px;
+        padding: 8px;
+        width: 92%;
+      }
+
+      h2 {
+        font-size: 18px;
+      }
+
+      th, td {
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      button {
+        font-size: 14px;
+      }
+
+      input[type="text"] {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toggle Button -->
+  <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+  <!-- Wrapper -->
+  <div class="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <h3>My Account</h3>
+      <a href="My profile.html">My Profile</a>
+      <a href="UserStatusOrderMobleNumber.html">My Orders</a>
+      <a href="Raiseissue.html">Raise Issue</a>
+      <a href="Logout.html" id="logoutBtn">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+      <h1>Check Your Orders</h1>
+      <input type="text" id="mobile" placeholder="Enter Mobile Number">
+      <button onclick="fetchOrders()">Check</button>
+      <h2>Your Orders</h2>
+      <div class="table-container">
+        <table border="1" id="orderTable" style="display: none;">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Order Date 📅</th>
+              <th>Book Title 📚</th>
+              <th>Quantity 🔢</th>
+              <th>Total Price 💰</th>
+              <th>Status</th>
+              <th>Last Updated</th>
+            </tr>
+          </thead>
+          <tbody id="orderBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.querySelector('.menu-toggle');
+      sidebar.classList.toggle('active');
+      toggleBtn.textContent = sidebar.classList.contains('active') ? '✖' : '☰';
+    }
+
+    async function fetchOrders() {
+      const mobile = document.getElementById('mobile').value;
+      if (!mobile) {
+        alert("Please enter a mobile number.");
+        return;
+      }
+
+      const res = await fetch(`/user-orders/${mobile}`);
+      const data = await res.json();
+
+      if (data.length === 0) {
+        alert("No orders found for this mobile number.");
+        document.getElementById("orderTable").style.display = "none";
+        return;
+      }
+
+      const orderBody = document.getElementById("orderBody");
+      orderBody.innerHTML = "";
+
+      data.forEach(order => {
+        order.books.forEach(book => {
+          const row = `<tr class="highlight">
+              <td>${order._id}</td>
+              <td>${new Date(order.createdAt).toLocaleString()}</td>
+              <td>${book.title}</td>
+              <td>${book.quantity}</td>
+              <td>₹${order.totalPrice}</td>
+              <td>${order.status}</td>
+              <td>${order.updatedAt ? new Date(order.updatedAt).toLocaleString() : "Not Updated"}</td>
+            </tr>`;
+          orderBody.innerHTML += row;
+        });
+      });
+
+      document.getElementById("orderTable").style.display = "table";
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aravali Book Store - My Account</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+      flex-wrap: wrap;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #2c6e31;
+      color: white;
+      padding: 20px 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar h3 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 12px 20px;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #3f8744;
+    }
+
+    .container {
+      flex: 1;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin: 40px;
+      padding: 20px;
+      border: 2px solid #2c6e31;
+      min-width: 0;
+    }
+
+    .profile-header {
+      text-align: center;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+
+    .profile-header h2 {
+      margin: 0;
+      color: #2c6e31;
+    }
+
+    .profile-info p {
+      font-size: 1rem;
+      color: #555;
+      margin: 5px 0;
+    }
+
+    .faq-section {
+      margin-top: 30px;
+    }
+
+    .faq-item {
+      background: #fafafa;
+      border: 1px solid #2c6e31;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      padding: 10px 15px;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .faq-item:hover {
+      background: #e8f5e9;
+    }
+
+    .faq-question {
+      font-weight: bold;
+      color: #2c6e31;
+    }
+
+    .faq-answer {
+      display: block;
+      margin-top: 8px;
+      color: #555;
+      line-height: 1.4;
+    }
+
+    .delete-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: #e53935;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 30px;
+      transition: background 0.2s;
+    }
+
+    .delete-btn:hover {
+      background: #c62828;
+    }
+
+    /* Toggle button (hamburger) */
+    .toggle-btn {
+      display: none;
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: #2c6e31;
+      color: white;
+      font-size: 30px;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      z-index: 1001;
+      border-radius: 4px;
+    }
+
+    /* Cross (×) Icon */
+    .toggle-btn.active {
+      background-color: #e53935;
+    }
+
+    /* Tablet Layout */
+    @media (max-width: 1024px) {
+      .container {
+        margin: 30px 20px;
+        padding: 20px 15px;
+      }
+    }
+
+    /* Mobile Layout */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      .toggle-btn {
+        display: block;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        width: 220px;
+        height: 100vh;
+        background-color: #2c6e31;
+        z-index: 1000;
+        transition: left 0.3s ease;
+      }
+
+      .sidebar.active {
+        left: 0;
+      }
+
+      .sidebar h3 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        margin-top: 60px;
+        margin-left: -45px;
+        
+      }
+
+      .sidebar a {
+        padding: 10px 15px;
+        font-size: 1.2rem;
+      }
+
+      .container {
+        margin: 20px 10px;
+        padding: 15px 10px;
+      }
+
+      .profile-header h2 {
+        font-size: 1.4rem;
+        margin-top: 40px;
+
+      }
+
+      .profile-info p,
+      .faq-answer {
+        font-size: 0.95rem;
+      }
+
+      .faq-item {
+        padding: 8px 10px;
+      }
+
+      .delete-btn {
+        font-size: 0.95rem;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toggle Button -->
+<button id="toggleSidebar" class="toggle-btn">☰</button>
+
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h3>My Account</h3>
+    <a href="My profile.html">My Profile</a>
+    <a href="UserStatusOrderMobleNumber.html">My Orders</a>
+    <a href="Raiseissue.html">Raise Issue</a>
+    <a href="Logout.html" id="logoutBtn">Logout</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="profile-header">
+      <h2>My Account</h2>
+    </div>
+    <div class="profile-info">
+      <p><strong>Name:</strong> <span id="userName">--</span></p>
+      <p><strong>Mobile:</strong> <span id="userMobile">--</span></p>
+    </div>
+
+    <div class="faq-section">
+      <div class="faq-item" id="faq1">
+        <div class="faq-question">How do I change my password?</div>
+        <div class="faq-answer">Go to the Forgot Password section on the login page and follow the instructions to reset your password via OTP.</div>
+      </div>
+      <div class="faq-item" id="faq2">
+        <div class="faq-question">How can I track my orders?</div>
+        <div class="faq-answer">Visit the "My Orders" page under your account to see all your past and current orders.</div>
+      </div>
+      <div class="faq-item" id="faq3">
+        <div class="faq-question">What is the return policy?</div>
+        <div class="faq-answer">You can return any book within 7 days of delivery in its original condition for a full refund.</div>
+      </div>
+      <div class="faq-item" id="faq4">
+        <div class="faq-question">How can I raise a complaint?</div>
+        <div class="faq-answer">If you have any complaints, please email <a href="mailto:support@aravalipublication.com">support@aravalipublication.com</a> or visit the "Raise an Issue" section on our Contact Us page.</div>
+      </div>
+    </div>
+
+    <button class="delete-btn" id="deleteAccountBtn">Delete My Account</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+   const API_BASE = window.location.origin;
+
+    const token = localStorage.getItem('authToken');
+
+    // Load profile
+    async function loadProfile() {
+      try {
+        const res = await fetch(`${API_BASE}/user/profile`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to load');
+        document.getElementById('userName').textContent = data.name;
+        document.getElementById('userMobile').textContent = data.mobile;
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error', err.message, 'error');
+      }
+    }
+
+   // Sidebar toggle logic
+const toggleBtn = document.getElementById('toggleSidebar');
+const sidebar = document.getElementById('sidebar');
+
+toggleBtn.addEventListener('click', () => {
+  const isOpen = sidebar.classList.toggle('show');
+  toggleBtn.textContent = isOpen ? '✖' : '☰';
+});
+
+
+
+    // Delete account
+    document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e53935',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const res = await fetch(`${API_BASE}/user/delete-account`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const json = await res.json();
+            if (!res.ok) throw new Error(json.message);
+            Swal.fire('Deleted!', json.message, 'success').then(() => {
+              localStorage.removeItem('authToken');
+              window.location.href = '/';
+            });
+          } catch (error) {
+            Swal.fire('Error', error.message, 'error');
+          }
+        }
+      });
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+    });
+
+    // Sidebar Toggle
+    document.getElementById('toggleSidebar').addEventListener('click', () => {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.toggle('active');
+      document.body.classList.toggle('sidebar-open');
+      const toggleBtn = document.getElementById('toggleSidebar');
+      toggleBtn.classList.toggle('active');
+    });
+
+    // Close sidebar on link click (mobile only)
+    document.querySelectorAll('.sidebar a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          document.querySelector('.sidebar').classList.remove('active');
+          document.body.classList.remove('sidebar-open');
+        }
+      });
+    });
+
+    // Load profile on page load
+    document.addEventListener('DOMContentLoaded', loadProfile);
+  </script>
+
+</body>
+</html>

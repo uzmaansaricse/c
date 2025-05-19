@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechBro24 Premium Support</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-green: #006400;
+      --accent-green: #8bc34a;
+      --background-light: #f4f9f4;
+      --secondary-bg: #ffffff;
+      --shadow-color: rgba(0, 100, 0, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, var(--primary-green), var(--accent-green));
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 30px;
+    }
+
+    .container {
+      text-align: center;
+      padding: 60px 30px;
+      background: var(--secondary-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 40px var(--shadow-color);
+      max-width: 900px;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 50px var(--shadow-color);
+    }
+
+    .header h1 {
+      font-size: 36px;
+      color: var(--primary-green);
+      font-weight: 700;
+      margin-bottom: 20px;
+      animation: fadeIn 1s ease-out;
+    }
+
+    .header p {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 30px;
+      animation: fadeIn 2s ease-out;
+    }
+
+    .support-item {
+      display: inline-block;
+      padding: 20px;
+      margin: 20px;
+      background: #fff;
+      color: #333;
+      border-radius: 10px;
+      width: calc(50% - 40px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .support-item:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 100, 0, 0.2);
+    }
+
+    .support-item i {
+      font-size: 48px;
+      color: var(--primary-green);
+      margin-bottom: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .support-item:hover i {
+      transform: scale(1.1);
+    }
+
+    .support-item a {
+      text-decoration: none;
+      font-size: 18px;
+      color: var(--primary-green);
+      font-weight: 600;
+      transition: text-decoration 0.3s ease;
+    }
+
+    .support-item a:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .support-item {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Welcome to TechBro24 Premium Support</h1>
+      <p>Our dedicated team is here to help you resolve any technical issue quickly and efficiently.</p>
+    </div>
+
+    <div class="support-item">
+      <i class="fab fa-whatsapp"></i>
+      <a href="https://wa.me/+917597722920" target="_blank">Chat with us on WhatsApp</a>
+    </div>
+    
+    <div class="support-item">
+      <i class="fas fa-envelope"></i>
+      <a href="mailto:info@techbro24.com">Send us an email</a>
+    </div>
+  </div>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
