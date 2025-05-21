@@ -47,7 +47,7 @@
     }
     .nav-items li {
         padding: 0px 6px;
-        font-size: 12px;
+        font-size: 20px;
      
     }
     }
@@ -162,7 +162,7 @@
      margin: 0;
         height: 62px;
         justify-content: normal !important;
-        width: 90%;
+        width: 100%;
     }
 
     
@@ -194,7 +194,7 @@
 
     .nav-items li {
         line-height: 0.5;
-        margin: auto;
+        margin-left:40px;
     }
 
 
@@ -421,7 +421,7 @@
 
      .nav-items ul {
         margin: 0 0 0 -40px;
-        gap: 15px;
+        gap: 25px;
     }
 
     .logo {
@@ -549,7 +549,8 @@
         padding: 0;
         flex-direction: column;
         align-items: stretch;
-        left: 125px;
+        left: 129px;
+        top: -40px;
     }
 
     .dropdown li {
