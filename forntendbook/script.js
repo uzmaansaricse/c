@@ -35,70 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-// login profle icon show
-
-
-// const isLoggedIn = localStorage.getItem("userLoggedIn") === "true";
-
-// if (isLoggedIn) {
-//     document.getElementById("signup-section").style.display = "none";
-//     document.getElementById("profile-section").style.display = "inline-block";
-// } else {
-//     document.getElementById("signup-section").style.display = "inline-block";
-//     document.getElementById("profile-section").style.display = "none";
-// }
-
-
-// admin panel sidebar js
-
-  function toggleSidebar() {
-    document.getElementById("adminSidebar").classList.toggle("hide");
-  }
-
-
-
-  
-
-
-    
-// add to cart
-// document.addEventListener("DOMContentLoaded", function () {
-//     let cartCount = localStorage.getItem("cartCount") ? parseInt(localStorage.getItem("cartCount")) : 0;
-//     let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-
-//     updateCartNotification();
-
-//     document.querySelectorAll(".buy-btn").forEach((button) => {
-//         button.addEventListener("click", function () {
-//             let bookCard = this.closest(".cards");
-//             let bookTitle = bookCard.querySelector(".book-title").textContent;
-//             let bookPrice = bookCard.querySelector("p").textContent; // innerHTML ki jagah textContent use karein
-//             let bookImage = bookCard.querySelector("img").src;
-
-//             let book = {
-//                 title: bookTitle,
-//                 price: bookPrice,
-//                 image: bookImage,
-//             };
-
-//             cartItems.push(book);
-//             cartCount++;
-
-//             localStorage.setItem("cart", JSON.stringify(cartItems));
-//             localStorage.setItem("cartCount", cartCount);
-
-//             updateCartNotification();
-//             alert("Book added to cart!");
-//         });
-//     });
-
-//     function updateCartNotification() {
-//         const cartBadge = document.getElementById("cart-count");
-//         let cartItems = JSON.parse(localStorage.getItem("cart")) || []; // Key fix
-//         cartBadge.textContent = cartItems.length; // Cart count update karein
-//     }
-// });
-
   
   // learn more div
   function openPopup(popupId, overlayId) {
@@ -215,17 +151,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return stars;
   }
 
-  // Event listeners
-//   document.getElementById("searchicon").addEventListener("click", function () {
-//       let searchQuery = document.querySelector(".searchbar").value.trim();
-//       searchBooks(searchQuery);
-//   });
-
-//   document.querySelector(".searchbar").addEventListener("keypress", function (event) {
-//       if (event.key === "Enter") {
-//           document.getElementById("searchicon").click();
-//       }
-//   });
 
 
 // Render books in card format
@@ -403,7 +328,7 @@ function renderBooks(books) {
 
     } catch (err) {
       console.error("Error fetching books:", err);
-      Swal.fire("Error", "Failed to load new books.", "error");
+     
     }
   }
 
@@ -452,107 +377,12 @@ function renderBooks(books) {
 
 
   
-//   // 📌 Fetch Fiction Books old book
-//   async function fetchFictionBooks() {
-//     try {
-//         const response = await fetch('/api/old-book'); // Backend API call
-//         const data = await response.json();
 
-//         if (!data || !data.books || data.books.length === 0) {
-//             // alert("No fiction books found.");
-//             return;
-//         }
-
-//         const booksContainer = document.getElementById("booksContainerr");
-//         if (!booksContainer) {
-//             console.error("Element with ID 'booksContainerr' not found.");
-//             return;
-//         }
-
-//         booksContainer.innerHTML = ""; // Clear previous data
-
-//         data.books.forEach(book => {
-//             const bookCard = document.createElement("div");
-//             bookCard.classList.add("book-card");
-
-//             bookCard.innerHTML = `
-//                 <img class="book-image" src="${book.bookImage}" alt="${book.title}">
-//                 <div class="book-title">${book.title}</div>
-//                 <div class="book-author"> ${book.author}</div>
-//                 <div class="book-price">
-//                     <span class="old-price">₹${book.price}</span> 
-//                     <span class="offer-price">₹${book.offerPrice}</span>
-//                 </div>
-//                 <button class="buy-btn add-cart">Add to Cart</button>
-//             `;
-
-//             // *Image click hone par details page open hoga*
-//             const bookImage = bookCard.querySelector(".book-image");
-//             bookImage.addEventListener("click", function () {
-//                 window.location.href = `/newbookDetelies.html?id=${book._id}`;
-//             });
-
-//             // *Button click hone par sirf cart me add hoga, details page nahi khulega*
-//             const addToCartBtn = bookCard.querySelector(".add-cart");
-//             addToCartBtn.addEventListener("click", function (event) {
-//                 event.stopPropagation(); // Page open hone se roke
-
-//                 addToCart(book._id, book.title, book.bookImage, book.price);
-
-//                 alert("Book added to cart!"); // ✅ Feedback message diya
-//             });
-
-//             booksContainer.appendChild(bookCard);
-//         });
-
-//     } catch (error) {
-//         console.error("Error fetching Fiction books:", error);
-//         alert("Failed to load fiction books.");
-//     }
-// }
-// // ✅ Pehle se existing addToCart function ka use karein
-// function addToCart(id, title, image, price) {
-//     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-//     let existingItem = cart.find(item => item.id === id);
-
-//     if (existingItem) {
-//         existingItem.quantity += 1;
-//     } else {
-//         cart.push({ id, title, image, price, quantity: 1 });
-//     }
-
-//     localStorage.setItem("cart", JSON.stringify(cart))
-// }
-// // ✅ Pehle se existing addToCart function ka use karein
-// function addToCart(id, title, image, price) {
-//     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-//     let existingItem = cart.find(item => item.id === id);
-
-//     if (existingItem) {
-//         existingItem.quantity += 1;
-//     } else {
-//         cart.push({ id, title, image, price, quantity: 1 });
-//     }
-
-//     localStorage.setItem("cart", JSON.stringify(cart))
-// }
-
-// // ✅ Page load hone par function call hoga
-// window.onload = fetchFictionBooks;
-  
-  
-      
   
   // silder book btn
-  document.getElementById("prevBtn").addEventListener("click", function() {
-      console.log("Previous Button Clicked");
-      scrollBooks("prev");
-  });
-  
-  document.getElementById("nextBtn").addEventListener("click", function() {
-      console.log("Next Button Clicked");
-      scrollBooks("next");
-  });
+ 
+
+
   
   function scrollBooks(direction) {
       let container = document.getElementById("booksContainer");

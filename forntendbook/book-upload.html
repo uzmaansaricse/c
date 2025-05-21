@@ -268,77 +268,75 @@
         </div>
     </div>
 
-  <script>
-    const API_BASE = window.location.origin;
+<script>
+  document.getElementById("book-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    document.getElementById("book-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", document.getElementById("title").value);
+    formData.append("author", document.getElementById("author").value);
+    formData.append("price", document.getElementById("price").value);
+    formData.append("offerPrice", document.getElementById("offerPrice").value);
+    formData.append("description", document.getElementById("description").value);
+    formData.append("category", document.getElementById("category").value);
+    formData.append("isbn", document.getElementById("isbn").value);
+    formData.append("shippingDetails", document.getElementById("shippingDetails").value);
+    formData.append("pageNumber", document.getElementById("pageNumber").value);
+    formData.append("language", document.getElementById("language").value);
+    formData.append("weight", document.getElementById("weight").value);
 
-        const formData = new FormData();
-        formData.append("title", document.getElementById("title").value);
-        formData.append("author", document.getElementById("author").value);
-        formData.append("price", document.getElementById("price").value);
-        formData.append("offerPrice", document.getElementById("offerPrice").value);
-        formData.append("description", document.getElementById("description").value);
-        formData.append("category", document.getElementById("category").value);
-        formData.append("isbn", document.getElementById("isbn").value);
-        formData.append("shippingDetails", document.getElementById("shippingDetails").value);
-        formData.append("pageNumber", document.getElementById("pageNumber").value);
-        formData.append("language", document.getElementById("language").value);
-        formData.append("weight", document.getElementById("weight").value);
+    // — raw-array bulletPoints (same as 1st script)
+    [
+      document.getElementById("bulletPoint1").value,
+      document.getElementById("bulletPoint2").value,
+      document.getElementById("bulletPoint3").value,
+      document.getElementById("bulletPoint4").value,
+      document.getElementById("bulletPoint5").value
+    ]
+      .filter(Boolean)
+      .forEach(bp => formData.append("bulletPoints", bp));
 
-        const bulletPoints = [
-            document.getElementById("bulletPoint1").value,
-            document.getElementById("bulletPoint2").value,
-            document.getElementById("bulletPoint3").value,
-            document.getElementById("bulletPoint4").value,
-            document.getElementById("bulletPoint5").value
-        ].filter(Boolean);
-        formData.append("bulletPoints", JSON.stringify(bulletPoints));
+    // — require all 5 images
+    const imageFields = ["bookImage1","bookImage2","bookImage3","bookImage4","bookImage5"];
+    for (let field of imageFields) {
+      const input = document.querySelector(`input[name="${field}"]`);
+      if (!input || !input.files[0]) {
+        Swal.fire("❌ All 5 images are required.", "", "error");
+        return;
+      }
+      formData.append("bookImages", input.files[0]);
+    }
 
-        const imageFields = ["bookImage1", "bookImage2", "bookImage3", "bookImage4", "bookImage5"];
-        for (let field of imageFields) {
-            const fileInput = document.querySelector(`input[name="${field}"]`);
-            if (!fileInput || !fileInput.files[0]) {
-                Swal.fire("❌ All 5 images are required.", "", "error");
-                return;
-            }
-            formData.append("bookImages", fileInput.files[0]);
-        }
-
-     try {
-    // Show uploading alert
-    Swal.fire({
+    try {
+      Swal.fire({
         title: "📤 Uploading...",
-        text: "Please wait, your book is uploading.",
+        text:  "Please wait, your book is uploading.",
         allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+        didOpen: () => Swal.showLoading()
+      });
 
-    const res = await fetch(`${API_BASE}/api/add-book`, {
+      // — relative URL, exactly like your 1st JS
+      const res = await fetch("/api/add-book", {
         method: "POST",
-        body: formData
-    });
+        body:   formData
+      });
 
-    // Close the loading alert
-    Swal.close();
+      Swal.close();
 
-    if (res.ok) {
+      if (res.ok) {
         Swal.fire("✅ Success!", "Book uploaded successfully.", "success");
         document.getElementById("book-form").reset();
-    } else {
-        const err = await res.json();
-        Swal.fire("❌ Error", err.message || "Something went wrong.", "error");
+      } else {
+        const { message } = await res.json();
+        Swal.fire("❌ Error", message || "Something went wrong.", "error");
+      }
+    } catch (_) {
+      Swal.close();
+      Swal.fire("❌ Error", "Network error or server not responding.", "error");
     }
-} catch (error) {
-    Swal.close(); // Close alert in case of network failure too
-    Swal.fire("❌ Error", "Network error or server not responding.", "error");
-}
-
-    });
+  });
 </script>
+
 
 
 </body>

@@ -18,99 +18,110 @@
 
 <body>
 
-    <div class="col-sm-12 topbar">
-        <div class="col-sm-6 rightcontact">
-            <a href="https://www.instagram.com/prahladramyadav?igsh=emM0emJocmg0Yncx" target="_blank"> <i
-                    class="fa-brands fa-instagram"></i></a>
-            <a href="https://www.facebook.com/share/15TCANusow/" target="_blank"><i
-                    class="fa-brands fa-facebook-f"></i></a>
-            <a href="https://t.me/aravalipublication" target="_blank">
-                <i class="fa-brands fa-telegram "></i>
-            </a>
-            <a href="https://wa.me/+919358087121" target="_blank"> <i class="fa-brands fa-whatsapp"></i> </a>
+   
+    <div class="top-header d-flex justify-content-center align-items-center">
+
+       <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
+        <div class="heading">
+
+            <h5 class="mb-0">Aravali Publication</h5>
         </div>
-        <div class="col-sm-6 techsupport">
-            <ul>
-                <a href="./contact-us.html">
-                    <li>Contact Us</li>
-                </a>
-                <a href="./FAQ.html">
-                    <li>FAQ</li>
-                </a>
-                <a href="AboutUs.html">
-                    <li>About Us</li>
-                </a>
-            </ul>
-
-        </div>
-
-
+        <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
     </div>
-    <div class="col-sm-12 navbar">
-        <div class="col-sm-3 navbar-main">
-            <a href="index.html">
-                <div class="navbar-polygon">
-                    <img class="logo " src="./images/aravali_publication-removebg-preview.png" alt="">
-                </div>
-            </a>
-            <div class="navbar-poly"></div>
-        </div>
-    
-        <div class="col-sm-3  nav-items">
-            <ul><a href="AllBookShow.html">
-                <li><i class="fa-solid fa-book-open"></i>All Book</li>
-            </a>
-                <a href="new-arrivals.html">
-                    <li id="categoryBtn"><i class="fa-solid fa-list"></i>NewBook</li>
-                </a>
-                <a href="old-arrivals.html">
-                    <li><i class="fa-regular fa-bookmark"></i>OldBook</li>
-                </a>
-                <a href="user- ID OrderTracking.html">
-                    <li style="display: none;"><i class="fa-regular fa-bookmark"></i>Tracking Order</li>
-                </a>
-                <a href="UserStatusOrderMobleNumber.html">
-                    <li style="display: none;"><i class="fa-regular fa-bookmark"></i>Status</li>
-                </a>
+ <!-- Navbar Start -->
+<!-- ✅ NAVBAR -->
+<div class="col-sm-12 navbar">
+  <div class="menu-toggle">
+    <i class="fas fa-bars"></i>
+  </div>
 
-            </ul>
-        </div>
-
-
-
-        <div class="col-sm-3 search-container">
-            <input type="text" class="searchbar" placeholder="Search for books...">
-            <i id="searchicon" class="fas fa-search search-icon"></i>
-        </div>
-
-        <div class="col-sm-3 contactsupport">
-            <a href="signup-login.html">
-                <button class="SignUp">
-                    <i class="fas fa-user-plus"></i>
-                </button>
-            </a>
-
-            <a href="./Cart Page with Checkout.html">
-                <button class="Cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <sup id="cart-count">0</sup>
-                </button>
-            </a>
-            <a href="QrCodeScan.html">
-                <button class="Scanner">
-                    <i class="fa fa-qrcode"></i>
-                </button>
-            </a>
-        </div>
-    </div>
-    <div class="sidebar" id="sidebar">
-        <ul>
-            <a href="AllBookShow.html"><li><i class="fa-solid fa-star"></i> All Books</li></a>
-           <a href="new-arrivals.html"> <li><i class="fa-solid fa-book-open"></i> New Book</li></a>
-           <a href="old-arrivals.html"> <li><i class="fa-solid fa-clock-rotate-left"></i> Old Book</li></a>
+  <div class="col-sm-6 nav-items">
+    <ul>
+       <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li class="nav-item">
+        <i class="fa-solid fa-book-open"></i> Books
+        <ul class="dropdown">
+          <li><a href="AllBookShow.html">All Book</a></li>
+          <li><a href="newBookAdd.html">New Book</a></li>
+          <li><a href="oldBookAdd.html">Old Book</a></li>
         </ul>
-    </div>
+      </li>
 
+      <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+      <li><a href="FAQ.html"><i class="fas fa-question-circle"></i> FAQs</a></li>
+      <li><a href="terms&conditions.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+      <li><a href="Return-policy.html"><i class="fas fa-undo"></i> Return Policy</a></li>
+      <li><a href="shipping-info.html"><i class="fas fa-shipping-fast"></i> Shipping Info</a></li>
+      <li><a href="privacy-policy.html"><i class="fas fa-user-secret"></i> Privacy Policy</a></li>
+    </ul>
+  </div>
+
+  <div class="col-sm-3 contactsupport">
+    <!-- 🔐 SIGNUP BUTTON (shown when not logged in) -->
+    <a href="signup-login.html" id="signup-section" style="display: block;">
+      <button class="SignUp">
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </a>
+
+    <!-- ✅ PROFILE DROPDOWN (shown when logged in) -->
+    <li class="nav-item profile-dropdown-container" id="profile-dropdown-section" style="display: none;">
+      <a href="#" class="nav-link profile-dropdown-toggle">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <span class="profile-username">Profile</span>
+      </a>
+      <ul class="dropdown-menu profile-dropdown-menu">
+        <li><a href="My profile.html">My Profile</a></li>
+        <li><a href="UserStatusOrderMobleNumber.html">Orders</a></li>
+        <li><a href="Raiseissue.html">Raise an Issue</a></li>
+        <li><a href="Logout.html" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </li>
+    <a href="Cart Page with Checkout.html">
+      <button class="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <sup id="cart-count">0</sup>
+      </button>
+    </a>
+
+    <a href="QrCodeScan.html">
+      <button class="Scanner">
+        <i class="fa fa-qrcode"></i>
+      </button>
+    </a>
+
+    <a href="Search book.html">
+      <button class="Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </a>
+  </div>
+</div>
+
+<!-- ✅ JS SCRIPT -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem("authToken");
+
+
+    const signupSection = document.getElementById("signup-section");
+    const profileDropdown = document.getElementById("profile-dropdown-section");
+
+    // Show/hide sections based on login status
+    if (token) {
+      if (signupSection) signupSection.style.display = "none";
+      if (profileDropdown) profileDropdown.style.display = "block";
+    } else {
+      if (signupSection) signupSection.style.display = "block";
+      if (profileDropdown) profileDropdown.style.display = "none";
+    }
+  });
+
+  function logoutUser() {
+    localStorage.removeItem("authToken");
+    location.reload();
+  }
+</script>
  <!-- <div class="bookscard">
         <div class="slide-track"> -->
             <h1 class="oldbookh1">Old Book</h1>

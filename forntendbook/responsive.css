@@ -177,11 +177,13 @@
         position: absolute;
         top: 45px;
         left: 0;
+        height: 100%;
         width: 100%;
         background: #2c6e31;
         flex-direction: column;
         text-align: center;
-        padding: 10px 0;
+        padding: 20px 0;
+
     }
 
     .nav-items ul {

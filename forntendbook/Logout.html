@@ -56,8 +56,6 @@ h2 {
 </head>
 <body>
   
-    
-
   <button id="logoutBtn">Logout</button>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -70,9 +68,10 @@ h2 {
     const data = await res.json();
 
     if (res.ok) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      localStorage.setItem("userLoggedIn", "false"); // 👈 yeh important hai
+      localStorage.removeItem("authToken"); // remove token, keep consistent with login key
+      localStorage.removeItem("user");      // remove user data
+      localStorage.removeItem("role");      // remove role if stored
+      localStorage.setItem("userLoggedIn", "false"); // optional flag reset
 
       Swal.fire({
         icon: 'success',
@@ -85,7 +84,7 @@ h2 {
       });
 
       setTimeout(() => {
-        window.location.href = "index.html"; // 👈 redirect karega
+        window.location.href = "index.html"; // redirect after logout
       }, 2000);
     } else {
       Swal.fire({
@@ -101,6 +100,5 @@ h2 {
   });
 </script>
 
-  
 </body>
 </html>

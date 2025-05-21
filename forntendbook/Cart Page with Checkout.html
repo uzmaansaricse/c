@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
@@ -345,117 +345,109 @@ th {
 </head>
 
 <body>
-
+    
     <div class="top-header d-flex justify-content-center align-items-center">
 
-        <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
+       <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
         <div class="heading">
 
             <h5 class="mb-0">Aravali Publication</h5>
         </div>
-        <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a>
-        </div>
-
+        <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
     </div>
 
-    <div class="col-sm-12 navbar">
-        <!-- Menu Toggle (for mobile) -->
-        <div class="menu-toggle">
-            <i class="fas fa-bars"></i>
-        </div>
+ <div class="col-sm-12 navbar">
+  <div class="menu-toggle">
+    <i class="fas fa-bars"></i>
+  </div>
 
-        <!-- Navbar Links -->
-        <div class="col-sm-6 nav-items">
-            <ul>
-                <li>
-                    <a href="index.html">
-                        <i class="fas fa-home"></i> Home
-                    </a>
-                </li>
-                <!-- All Book with dropdown -->
-                <li class="nav-item">
+  <div class="col-sm-6 nav-items">
+    <ul>
+         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li class="nav-item">
+        <i class="fa-solid fa-book-open"></i> Books
+        <ul class="dropdown">
+          <li><a href="AllBookShow.html">All Book</a></li>
+          <li><a href="newBookAdd.html">New Book</a></li>
+          <li><a href="oldBookAdd.html">Old Book</a></li>
+        </ul>
+      </li>
 
-                    <i class="fa-solid fa-book-open"></i> Books
+      <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+      <li><a href="FAQ.html"><i class="fas fa-question-circle"></i> FAQs</a></li>
+      <li><a href="terms&conditions.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+      <li><a href="Return-policy.html"><i class="fas fa-undo"></i> Return Policy</a></li>
+      <li><a href="shipping-info.html"><i class="fas fa-shipping-fast"></i> Shipping Info</a></li>
+      <li><a href="privacy-policy.html"><i class="fas fa-user-secret"></i> Privacy Policy</a></li>
+    </ul>
+  </div>
 
-                    <ul class="dropdown">
-                        <li><a href="AllBookShow.html">All Book</a></li>
-                        <li><a href="newBookAdd.html">New Book</a></li>
-                        <li><a href="oldBookAdd.html">Old Book</a></li>
-                    </ul>
-                </li>
+  <div class="col-sm-3 contactsupport">
+    <!-- 🔐 SIGNUP BUTTON (shown when not logged in) -->
+    <a href="signup-login.html" id="signup-section" style="display: block;">
+      <button class="SignUp">
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </a>
 
-                <!-- Contact Us -->
-                <li>
-                    <a href="contact-us.html">
-                        <i class="fas fa-envelope"></i> Contact Us
-                    </a>
-                </li>
+    <!-- ✅ PROFILE DROPDOWN (shown when logged in) -->
+    <li class="nav-item profile-dropdown-container" id="profile-dropdown-section" style="display: none;">
+      <a href="#" class="nav-link profile-dropdown-toggle">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <span class="profile-username">Profile</span>
+      </a>
+      <ul class="dropdown-menu profile-dropdown-menu">
+        <li><a href="My profile.html">My Profile</a></li>
+        <li><a href="UserStatusOrderMobleNumber.html">Orders</a></li>
+        <li><a href="Raiseissue.html">Raise an Issue</a></li>
+        <li><a href="Logout.html" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </li>
+    <a href="Cart Page with Checkout.html">
+      <button class="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <sup id="cart-count">0</sup>
+      </button>
+    </a>
 
-                <!-- FAQs -->
-                <li>
-                    <a href="./FAQ.html">
-                        <i class="fas fa-question-circle"></i> FAQs
-                    </a>
-                </li>
+    <a href="QrCodeScan.html">
+      <button class="Scanner">
+        <i class="fa fa-qrcode"></i>
+      </button>
+    </a>
 
-                <!-- Terms & Conditions -->
-                <li>
-                    <a href="./terms&conditions.html">
-                        <i class="fas fa-file-contract"></i> Terms & Conditions
-                    </a>
-                </li>
+    <a href="Search book.html">
+      <button class="Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </a>
+  </div>
+</div>
 
-                <!-- Return Policy -->
-                <li>
-                    <a href="./Return-policy.html">
-                        <i class="fas fa-undo"></i> Return Policy
-                    </a>
-                </li>
+<!-- ✅ JS SCRIPT -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem("authToken");
 
-                <!-- Shipping Info -->
-                <li>
-                    <a href="./shipping-info.html">
-                        <i class="fas fa-shipping-fast"></i> Shipping Info
-                    </a>
-                </li>
 
-                <!-- Privacy Policy -->
-                <li>
-                    <a href="./privacy-policy.html">
-                        <i class="fas fa-user-secret"></i> Privacy Policy
-                    </a>
-                </li>
-            </ul>
-        </div>
+    const signupSection = document.getElementById("signup-section");
+    const profileDropdown = document.getElementById("profile-dropdown-section");
 
-        <!-- Contact and Support Section -->
-        <div class="col-sm-3 contactsupport">
-            <a href="signup-login.html">
-                <button class="SignUp">
-                    <i class="fas fa-user-plus"></i>
-                </button>
-            </a>
+    // Show/hide sections based on login status
+    if (token) {
+      if (signupSection) signupSection.style.display = "none";
+      if (profileDropdown) profileDropdown.style.display = "block";
+    } else {
+      if (signupSection) signupSection.style.display = "block";
+      if (profileDropdown) profileDropdown.style.display = "none";
+    }
+  });
 
-            <a href="./Cart Page with Checkout.html">
-                <button class="Cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <sup id="cart-count">0</sup>
-                </button>
-            </a>
-
-            <a href="QrCodeScan.html">
-                <button class="Scanner">
-                    <i class="fa fa-qrcode"></i>
-                </button>
-            </a>
-
-            <a href="Search book.html">
-                <button class="Search">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
-            </a>
-        </div>
-    </div>
+  function logoutUser() {
+    localStorage.removeItem("authToken");
+    location.reload();
+  }
+</script>
 
 
     <div class="cart-container">
@@ -647,130 +639,184 @@ th {
         return data.key;
     }
 
-    function autoRedirectToDelivery() {
-        const user = JSON.parse(localStorage.getItem("user"));
-        const redirect = localStorage.getItem("redirectAfterLogin");
+   function autoRedirectToDelivery() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const redirect = localStorage.getItem("redirectAfterLogin");
 
-        if (user && redirect === "checkout.html") {
-            verifyUserSession(() => {
-                alert("✅ Welcome back! You are already logged in.");
-                showDeliveryForm();
-                localStorage.removeItem("redirectAfterLogin");
+    if (user && redirect === "./Cart Page with Checkout.html") {
+        verifyUserSession(() => {
+            Swal.fire({
+                icon: "success",
+                title: "✅ Welcome back!",
+                text: "You are already logged in."
             });
-        }
+            showDeliveryForm();
+            localStorage.removeItem("redirectAfterLogin");
+        });
     }
+}
 
-    function showDeliveryForm() {
-        document.getElementById("delivery-form").style.display = "block";
-        window.scrollTo(0, document.getElementById("delivery-form").offsetTop);
-    }
+function showDeliveryForm() {
+    document.getElementById("delivery-form").style.display = "block";
+    window.scrollTo(0, document.getElementById("delivery-form").offsetTop);
+}
 
-    function verifyUserSession(callback) {
-        const user = JSON.parse(localStorage.getItem("user"));
-        fetch(`${API_BASE}/verifyUser`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user?.token}`
-            }
-        })
-            .then(res => res.json())
-            .then(result => {
-                if (result.success) {
-                    callback();
-                } else {
-                    alert("❌ Session expired. Please login again.");
-                    localStorage.removeItem("user");
-                    window.location.href = "signup-login.html";
-                }
-            });
-    }
-
-    document.getElementById("checkout").addEventListener("click", function () {
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (!user || !user.token) {
-            alert("⚠️ User not logged in. Please login first.");
-            localStorage.setItem("redirectAfterLogin", "checkout.html");
-            window.location.href = "signup-login.html";
-        } else {
-            verifyUserSession(() => {
-                alert("✅ User verified & already logged in.");
-                showDeliveryForm();
-            });
+function verifyUserSession(callback) {
+    const user = JSON.parse(localStorage.getItem("user"));
+    fetch(`${API_BASE}/verifyUser`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user?.token}`
         }
-    });
-
-    document.getElementById("pay-now").addEventListener("click", async function () {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        if (cart.length === 0) {
-            alert("🛒 Cart is empty!");
-            return;
-        }
-
-        if (!validateDeliveryForm()) {
-            alert("⚠️ Please fill in all delivery details!");
-            return;
-        }
-
-        let totalAmount = parseInt(document.getElementById("cart-total").innerText) || 0;
-        let deliveryDetails = getDeliveryDetails();
-
-        try {
-            let response = await fetch(`${API_BASE}/api/create-order`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ cart, totalAmount, deliveryDetails })
-            });
-            let data = await response.json();
-            let key = await getRazorpayKey();
-
-            if (data.orderId) {
-                let rzp = new Razorpay({
-                    key: key,
-                    amount: data.amount,
-                    currency: "INR",
-                    order_id: data.orderId,
-                    handler: function (response) {
-                        saveOrder(response.razorpay_payment_id, deliveryDetails, cart, totalAmount);
-                    },
-                    modal: {
-                        ondismiss: function () {
-                            alert("Payment popup closed!");
-                        }
-                    }
-                });
-                rzp.open();
+    })
+        .then(res => res.json())
+        .then(result => {
+            if (result.success) {
+                callback();
             } else {
-                alert("Payment initiation failed");
-            }
-        } catch (err) {
-            console.error("Payment Error:", err);
-            alert("Something went wrong!");
-        }
-    });
+                Swal.fire({
+                    icon: "error",
+                    title: "❌ Session expired",
+                    text: "Please login again."
+                });
+                localStorage.removeItem("user");
+                localStorage.setItem("redirectAfterLogin", "Cart Page with Checkout.html");
 
-    async function saveOrder(paymentId, deliveryDetails, cart, totalAmount) {
-        let response = await fetch(`${API_BASE}/api/save-order`, {
+                window.location.href = "signup-login.html";
+            }
+        });
+}
+
+document.getElementById("checkout").addEventListener("click", function () {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.token) {
+        Swal.fire({
+            icon: "warning",
+            title: "⚠️ User not logged in",
+            text: "Please login first.",
+            confirmButtonText: "Go to Login"
+        }).then(() => {
+            localStorage.setItem("redirectAfterLogin", "Cart Page with Checkout.html");
+            window.location.href = "signup-login.html";
+        });
+    } else {
+        verifyUserSession(() => {
+            Swal.fire({
+                icon: "success",
+                title: "✅ Verified",
+                text: "User verified & already logged in.",
+                timer: 2000,
+                showConfirmButton: false
+            });
+            showDeliveryForm();
+        });
+    }
+});
+
+   document.getElementById("pay-now").addEventListener("click", async function () {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (cart.length === 0) {
+        Swal.fire({
+            icon: "info",
+            title: "🛒 Cart is empty!",
+            text: "Please add some items to proceed."
+        });
+        return;
+    }
+
+    if (!validateDeliveryForm()) {
+        Swal.fire({
+            icon: "warning",
+            title: "⚠️ Incomplete Delivery Details!",
+            text: "Please fill in all delivery details."
+        });
+        return;
+    }
+
+    let totalAmount = parseInt(document.getElementById("cart-total").innerText) || 0;
+    let deliveryDetails = getDeliveryDetails();
+
+    try {
+        let response = await fetch(`${API_BASE}/api/create-order`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ paymentId, deliveryDetails, cart, totalAmount })
+            body: JSON.stringify({ cart, totalAmount, deliveryDetails })
+        });
+        let data = await response.json();
+        let key = await getRazorpayKey();
+
+        if (data.orderId) {
+            let rzp = new Razorpay({
+                key: key,
+                amount: data.amount,
+                currency: "INR",
+                order_id: data.orderId,
+                handler: function (response) {
+                    saveOrder(response.razorpay_payment_id, deliveryDetails, cart, totalAmount);
+                },
+                modal: {
+                    ondismiss: function () {
+                        Swal.fire({
+                            icon: "info",
+                            title: "Payment popup closed!",
+                            text: "You can try again anytime."
+                        });
+                    }
+                }
+            });
+            rzp.open();
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Payment initiation failed",
+                text: "Unable to generate order. Please try again."
+            });
+        }
+    } catch (err) {
+        console.error("Payment Error:", err);
+        Swal.fire({
+            icon: "error",
+            title: "Something went wrong!",
+            text: "Please check your connection and try again."
+        });
+    }
+});
+
+  async function saveOrder(paymentId, deliveryDetails, cart, totalAmount) {
+    let response = await fetch(`${API_BASE}/api/save-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId, deliveryDetails, cart, totalAmount })
+    });
+
+    let data = await response.json();
+    if (data.success) {
+        localStorage.removeItem("cart");
+
+        const orderId = data.orderId;
+        const bookIds = data.bookIds.join(",");
+
+        Swal.fire({
+            icon: "success",
+            title: "✅ Order Confirmed!",
+            text: "Redirecting to review page...",
+            timer: 1500,
+            showConfirmButton: false
         });
 
-        let data = await response.json();
-        if (data.success) {
-            localStorage.removeItem("cart");
-
-            const orderId = data.orderId;
-            const bookIds = data.bookIds.join(",");
-
-            alert("Order Confirmed!");
-            setTimeout(() => {
-                window.location.href = `rating-review.html?orderId=${orderId}&bookIds=${bookIds}`;
-            }, 1000);
-        } else {
-            alert("Order save failed!");
-        }
+        setTimeout(() => {
+            window.location.href = `rating-review.html?orderId=${orderId}&bookIds=${bookIds}`;
+        }, 1500);
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "❌ Order save failed!",
+            text: "Please try again."
+        });
     }
+}
+
 
     function getDeliveryDetails() {
         return {

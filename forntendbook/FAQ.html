@@ -104,115 +104,110 @@ body {
 </head>
 
 <body>
+
     <div class="top-header d-flex justify-content-center align-items-center">
 
-        <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
-         <div class="heading">
- 
-             <h5 class="mb-0">Aravali Publication</h5>
-         </div>
-         <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
-     </div>
-     
-     <div class="col-sm-12 navbar">
-         <!-- Menu Toggle (for mobile) -->
-         <div class="menu-toggle">
-             <i class="fas fa-bars"></i>
-         </div>
-     
-         <!-- Navbar Links -->
-         <div class="col-sm-6 nav-items">
-             <ul>
-                <li>
-                     <a href="index.html">
-                         <i class="fas fa-home"></i> Home
-                     </a>
-                 </li>
-                <!-- All Book with dropdown -->
-                <li class="nav-item">
-              
-                    <i class="fa-solid fa-book-open"></i>  Books
-               
-                <ul class="dropdown">
-                    <li><a href="AllBookShow.html">All Book</a></li>
-                    <li><a href="newBookAdd.html">New Book</a></li>
-                    <li><a href="oldBookAdd.html">Old Book</a></li>
-                </ul>
-            </li>
-     
-                 <!-- Contact Us -->
-                 <li>
-                     <a href="contact-us.html">
-                         <i class="fas fa-envelope"></i> Contact Us
-                     </a>
-                 </li>
-     
-                 <!-- FAQs -->
-                 <li>
-                     <a href="./FAQ.html">
-                         <i class="fas fa-question-circle"></i> FAQs
-                     </a>
-                 </li>
-     
-                 <!-- Terms & Conditions -->
-                 <li>
-                     <a href="./terms&conditions.html">
-                         <i class="fas fa-file-contract"></i> Terms & Conditions
-                     </a>
-                 </li>
-     
-                 <!-- Return Policy -->
-                 <li>
-                     <a href="./Return-policy.html">
-                         <i class="fas fa-undo"></i> Return Policy
-                     </a>
-                 </li>
-     
-                 <!-- Shipping Info -->
-                 <li>
-                     <a href="./shipping-info.html">
-                         <i class="fas fa-shipping-fast"></i> Shipping Info
-                     </a>
-                 </li>
-     
-                 <!-- Privacy Policy -->
-                 <li>
-                     <a href="./privacy-policy.html">
-                         <i class="fas fa-user-secret"></i> Privacy Policy
-                     </a>
-                 </li>
-             </ul>
-         </div>
-     
-         <!-- Contact and Support Section -->
-         <div class="col-sm-3 contactsupport">
-             <a href="signup-login.html">
-                 <button class="SignUp">
-                     <i class="fas fa-user-plus"></i>
-                 </button>
-             </a>
-     
-             <a href="./Cart Page with Checkout.html">
-                 <button class="Cart">
-                     <i class="fas fa-shopping-cart"></i>
-                     <sup id="cart-count">0</sup>
-                 </button>
-             </a>
-     
-             <a href="QrCodeScan.html">
-                 <button class="Scanner">
-                     <i class="fa fa-qrcode"></i>
-                 </button>
-             </a>
-     
-             <a href="Search book.html">
-                 <button class="Search">
-                     <i class="fa-solid fa-magnifying-glass"></i>
-                 </button>
-             </a>
-         </div>
-     </div>
-     
+       <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
+        <div class="heading">
+
+            <h5 class="mb-0">Aravali Publication</h5>
+        </div>
+        <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
+    </div>
+ <!-- Navbar Start -->
+<!-- ✅ NAVBAR -->
+<div class="col-sm-12 navbar">
+  <div class="menu-toggle">
+    <i class="fas fa-bars"></i>
+  </div>
+
+  <div class="col-sm-6 nav-items">
+    <ul>
+         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li class="nav-item">
+        <i class="fa-solid fa-book-open"></i> Books
+        <ul class="dropdown">
+          <li><a href="AllBookShow.html">All Book</a></li>
+          <li><a href="newBookAdd.html">New Book</a></li>
+          <li><a href="oldBookAdd.html">Old Book</a></li>
+        </ul>
+      </li>
+
+      <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+      <li><a href="FAQ.html"><i class="fas fa-question-circle"></i> FAQs</a></li>
+      <li><a href="terms&conditions.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+      <li><a href="Return-policy.html"><i class="fas fa-undo"></i> Return Policy</a></li>
+      <li><a href="shipping-info.html"><i class="fas fa-shipping-fast"></i> Shipping Info</a></li>
+      <li><a href="privacy-policy.html"><i class="fas fa-user-secret"></i> Privacy Policy</a></li>
+    </ul>
+  </div>
+
+  <div class="col-sm-3 contactsupport">
+    <!-- 🔐 SIGNUP BUTTON (shown when not logged in) -->
+    <a href="signup-login.html" id="signup-section" style="display: block;">
+      <button class="SignUp">
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </a>
+
+    <!-- ✅ PROFILE DROPDOWN (shown when logged in) -->
+    <li class="nav-item profile-dropdown-container" id="profile-dropdown-section" style="display: none;">
+      <a href="#" class="nav-link profile-dropdown-toggle">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <span class="profile-username">Profile</span>
+      </a>
+      <ul class="dropdown-menu profile-dropdown-menu">
+        <li><a href="My profile.html">My Profile</a></li>
+        <li><a href="UserStatusOrderMobleNumber.html">Orders</a></li>
+        <li><a href="Raiseissue.html">Raise an Issue</a></li>
+        <li><a href="Logout.html" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </li>
+    <a href="Cart Page with Checkout.html">
+      <button class="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <sup id="cart-count">0</sup>
+      </button>
+    </a>
+
+    <a href="QrCodeScan.html">
+      <button class="Scanner">
+        <i class="fa fa-qrcode"></i>
+      </button>
+    </a>
+
+    <a href="Search book.html">
+      <button class="Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </a>
+  </div>
+</div>
+
+<!-- ✅ JS SCRIPT -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem("authToken");
+
+
+    const signupSection = document.getElementById("signup-section");
+    const profileDropdown = document.getElementById("profile-dropdown-section");
+
+    // Show/hide sections based on login status
+    if (token) {
+      if (signupSection) signupSection.style.display = "none";
+      if (profileDropdown) profileDropdown.style.display = "block";
+    } else {
+      if (signupSection) signupSection.style.display = "block";
+      if (profileDropdown) profileDropdown.style.display = "none";
+    }
+  });
+
+  function logoutUser() {
+    localStorage.removeItem("authToken");
+    location.reload();
+  }
+</script>
 
     
     <div class="FAQcontainer">
@@ -378,7 +373,7 @@ body {
             </p>
         </div>
     </footer>
-    <script src="script.js"></script>
+  
     <script>
      document.addEventListener("DOMContentLoaded", function () {
             const menuToggle = document.querySelector(".menu-toggle");
@@ -410,6 +405,7 @@ body {
 
 
     </script>
+    <script src="script.js"></script>
 </body>
 
 </html>

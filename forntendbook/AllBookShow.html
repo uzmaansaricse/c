@@ -9,10 +9,13 @@
 
 
     <!-- bootstrap Cdn -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-rbsA2VBKQ0Dh0I7H6rtrwz4/7P4lDj1p4EhsaZ68j5E6jz9xTr+vUu9KjkX7WNbj" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="responsive.css">
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+      rel="stylesheet" 
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" 
+      crossorigin="anonymous">
+
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    <style>
     .books-grid {
@@ -32,112 +35,107 @@
   
     <div class="top-header d-flex justify-content-center align-items-center">
 
-        <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
-         <div class="heading">
- 
-             <h5 class="mb-0">Aravali Publication</h5>
-         </div>
-         <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
-     </div>
-     
-     <div class="col-sm-12 navbar">
-         <!-- Menu Toggle (for mobile) -->
-         <div class="menu-toggle">
-             <i class="fas fa-bars"></i>
-         </div>
-     
-         <!-- Navbar Links -->
-         <div class="col-sm-6 nav-items">
-             <ul>
-                <li>
-                     <a href="index.html">
-                         <i class="fas fa-home"></i> Home
-                     </a>
-                 </li>
-                 <!-- All Book with dropdown -->
-                 <li class="nav-item">
-              
-                    <i class="fa-solid fa-book-open"></i>  Books
-               
-                <ul class="dropdown">
-                    <li><a href="AllBookShow.html">All Book</a></li>
-                    <li><a href="newBookAdd.html">New Book</a></li>
-                    <li><a href="oldBookAdd.html">Old Book</a></li>
-                </ul>
-            </li>
-     
-                 <!-- Contact Us -->
-                 <li>
-                     <a href="contact-us.html">
-                         <i class="fas fa-envelope"></i> Contact Us
-                     </a>
-                 </li>
-     
-                 <!-- FAQs -->
-                 <li>
-                     <a href="./FAQ.html">
-                         <i class="fas fa-question-circle"></i> FAQs
-                     </a>
-                 </li>
-     
-                 <!-- Terms & Conditions -->
-                 <li>
-                     <a href="./terms&conditions.html">
-                         <i class="fas fa-file-contract"></i> Terms & Conditions
-                     </a>
-                 </li>
-     
-                 <!-- Return Policy -->
-                 <li>
-                     <a href="./Return-policy.html">
-                         <i class="fas fa-undo"></i> Return Policy
-                     </a>
-                 </li>
-     
-                 <!-- Shipping Info -->
-                 <li>
-                     <a href="./shipping-info.html">
-                         <i class="fas fa-shipping-fast"></i> Shipping Info
-                     </a>
-                 </li>
-     
-                 <!-- Privacy Policy -->
-                 <li>
-                     <a href="./privacy-policy.html">
-                         <i class="fas fa-user-secret"></i> Privacy Policy
-                     </a>
-                 </li>
-             </ul>
-         </div>
-     
-         <!-- Contact and Support Section -->
-         <div class="col-sm-3 contactsupport">
-             <a href="signup-login.html">
-                 <button class="SignUp">
-                     <i class="fas fa-user-plus"></i>
-                 </button>
-             </a>
-     
-             <a href="./Cart Page with Checkout.html">
-                 <button class="Cart">
-                     <i class="fas fa-shopping-cart"></i>
-                     <sup id="cart-count">0</sup>
-                 </button>
-             </a>
-     
-             <a href="QrCodeScan.html">
-                 <button class="Scanner">
-                     <i class="fa fa-qrcode"></i>
-                 </button>
-             </a>
-     
-             <a href="Search book.html">
-                 <button class="Search">
-                     <i class="fa-solid fa-magnifying-glass"></i>
-                 </button>
-             </a>
-         </div>
-     </div>
+       <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
+        <div class="heading">
+
+            <h5 class="mb-0">Aravali Publication</h5>
+        </div>
+        <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
+    </div>
+ <!-- Navbar Start -->
+<!-- ✅ NAVBAR -->
+<div class="col-sm-12 navbar">
+  <div class="menu-toggle">
+    <i class="fas fa-bars"></i>
+  </div>
+
+  <div class="col-sm-6 nav-items">
+    <ul>
+         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li class="nav-item">
+        <i class="fa-solid fa-book-open"></i> Books
+        <ul class="dropdown">
+          <li><a href="AllBookShow.html">All Book</a></li>
+          <li><a href="newBookAdd.html">New Book</a></li>
+          <li><a href="oldBookAdd.html">Old Book</a></li>
+        </ul>
+      </li>
+
+      <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+      <li><a href="FAQ.html"><i class="fas fa-question-circle"></i> FAQs</a></li>
+      <li><a href="terms&conditions.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+      <li><a href="Return-policy.html"><i class="fas fa-undo"></i> Return Policy</a></li>
+      <li><a href="shipping-info.html"><i class="fas fa-shipping-fast"></i> Shipping Info</a></li>
+      <li><a href="privacy-policy.html"><i class="fas fa-user-secret"></i> Privacy Policy</a></li>
+    </ul>
+  </div>
+
+  <div class="col-sm-3 contactsupport">
+    <!-- 🔐 SIGNUP BUTTON (shown when not logged in) -->
+    <a href="signup-login.html" id="signup-section" style="display: block;">
+      <button class="SignUp">
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </a>
+
+    <!-- ✅ PROFILE DROPDOWN (shown when logged in) -->
+    <li class="nav-item profile-dropdown-container" id="profile-dropdown-section" style="display: none;">
+      <a href="#" class="nav-link profile-dropdown-toggle">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <span class="profile-username">Profile</span>
+      </a>
+      <ul class="dropdown-menu profile-dropdown-menu">
+        <li><a href="My profile.html">My Profile</a></li>
+        <li><a href="UserStatusOrderMobleNumber.html">Orders</a></li>
+        <li><a href="Raiseissue.html">Raise an Issue</a></li>
+        <li><a href="Logout.html" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </li>
+    <a href="Cart Page with Checkout.html">
+      <button class="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <sup id="cart-count">0</sup>
+      </button>
+    </a>
+
+    <a href="QrCodeScan.html">
+      <button class="Scanner">
+        <i class="fa fa-qrcode"></i>
+      </button>
+    </a>
+
+    <a href="Search book.html">
+      <button class="Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </a>
+  </div>
+</div>
+
+<!-- ✅ JS SCRIPT -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem("authToken");
+
+
+    const signupSection = document.getElementById("signup-section");
+    const profileDropdown = document.getElementById("profile-dropdown-section");
+
+    // Show/hide sections based on login status
+    if (token) {
+      if (signupSection) signupSection.style.display = "none";
+      if (profileDropdown) profileDropdown.style.display = "block";
+    } else {
+      if (signupSection) signupSection.style.display = "block";
+      if (profileDropdown) profileDropdown.style.display = "none";
+    }
+  });
+
+  function logoutUser() {
+    localStorage.removeItem("authToken");
+    location.reload();
+  }
+</script>
      
 
 
@@ -282,7 +280,7 @@
         </div>
     </footer>
 
-   <script src="script.js"></script> 
+  
  
   <!-- SweetAlert2 CDN (if not already added) -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -400,124 +398,6 @@
 </script>
 
 
- 
-<!-- <script>
-
-
-
-    async function fetchBooks() {
-        try {
-            const response = await fetch('/api/all-book-Show');
-            const data = await response.json();
-
-            const booksContainer = document.getElementById("booksContainer");
-            booksContainer.innerHTML = "";
-
-            data.books.forEach(book => {
-                const bookCard = document.createElement("div");
-                bookCard.classList.add("book-card");
-
-                bookCard.innerHTML = `
-    <img class="book-image" src="${book.bookImages?.[book.mainImageIndex] || book.bookImage}" alt="${book.title}">
-    <div class="rating-overlay">
-        ${generateStars(book.averageRating)}
-        <span class="avg-text">(${book.averageRating} ⭐)</span>
-    </div>
-    <div class="book-title">${book.title}</div>
-    <div class="book-author">by ${book.author}</div>
-    <div class="book-price">
-        ${
-            book.offerPrice && book.offerPrice < book.price
-            ? `<span class="original-price">₹${book.price}</span> <span class="offer-price">₹${book.offerPrice}</span>`
-            :` <span class="regular-price">₹${book.price}</span>`
-        }
-    </div>
-    <button class="add-cart">Add to Cart</button>
-`;
-
-
-                // Apply red cut to offer price
-                const offerPriceElement = bookCard.querySelector(".offer-price");
-                if (offerPriceElement) {
-                   
-                }
-
-                bookCard.querySelector(".book-image").addEventListener("click", () => {
-                    window.location.href = `/newbookDetelies.html?id=${book._id}`;
-                });
-
-                bookCard.querySelector(".add-cart").addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    addToCart(book._id, book.title, book.bookImage, book.price);
-                    alert("Book added to cart!");
-                });
-
-                booksContainer.appendChild(bookCard);
-            });
-
-        } catch (err) {
-            console.error(err);
-            alert("Failed to load books.");
-        }
-    }
-
-    // ⭐ Dynamic stars based on rating
-    function generateStars(rating) {
-        rating = parseFloat(rating);
-        let stars = '';
-        for (let i = 1; i <= 5; i++) {
-            if (i <= rating) {
-                stars += <i class="fas fa-star" style="color: gold;"></i>;
-            } else if (i - rating < 1) {
-                stars += <i class="fas fa-star-half-alt" style="color: gold;"></i>;
-            } else {
-                stars += <i class="far fa-star" style="color: gold;"></i>;
-            }
-        }
-        return stars;
-    }
-
-    // 🛒 Updated Add to Cart Function with Cart Badge Update
-    function addToCart(id, title, image, price) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        let existingItem = cart.find(item => item.id === id);
-
-        if (existingItem) {
-            existingItem.quantity += 1;
-        } else {
-            cart.push({ id, title, image, price, quantity: 1 });
-        }
-
-        localStorage.setItem("cart", JSON.stringify(cart));
-
-        // ✅ Cart Badge Update Without Refresh
-        updateCartNotification();
-    }
-
-    // 🔔 Cart Badge Update Function
-    function updateCartNotification() {
-        const cartBadge = document.querySelector("sup#cart-count");
-
-        if (!cartBadge) {
-            console.warn("❌ Cart count element not found in DOM!");
-            return;
-        }
-
-        let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-        const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-
-        cartBadge.textContent = totalQuantity; // 👈 Update cart count
-
-        // ✅ Hide badge if cart is empty
-        cartBadge.style.display = totalQuantity === 0 ? "none" : "inline-block";
-    }
-
-    // ✅ Update Cart Badge on Page Load
-    document.addEventListener("DOMContentLoaded", () => {
-        fetchBooks();
-        updateCartNotification();
-    });
-</script> -->
-
+ <script src="script.js"></script> 
 </body>
 </html>

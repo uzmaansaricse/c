@@ -185,11 +185,6 @@ app.delete("/content/:id", deleteContent);
 app.put("/content/:id", updateContent);
 
 
-
-
-
-
-
 app.get("/logout", logout);
 // const router = express.Router();
 
