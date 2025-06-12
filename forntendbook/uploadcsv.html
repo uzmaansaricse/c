@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Admin Panel – CSV & QR</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body { font-family: Arial, sans-serif; background: #f9f9f9; display: flex; }
+    .sidebar {
+      width: 250px; height: 100vh; background: #2c6e31; color: #fff;
+      padding: 20px; position: fixed; top: 0; left: 0; overflow-y: auto;
+    }
+    .sidebar h2 { text-align: center; margin-bottom: 20px; font-size: 1.3rem; }
+    .sidebar ul { list-style: none; }
+    .sidebar a {
+      display: block; padding: 10px; color: white; text-decoration: none;
+      border-radius: 4px; transition: background .3s;
+    }
+    .sidebar a:hover { background: #3f8744; }
+    .sidebar li { list-style-type: none; }
+
+
+    main {
+      margin-left: 250px; padding: 20px; flex: 1; overflow-y: auto;
+    }
+    h1 { margin-bottom: 16px; color: #333; }
+    h2 { margin: 24px 0 8px; color: #444; }
+
+    /* CSV Upload */
+    .dropzone {
+      border: 2px dashed #ccc; border-radius: 8px; background: #fff;
+      padding: 30px; text-align: center; color: #666;
+      transition: background .3s, border-color .3s; position: relative;
+    }
+    .dropzone.dragover { background: #e0f2f1; border-color: #00796b; }
+    .dropzone input {
+      position: absolute; top:0; left:0; width:100%; height:100%;
+      opacity:0; cursor: pointer;
+    }
+    .btn { margin-top: 10px; padding: 10px 20px; background: #2c6e31;
+      color: #fff; border:none; border-radius:5px; cursor: pointer;
+      transition: background .3s;
+    }
+    .btn:hover { background: #27642a; }
+
+    .progress {
+      width: 100%; background: #eee; border-radius: 4px; overflow: hidden;
+      margin-top: 10px; display: none;
+    }
+    .progress-bar {
+      width: 0; height: 8px; background: #2c6e31; transition: width .3s;
+    }
+
+    /* Preview Table */
+    .preview {
+      margin-top: 20px; overflow-x: auto; background: white;
+      border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%; border-collapse: collapse; min-width: 600px;
+    }
+    thead { background: #f4f4f4; position: sticky; top: 0; }
+    th, td {
+      padding: 12px; border: 1px solid #ddd; text-align: left;
+    }
+    th { cursor: pointer; user-select: none; }
+    th.sort-asc::after  { content: " ▲"; }
+    th.sort-desc::after { content: " ▼"; }
+    tr:hover { background: #fffae6; }
+
+    /* QR Validation */
+    .qr-section { margin-top: 40px; }
+    .qr-section input {
+      padding: 10px; width: 300px; max-width: 100%;
+      border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;
+    }
+    @media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding: 10px 15px;
+  }
+
+  .sidebar h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+
+  .sidebar a {
+    padding: 8px 12px;
+  }
+
+  main {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  .qr-section input {
+    width: 100%;
+  }
+
+  .preview {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+  }
+
+  h1, h2 {
+    font-size: 1.1rem;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <h2>Admin Dashboard</h2>
+      <li><a href="book-upload.html">Upload Book</a></li>
+            <li><a href="BookUpdate Admin.html">Book Update</a></li>
+            <li><a href="video and imag showAdmin.html">News Box</a></li>
+            <li><a href="orderAdmin-analytics.html">Order Analytics</a></li>
+            <li><a href="Admin order summery.html">Order Summary</a></li>
+            <li><a href="admin-all-ordersWithUpdate.html">All Orders</a></li>
+            <li><a href="AdminBookDelete.html">Delete Book</a></li>
+            <li><a href="AdminPendingOrdersSavenday.html">Pending Orders</a></li>
+            <li><a href="BenerAdmin.html">Manage Banner</a></li>
+            <li><a href="uploadcsv.html">Upload CSV</a></li>
+            <li><a href="tech-support.html">Tech Support</a></li>
+  </nav>
+
+  <main>
+    <h1>CSV Upload & Preview</h1>
+    <div class="dropzone" id="dropzone">
+      <p>Drag & drop your CSV file here, or <strong>click</strong> to select.</p>
+      <input type="file" id="csvFile" accept=".csv">
+    </div>
+    <div class="progress" id="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <button class="btn" id="downloadSample">Download Sample CSV</button>
+
+    <div class="preview" id="previewContainer" style="display:none">
+      <h2>Preview</h2>
+      <table id="previewTable">
+        <thead><tr id="previewHead"></tr></thead>
+        <tbody id="previewBody"></tbody>
+      </table>
+    </div>
+
+    <section class="qr-section">
+      <h2>Validate QR Code</h2>
+      <input type="text" id="qrInput" placeholder="Enter QR Code">
+      <button class="btn" id="qrCheckBtn">Check</button>
+    </section>
+  </main>
+
+ <script>
+  const dropzone = document.getElementById('dropzone'),
+        csvFile  = document.getElementById('csvFile'),
+        progress = document.getElementById('progress'),
+        pbar     = document.getElementById('progressBar'),
+        previewC = document.getElementById('previewContainer'),
+        pHead    = document.getElementById('previewHead'),
+        pBody    = document.getElementById('previewBody'),
+        downloadSample = document.getElementById('downloadSample'),
+        qrInput = document.getElementById('qrInput'),
+        qrBtn   = document.getElementById('qrCheckBtn');
+
+  // Sample CSV download
+  downloadSample.onclick = () => {
+    const csv = 'Name,Email,Phone\nJohn Doe,john@example.com,1234567890\n';
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'sample.csv';
+    a.click(); URL.revokeObjectURL(url);
+  };
+
+  // Drag & drop events
+  ['dragover','dragleave','drop'].forEach(evt => {
+    dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      dropzone.classList.toggle('dragover', evt === 'dragover');
+      if (evt === 'drop') handleFiles(e.dataTransfer.files);
+    });
+  });
+  dropzone.onclick = () => csvFile.click();
+  csvFile.onchange = () => handleFiles(csvFile.files);
+
+  async function handleFiles(files) {
+    if (!files.length) return;
+    const file = files[0];
+    if (!file.name.endsWith('.csv')) {
+      return Swal.fire('Invalid','Please upload a .csv file','error');
+    }
+
+    // Show progress bar
+    progress.style.display = 'block';
+    pbar.style.width = '0%';
+
+    // Simulate upload
+    await new Promise(r => {
+      let pct = 0;
+      const id = setInterval(() => {
+        pct += 10;
+        pbar.style.width = pct + '%';
+        if (pct >= 100) { clearInterval(id); r(); }
+      }, 50);
+    });
+
+    progress.style.display = 'none';
+
+    // Send to backend
+    const form = new FormData();
+    form.append('file', file);
+    let res = await fetch('/api/csvupload', { method:'POST', body: form });
+    let data = await res.json();
+    if (!data.success) {
+      return Swal.fire('Error', data.message || 'Upload failed','error');
+    }
+    Swal.fire('Uploaded','CSV processed successfully','success');
+    renderPreview(data.rows || []);
+  }
+
+  // Render preview table
+  function renderPreview(rows) {
+    previewC.style.display = rows.length ? 'block' : 'none';
+    pHead.innerHTML = '';
+    pBody.innerHTML = '';
+
+    if (!rows.length) return;
+    // headers
+    Object.keys(rows[0]).forEach((col, i) => {
+      const th = document.createElement('th');
+      th.textContent = col;
+      th.onclick = () => sortTable(i);
+      pHead.appendChild(th);
+    });
+    // body
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      Object.values(r).forEach(c => {
+        const td = document.createElement('td');
+        td.textContent = c;
+        tr.appendChild(td);
+      });
+      pBody.appendChild(tr);
+    });
+  }
+
+  // Sort preview table
+  let sortDir = {};
+  function sortTable(colIndex) {
+    const table = document.getElementById('previewTable'),
+          rows  = Array.from(table.tBodies[0].rows);
+    const asc = !sortDir[colIndex];
+    rows.sort((a,b) => {
+      const aTxt = a.cells[colIndex].innerText,
+            bTxt = b.cells[colIndex].innerText;
+      return asc ? aTxt.localeCompare(bTxt) : bTxt.localeCompare(aTxt);
+    });
+    // re-append
+    rows.forEach(r => table.tBodies[0].appendChild(r));
+    // header arrow
+    Array.from(table.tHead.rows[0].cells).forEach((th,i) => {
+      th.classList.toggle('sort-asc', asc && i===colIndex);
+      th.classList.toggle('sort-desc', !asc && i===colIndex);
+    });
+    sortDir[colIndex] = asc;
+  }
+
+  // QR Validation
+  qrBtn.onclick = async () => {
+    const code = qrInput.value.trim();
+    if (!code) return Swal.fire('Input','Please enter QR code','info');
+    let res = await fetch(`/api/validate/${encodeURIComponent(code)}`);
+    let { success, message } = await res.json();
+    Swal.fire(success ? 'Valid' : 'Invalid', message, success ? 'success':'error');
+  };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Your Books</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0;
+            margin: 0;
+            background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+            min-height: 100vh;
+        }
+        .review-box {
+            max-width: 440px;
+            margin: 48px auto 0 auto;
+            padding: 24px 20px 18px 20px;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            border: 1.5px solid #e3e3e3;
+            position: relative;
+            animation: fadeIn 0.7s;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            gap: 16px;
+        }
+        .review-header img {
+            max-width: 70px;
+            width: 18vw;
+            min-width: 48px;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(59,183,143,0.10);
+        }
+        .review-header span {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1a4d6b;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            text-shadow: 0 1px 0 #fff, 0 2px 8px #b5c6d3;
+        }
+        h2 {
+            text-align: center;
+            color: #1a4d6b;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+            font-size: 2.1rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #1a4d6b 0%, #3bb78f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        #currentBookInfo {
+            text-align: center;
+            color: #3bb78f;
+            margin-bottom: 18px;
+            font-size: 1.13rem;
+            font-weight: 600;
+        }
+        label {
+            font-weight: 700;
+            color: #1a4d6b;
+            margin-bottom: 4px;
+            display: block;
+            letter-spacing: 0.5px;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 8px 10px;
+            margin: 5px 0 10px 0;
+            border-radius: 8px;
+            border: 1.5px solid #b5c6d3;
+            background: #f7fbff;
+            font-size: 1rem;
+            transition: border 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 4px rgba(59,183,143,0.04);
+        }
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border: 2px solid #3bb78f;
+            outline: none;
+            background: #f0f7ff;
+            box-shadow: 0 2px 8px rgba(59,183,143,0.10);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 48px;
+            max-height: 120px;
+        }
+        button[type="submit"] {
+            width: 100%;
+            background: linear-gradient(90deg, #1a4d6b 0%, #3bb78f 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 0;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(59,183,143,0.10);
+            transition: background 0.3s, transform 0.2s;
+        }
+        button[type="submit"]:hover {
+            background: linear-gradient(90deg, #3bb78f 0%, #1a4d6b 100%);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .later-btn {
+            width: 100%;
+            background: #e0eafc !important;
+            color: #1a4d6b !important;
+            border: 1.5px solid #b5c6d3 !important;
+            margin-top: 10px;
+            font-weight: 600;
+            border-radius: 8px;
+            font-size: 0.98rem;
+            padding: 8px 0;
+            transition: background 0.3s, color 0.3s, border 0.2s;
+        }
+        .later-btn:hover {
+            background: #cfdef3 !important;
+            color: #3bb78f !important;
+            border: 1.5px solid #3bb78f !important;
+        }
+        /* Star rating style */
+        #rating {
+            background: #f7fbff;
+            font-size: 1.13rem;
+            color: #f7b731;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        /* Responsive */
+        @media (max-width: 600px) {
+            .review-box {
+                padding: 16px 3vw 16px 3vw;
+                max-width: 99vw;
+            }
+            .review-header img {
+                max-width: 48px;
+            }
+            .review-header span {
+                font-size: 1.05rem;
+            }
+            h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="review-box">
+        <div class="review-header">
+            <img src="img/Aravli-final-logo.jpg" alt="Aravali Publication Logo">
+            <span>Aravali Publication</span>
+        </div>
+        <h2>Welcome to Book Rating & Review</h2>
+        <form id="reviewForm">
+            <input type="hidden" id="orderId">
+            <input type="hidden" id="bookId">
+
+            <p id="currentBookInfo"></p>
+
+            <label>Name</label>
+            <input type="text" id="name" placeholder="Enter your name" required> <!-- Added Name Field -->
+
+            <label>Rating</label>
+            <select id="rating" required>
+                <option value="">Select Rating</option>
+                <option value="1">⭐ 1</option>
+                <option value="2">⭐ 2</option>
+                <option value="3">⭐ 3</option>
+                <option value="4">⭐ 4</option>
+                <option value="5">⭐ 5</option>
+            </select>
+
+            <label>Review</label>
+            <textarea id="reviewText" rows="4" placeholder="Write your review here..." required></textarea>
+
+            <button type="submit">Submit Review</button>
+        </form>
+
+        <button class="later-btn" onclick="skipReview()">Later</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // URL Params fetcher
+    function getParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    let orderId, bookIds = [], currentIndex = 0;
+
+    window.onload = function() {
+        orderId = getParam('orderId');
+        const bookIdsParam = getParam('bookIds'); // comma separated string
+
+        if (!orderId || !bookIdsParam) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Missing Data',
+                text: 'Order ID or Book IDs missing in URL!',
+            });
+            return;
+        }
+
+        bookIds = bookIdsParam.split(',');
+        loadBookForm();
+    };
+
+    function loadBookForm() {
+        if (currentIndex >= bookIds.length) {
+            Swal.fire({
+                icon: 'success',
+                title: 'All done!',
+                text: 'All reviews processed!',
+                confirmButtonText: 'Go to Home'
+            }).then(() => {
+                window.location.href = './index.html'; // Redirect after all reviews
+            });
+            return;
+        }
+        const currentBookId = bookIds[currentIndex];
+        document.getElementById('orderId').value = orderId;
+        document.getElementById('bookId').value = currentBookId;
+        document.getElementById('currentBookInfo').innerText = `Review for Book ID: ${currentBookId}`;
+
+        document.getElementById('reviewForm').reset();
+    }
+
+    // Form Submit
+    const reviewForm = document.getElementById('reviewForm');
+    reviewForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const data = {
+            orderId: document.getElementById('orderId').value,
+            bookId: document.getElementById('bookId').value,
+            name: document.getElementById('name').value, // Added Name Field
+            rating: parseInt(document.getElementById('rating').value),
+            review: document.getElementById('reviewText').value
+        };
+
+        const response = await fetch('/api/reviewRating', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+
+        const resData = await response.json();
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Review Submitted',
+                text: 'Review submitted for Book ID: ' + data.bookId,
+                timer: 1200,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = './index.html';
+            });
+            // currentIndex++;
+            // loadBookForm();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Submission Failed',
+                text: resData.message || 'Something went wrong!'
+            });
+        }
+    });
+
+    // Skip button handler
+    function skipReview() {
+        Swal.fire({
+            icon: 'info',
+            title: 'Skipped',
+            text: 'You can review this book later!',
+            timer: 1500,
+            showConfirmButton: false
+        });
+        currentIndex++;
+        loadBookForm();
+    }
+</script>
+
+
+</body>
+
+</html>

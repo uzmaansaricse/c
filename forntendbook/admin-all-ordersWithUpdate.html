@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Orders</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Container for the whole admin panel */
+        .container {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 40px;
+            padding: 20px;
+            border: 2px solid #2c6e31;
+            margin-left: 270px;
+            /* Added margin to avoid overlap with the sidebar */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #2c6e31;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            border-radius: 5px;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #3f8744;
+        }
+
+        /* Admin Orders Heading */
+        h1 {
+            text-align: center;
+            background: #2c6e31;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* Filter */
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .filter-section label {
+            font-weight: bold;
+        }
+
+        input[type="date"] {
+            padding: 8px 10px;
+            border: 2px solid #2c6e31;
+            border-radius: 5px;
+            font-size: 14px;
+            max-width: 200px;
+            outline: none;
+        }
+
+        /* Order Table Styling */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        th {
+            background: #2c6e31;
+            color: white;
+            font-weight: bold;
+        }
+
+        td {
+            color: #333;
+        }
+
+        /* Status Dropdown Styling */
+        select {
+            padding: 8px;
+            border: 2px solid #2c6e31;
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: #2c6e31;
+        }
+
+        /* Update Button Styling */
+        button {
+            background: #2c6e31;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #3f8744;
+        }
+
+        /* Hover effect for table rows */
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Responsive for smaller devices */
+        @media (max-width: 768px) {
+            .container {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                box-shadow: none;
+            }
+
+            .sidebar h2 {
+                font-size: 20px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            th,
+            td {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <ul>
+            <li><a href="book-upload.html">Upload Book</a></li>
+            <li><a href="BookUpdate Admin.html">Book Update</a></li>
+            <li><a href="video and imag showAdmin.html">News Box</a></li>
+            <li><a href="orderAdmin-analytics.html">Order Analytics</a></li>
+            <li><a href="Admin order summery.html">Order Summary</a></li>
+            <li><a href="admin-all-ordersWithUpdate.html">All Orders</a></li>
+            <li><a href="AdminBookDelete.html">Delete Book</a></li>
+            <li><a href="AdminPendingOrdersSavenday.html">Pending Orders</a></li>
+            <li><a href="BenerAdmin.html">Manage Banner</a></li>
+            <li><a href="uploadcsv.html">Upload CSV</a></li>
+            <li><a href="tech-support.html">Tech Support</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1>Admin Orders</h1>
+
+        <!-- 🔹 Date Filter -->
+        <div class="filter-section">
+            <label for="orderDate">Filter by Date:</label>
+            <input type="date" id="orderDate" onchange="fetchOrders()">
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                        <th>Tracking ID</th>
+                    </tr>
+                </thead>
+                <tbody id="orderTable">
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function formatDate(isoDate) {
+            const date = new Date(isoDate);
+            return `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+        }
+
+        async function fetchOrders() {
+            try {
+                const dateInput = document.getElementById("orderDate").value;
+                let apiUrl = `/admin/orders`;
+
+                if (dateInput) {
+                    apiUrl += `?date=${dateInput}`; // 🔹 Sending date to the backend
+                }
+
+                const res = await fetch(apiUrl);
+                const orders = await res.json();
+
+                const table = document.getElementById("orderTable");
+                table.innerHTML = '';
+
+                orders.forEach(order => {
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+    <td>${order._id}</td>
+    <td>${order.deliveryDetails.fullName} (${order.deliveryDetails.mobile})</td>
+    <td>${formatDate(order.createdAt)}</td>
+    <td>${order.status}</td>
+    <td>
+        <select id="status-${order._id}">
+            <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
+            <option value="Shipped" ${order.status === "Shipped" ? "selected" : ""}>Shipped</option>
+            <option value="Delivered" ${order.status === "Delivered" ? "selected" : ""}>Delivered</option>
+        </select>
+        <button onclick="updateOrder('${order._id}')">Update</button>
+        <div><small>${order.userEmail ? order.userEmail : (order.deliveryDetails && order.deliveryDetails.email ? order.deliveryDetails.email : 'No Email')}</small></div>
+    </td>
+    <td>
+        <input type="text" id="tracking-${order._id}" placeholder="Enter message" value="${order.trackingId || ''}" />
+        <button onclick="saveTrackingId('${order._id}')">Send</button>
+    </td>
+`;
+
+                    table.appendChild(row);
+                });
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error fetching orders',
+                    text: 'There was an issue fetching the orders. Please try again later.',
+                });
+            }
+        }
+
+        async function updateOrder(orderId) {
+            try {
+                const status = document.getElementById(`status-${orderId}`).value;
+
+                const res = await fetch(`/admin/order/${orderId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status })
+                });
+
+                if (!res.ok) {
+                    throw new Error("Failed to update order");
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Updated',
+                    text: 'The order status has been updated successfully.',
+                });
+
+                fetchOrders();
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error updating order',
+                    text: 'There was an issue updating the order. Please try again later.',
+                });
+            }
+        }
+
+        fetchOrders();
+
+        async function saveTrackingId(orderId) {
+            try {
+                const trackingId = document.getElementById(`tracking-${orderId}`).value;
+
+                // Fetch the order to get the email (userEmail)
+                const resOrder = await fetch(`/admin/order/${orderId}`);
+                const order = await resOrder.json();
+                const email = order.userEmail || (order.deliveryDetails && order.deliveryDetails.email);
+                if (!email) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "No Email",
+                        text: "No email found for this order.",
+                    });
+                    return;
+                }
+
+                // Send tracking/message to backend (with email)
+                const res = await fetch(`/order/${orderId}/tracking`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({ trackingId, email }),
+                });
+
+                const text = await res.text();
+
+                if (!res.ok) {
+                    throw new Error("Failed to update tracking ID");
+                }
+
+                const data = JSON.parse(text);
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Tracking ID Updated",
+                    text: "Tracking ID has been updated and email sent successfully.",
+                });
+
+                fetchOrders();
+
+            } catch (error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error updating Tracking ID",
+                    text: error.message || "Please try again later.",
+                });
+            }
+        }
+
+
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>

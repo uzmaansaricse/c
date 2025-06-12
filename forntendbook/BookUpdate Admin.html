@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Books</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7f9;
+    }
+
+    h2 {
+      text-align: center;
+      padding: 20px;
+      color: #333;
+    }
+
+    table {
+      width: 95%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      text-align: center;
+    }
+
+    th {
+      background-color: teal;
+      color: white;
+    }
+
+    img {
+      width: 60px;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 6px 12px;
+      background-color: #ff9800;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #e68900;
+    }
+
+    #updateForm {
+      display: none;
+      width: 95%;
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 25px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    #updateForm h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    #updateForm label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+
+    #updateForm input,
+    #updateForm textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    #updateForm img {
+      margin-top: 10px;
+      max-width: 100px;
+      display: block;
+    }
+
+    #updateForm button {
+      margin-top: 20px;
+      background-color: teal;
+      font-size: 16px;
+      padding: 10px 20px;
+    }
+
+    #imagePreview {
+      margin-top: 15px;
+    }
+
+    .image-wrapper {
+      display: inline-block;
+      position: relative;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
+    .image-remove-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+
+    .image-remove-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📚All Book List</h2>
+
+  <table id="bookTable">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Price (₹)</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="bookTableBody"></tbody>
+  </table>
+
+  <div id="updateForm">
+    <h3>📘 Update Book</h3>
+    <form id="bookUpdateForm">
+      <input type="hidden" id="bookId" />
+      <label>Title:</label>
+      <input type="text" id="title" required />
+      <label>Author:</label>
+      <input type="text" id="author" required />
+      <label>Price (₹):</label>
+      <input type="number" id="price" required />
+      <label>Offer Price (₹):</label>
+      <input type="number" id="offerPrice" />
+      <label>Description:</label>
+      <textarea id="description" rows="3"></textarea>
+      <label>Category (New/Old/All):</label>
+      <input type="text" id="category" />
+      <label>ISBN:</label>
+      <input type="text" id="isbn" />
+      <label>Page Number:</label>
+      <input type="number" id="pageNumber" />
+      <label>Language:</label>
+      <input type="text" id="language" />
+      <label>Weight (kg):</label>
+      <input type="number" id="weight" />
+      <label>Bullet Points (Saperate with comma ):</label>
+      <textarea id="bulletPoints" rows="2"></textarea>
+      <input type="hidden" id="mainImageIndex" />
+      <label>Book Images (Upload 1-5 images to replace, or leave blank to keep old):</label>
+      <input type="file" id="bookImages" name="bookImages" accept="image/*" multiple />
+      <div id="imagePreview"></div>
+      <button type="submit">Update</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    async function loadBooks() {
+      const res = await fetch('/api/all-book-Show');
+      const data = await res.json();
+      const bookTableBody = document.getElementById('bookTableBody');
+      bookTableBody.innerHTML = '';
+
+      data.books.forEach(book => {
+        const row = document.createElement('tr');
+        row.innerHTML = ` 
+          <td><img src="${book.bookImage}" alt="${book.title}" /></td>
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>${book.price}</td>
+          <td><button onclick="showUpdateForm('${book._id}')">View</button></td>
+        `;
+        bookTableBody.appendChild(row);
+      });
+    }
+
+    function renderImagePreview(urls) {
+      const previewContainer = document.getElementById('imagePreview');
+      previewContainer.innerHTML = '';
+      urls.forEach((url, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('image-wrapper');
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'Book Image';
+        // Remove button
+        const btn = document.createElement('button');
+        btn.innerText = '✖';
+        btn.title = 'Remove';
+        btn.className = 'image-remove-btn';
+        btn.onclick = function() {
+          urls.splice(idx, 1);
+          renderImagePreview(urls);
+        };
+        wrapper.appendChild(img);
+        wrapper.appendChild(btn);
+        previewContainer.appendChild(wrapper);
+      });
+    }
+
+    async function showUpdateForm(bookId) {
+      const res = await fetch(`/api/book/${bookId}`);
+      const data = await res.json();
+      const book = data.book;
+      if (!book) return alert('Book not found');
+
+      document.getElementById('updateForm').style.display = 'block';
+      document.getElementById('bookId').value = bookId;
+      document.getElementById('title').value = book.title;
+      document.getElementById('author').value = book.author;
+      document.getElementById('price').value = book.price;
+      document.getElementById('offerPrice').value = book.offerPrice || '';
+      document.getElementById('description').value = book.description || '';
+      document.getElementById('category').value = book.category || '';
+      document.getElementById('isbn').value = book.isbn || '';
+      document.getElementById('pageNumber').value = book.pageNumber || '';
+      document.getElementById('language').value = book.language || '';
+      document.getElementById('weight').value = book.weight ? String(book.weight).replace(/[^\d.]/g, '') : '';
+      document.getElementById('bulletPoints').value = book.bulletPoints?.join(', ') || '';
+      document.getElementById('mainImageIndex').value = book.mainImageIndex || 0;
+      const urls = book.bookImages ? [...book.bookImages] : [];
+      renderImagePreview(urls);
+      window._bookImageUrls = urls;
+      // Reset file input
+      document.getElementById('bookImages').value = '';
+    }
+
+    // Preview selected images before upload
+    document.getElementById('bookImages').addEventListener('change', function(e) {
+      const previewContainer = document.getElementById('imagePreview');
+      previewContainer.innerHTML = '';
+      const files = e.target.files;
+      if (files.length === 0) return;
+      window._bookImageUrls = [];
+      for (let i = 0; i < files.length; i++) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = document.createElement('img');
+          img.src = event.target.result;
+          img.alt = 'Selected Image';
+          img.style.width = '80px';
+          img.style.marginBottom = '5px';
+          img.style.border = '1px solid #ccc';
+          img.style.borderRadius = '5px';
+          previewContainer.appendChild(img);
+        };
+        reader.readAsDataURL(files[i]);
+      }
+    });
+
+    document.getElementById('bookUpdateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const bookId = document.getElementById('bookId').value;
+      const formData = new FormData();
+      formData.append('title', document.getElementById('title').value);
+      formData.append('author', document.getElementById('author').value);
+      formData.append('price', document.getElementById('price').value);
+      formData.append('offerPrice', document.getElementById('offerPrice').value);
+      formData.append('description', document.getElementById('description').value);
+      formData.append('category', document.getElementById('category').value);
+      formData.append('isbn', document.getElementById('isbn').value);
+      formData.append('pageNumber', document.getElementById('pageNumber').value);
+      formData.append('language', document.getElementById('language').value);
+      formData.append('weight', document.getElementById('weight').value);
+      formData.append('bulletPoints', document.getElementById('bulletPoints').value);
+      formData.append('mainImageIndex', document.getElementById('mainImageIndex').value);
+      // Add new images if selected
+      const files = document.getElementById('bookImages').files;
+      if (files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+          formData.append('bookImages', files[i]);
+        }
+      } else {
+        // If no new images, send current image URLs as backup (after removal)
+        const urls = window._bookImageUrls || [];
+        // Only send if there are any images left
+        if (urls.length > 0) {
+          formData.append('bookImages', urls.join(','));
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'No Images Selected',
+            text: 'At least one image is required for the book.'
+          });
+          return;
+        }
+      }
+      const res = await fetch(`/api/updatebook/${bookId}`, {
+        method: 'PUT',
+        body: formData
+      });
+      let result;
+      try {
+        result = await res.json();
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: 'Server error or invalid response.'
+        });
+        return;
+      }
+      if (res.ok && (result.success || result.message === 'Book updated successfully')) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Book Updated successfully!',
+          showConfirmButton: false,
+          timer: 1500
+        });
+        document.getElementById('updateForm').style.display = 'none';
+        loadBooks();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: result && (result.message || result.error)
+            ? (typeof result.message === 'object' ? JSON.stringify(result.message) : result.message || result.error)
+            : 'Unknown error occurred.'
+        });
+      }
+    });
+
+    loadBooks();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Policy - Aravali Publication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #2c6e31, #6fbf73);
+
+         
+         
+        }
+        
+        .container {
+            margin: auto;
+            max-width: 800px;
+            width: 90%;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        h1 {
+            color: #2c6e31;
+            font-weight: 600;
+        }
+        
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            color: #2c6e31;
+            font-weight: 600;
+        }
+        
+        .contact-link {
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c6e31;
+            text-decoration: none;
+        }
+        
+        .contact-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+             
+                text-align: center;
+            }
+
+            .container {
+                width: 82%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            p {
+                font-size: 14px;
+            }
+
+            .contact-link {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+
+            p {
+                font-size: 13px;
+            }
+
+            .contact-link {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-header d-flex justify-content-center align-items-center">
+
+       <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
+        <div class="heading">
+
+            <h5 class="mb-0">Aravali Publication</h5>
+        </div>
+        <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
+    </div>
+ <!-- Navbar Start -->
+<!-- ✅ NAVBAR -->
+<div class="col-sm-12 navbar">
+  <div class="menu-toggle">
+    <i class="fas fa-bars"></i>
+  </div>
+
+  <div class="col-sm-6 nav-items">
+    <ul>
+         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li class="nav-item">
+        <i class="fa-solid fa-book-open"></i> Books
+        <ul class="dropdown">
+          <li><a href="AllBookShow.html">All Book</a></li>
+          <li><a href="newBookAdd.html">New Book</a></li>
+          <li><a href="oldBookAdd.html">Old Book</a></li>
+        </ul>
+      </li>
+
+      <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+      <li><a href="FAQ.html"><i class="fas fa-question-circle"></i> FAQs</a></li>
+      <li><a href="terms&conditions.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+      <li><a href="Return-policy.html"><i class="fas fa-undo"></i> Return Policy</a></li>
+      <li><a href="shipping-info.html"><i class="fas fa-shipping-fast"></i> Shipping Info</a></li>
+      <li><a href="privacy-policy.html"><i class="fas fa-user-secret"></i> Privacy Policy</a></li>
+    </ul>
+  </div>
+
+  <div class="col-sm-3 contactsupport">
+    <!-- 🔐 SIGNUP BUTTON (shown when not logged in) -->
+    <a href="signup-login.html" id="signup-section" style="display: block;">
+      <button class="SignUp">
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </a>
+
+    <!-- ✅ PROFILE DROPDOWN (shown when logged in) -->
+    <li class="nav-item profile-dropdown-container" id="profile-dropdown-section" style="display: none;">
+      <a href="#" class="nav-link profile-dropdown-toggle">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <span class="profile-username">Profile</span>
+      </a>
+      <ul class="dropdown-menu profile-dropdown-menu">
+        <li><a href="My profile.html">My Profile</a></li>
+        <li><a href="UserStatusOrderMobleNumber.html">Orders</a></li>
+        <li><a href="Raiseissue.html">Raise an Issue</a></li>
+        <li><a href="Logout.html" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </li>
+    <a href="Cart Page with Checkout.html">
+      <button class="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <sup id="cart-count">0</sup>
+      </button>
+    </a>
+
+    <a href="QrCodeScan.html">
+      <button class="Scanner">
+        <i class="fa fa-qrcode"></i>
+      </button>
+    </a>
+
+    <!-- <a href="Search book.html">
+      <button class="Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </a> -->
+  </div>
+</div>
+
+<!-- ✅ JS SCRIPT -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem("authToken");
+
+
+    const signupSection = document.getElementById("signup-section");
+    const profileDropdown = document.getElementById("profile-dropdown-section");
+
+    // Show/hide sections based on login status
+    if (token) {
+      if (signupSection) signupSection.style.display = "none";
+      if (profileDropdown) profileDropdown.style.display = "block";
+    } else {
+      if (signupSection) signupSection.style.display = "block";
+      if (profileDropdown) profileDropdown.style.display = "none";
+    }
+  });
+
+  function logoutUser() {
+    localStorage.removeItem("authToken");
+    location.reload();
+  }
+</script>
+     
+
+    <div class="container">
+        <h1>Return Policy</h1>
+        <p>We want you to be completely satisfied with your purchase. If you are not satisfied, you can return the item within <span class="highlight">7 days</span> of delivery.</p>
+        <p>To be eligible for a return, the item must be unused and in the same condition as received. It must also be in the original packaging.</p>
+        <p>Refunds will be processed within <span class="highlight">7-10 business days</span> after we receive your returned item.</p>
+        <p>For any queries, please contact us:</p>
+        <a href="mailto:support@aravalipublication.com" class="contact-link">Email: support@aravalipublication.com</a>
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Section 1: Logo & About -->
+            <div class="footer-section">
+                <img alt="Bookstore Logo - A stylized open book with pages turning" class="footer-logo" height="150"
+                    src="img/Aravli-final-logo.jpg" width="150" />
+
+            </div>
+            <!-- Section 2: Quick Links -->
+            <div class="footer-section">
+                <h3>
+                    Quick Links
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-home">
+                        </i>
+                        <a href="./index.html">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-th-list">
+                        </i>
+                        <a href="AllBookShow.html">
+                            All Books
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <i class="fas fa-envelope">
+                        </i>
+                        <a href="contact-us.html">
+                            Contact Us
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Section 3: Customer Support -->
+            <div class="footer-section">
+                <h3>
+                    Customer Support
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-question-circle">
+                        </i>
+                        <a href="./FAQ.html">
+                            FAQs
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-undo">
+                        </i>
+                        <a href="./Return-policy.html">
+                            Return Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-shipping-fast">
+                        </i>
+                        <a href="./shipping-info.html">
+                            Shipping Info
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-user-secret">
+                        </i>
+                        <a href="./privacy-policy.html">
+                            Privacy Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-file-contract">
+                        </i>
+                        <a href="./terms&conditions.html">
+                            Terms &amp; Conditions
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- section Contact Us -->
+            <div class="footer-section">
+                <div class="Contact-US">
+                    <h3>Contact-US</h3>
+                    <a href="tel:+919358087121">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919358087121</p>
+                    </a>
+                    <a href="tel:+919982934869">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919982934869</p>
+                    </a>
+                    <p><i class="fa fa-location"></i> <b>Address:</b>&nbsp; Plot number 1, Rajeev Nagar, Vidhyadhar
+                        Nagar
+                        Sector 3, Jaipur 302038</p>
+                </div>
+            </div>
+            <!-- Section 4: Social Media -->
+            <div class="Social-Media">
+                <h3>
+                    Follow Us
+                </h3>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/15TCANusow/" target="_blank">
+                        <i class="fab fa-facebook fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://t.me/aravalipublication" target="_blank">
+                        <i class="fa-brands fa-telegram fa-2x"></i>
+                    </a>
+                    <a href="https://www.instagram.com/prahladramyadav?igsh=emM0emJocmg0Yncx " target="_blank">
+                        <i class="fab fa-instagram fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://wa.me/+919358087121" target="_blank"> <i class="fa-brands fa-whatsapp fa-2x"></i>
+                    </a>
+
+                </div>
+                <p class="mt-4">
+                    Stay connected with us.
+                </p>
+            </div>
+
+
+
+        </div>
+        <!-- Copyright Section -->
+        <div class="footer-bottom">
+            <p>
+                © 2025 Aravali publication | All Rights Reserved | Designed & Developed by <a
+                    href="https://www.techbro24.com/" target="_blank"> TechBro24</a>
+                <hr>
+            </p>
+        </div>
+    </footer>
+</body>
+<script>
+      document.addEventListener("DOMContentLoaded", function () {
+            const menuToggle = document.querySelector(".menu-toggle");
+            const navItems = document.querySelector(".nav-items");
+
+            menuToggle.addEventListener("click", function () {
+                navItems.classList.toggle("actives");
+            });
+        });
+
+</script>
+</html>

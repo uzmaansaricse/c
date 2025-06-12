@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Upload Book</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+          
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #222;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        input,
+        textarea,
+        select,
+        button {
+            margin: 8px 0;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .image-section {
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .image-section h3 {
+            margin-bottom: 5px;
+            color: #444;
+            font-size: 16px;
+        }
+
+        .bullet-points-section {
+            margin-top: 15px;
+        }
+
+        .bullet-points-section h3 {
+            margin-bottom: 5px;
+            color: #444;
+            font-size: 16px;
+        }
+
+        .bullet-points-section input {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+      <!-- <div class="admin-sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </div>
+      
+      <div class="admin-green-sidebar" id="adminSidebar">
+        <div class="admin-logo">
+          <img src="img/Aravli-final-logo.jpg" alt="Logo">
+        </div>
+      
+        <div class="admin-card"><a href="book-upload.html"><i class="fa-solid fa-upload"></i> Book Upload</a></div>
+        <div class="admin-card"><a href="BookUpdate Admin.html"><i class="fa-solid fa-pen-to-square"></i> Book Update</a></div>
+        <div class="admin-card"><a href="video and imag showAdmin.html"><i class="fa-solid fa-box"></i> News Box</a></div>
+        <div class="admin-card"><a href="orderAdmin-analytics.html"><i class="fa-solid fa-chart-line"></i> Order Analytics</a></div>
+        <div class="admin-card"><a href="Admin order summery.html"><i class="fa-solid fa-list"></i> Order Summary</a></div>
+        <div class="admin-card"><a href="admin-all-ordersWithUpdate.html"><i class="fa-solid fa-globe"></i> All Orders</a></div>
+        <div class="admin-card"><a href="AdminBookDelete.html"><i class="fa-solid fa-trash"></i> Delete Book</a></div>
+        <div class="admin-card"><a href="AdminPendingOrdersSavenday.html"><i class="fa-solid fa-clock"></i> Pending Orders</a></div>
+        <div class="admin-card"><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Banner</a></div>
+        <div class="admin-card"><a href="uploadcsv.html"><i class="fa-solid fa-cloud-arrow-up"></i> Upload CSV</a></div>
+      </div> -->
+    <div class="container">
+        <h1>Upload New Book</h1>
+        <form id="book-form">
+            <input type="text" id="title" placeholder="Book Title" required>
+            <input type="text" id="author" placeholder="Author" required>
+            <input type="number" id="price" placeholder="Price ₹" required>
+            <input type="number" id="offerPrice" placeholder="Offer Price ₹" required>
+            <textarea id="description" placeholder="Description" required></textarea>
+
+            <select id="category" required>
+                <option value="">Select Category</option>
+                <option value="New">New</option>
+                <option value="Old">Old</option>
+                <option value="All">All</option>
+            </select>
+
+            <input type="text" id="isbn" placeholder="ISBN" required>
+
+            <input type="number" id="pageNumber" placeholder="Page Number" required>
+            <input type="text" id="language" placeholder="Language" required>
+            <input type="text" id="weight" placeholder="Weight (e.g., 500g or 1.2kg)" required>
+
+            <div class="image-section">
+                <h3>Book Images (Choose 5 separate files)</h3>
+                <input type="file" name="bookImage1" accept="image/*" required>
+                <input type="file" name="bookImage2" accept="image/*" required>
+                <input type="file" name="bookImage3" accept="image/*" required>
+                <input type="file" name="bookImage4" accept="image/*" required>
+                <input type="file" name="bookImage5" accept="image/*" required>
+                <small>Note: Upload 5 different images</small>
+            </div>
+
+            <div class="bullet-points-section">
+                <h3>Bullet Points</h3>
+                <input type="text" id="bulletPoint1" placeholder="Bullet Point 1">
+                <input type="text" id="bulletPoint2" placeholder="Bullet Point 2">
+                <input type="text" id="bulletPoint3" placeholder="Bullet Point 3">
+                <input type="text" id="bulletPoint4" placeholder="Bullet Point 4">
+                <input type="text" id="bulletPoint5" placeholder="Bullet Point 5">
+            </div>
+
+            <button type="submit">Upload Book</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("book-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append("title", document.getElementById("title").value);
+            formData.append("author", document.getElementById("author").value);
+            formData.append("price", document.getElementById("price").value);
+            formData.append("offerPrice", document.getElementById("offerPrice").value);
+            formData.append("description", document.getElementById("description").value);
+            formData.append("category", document.getElementById("category").value);
+            formData.append("isbn", document.getElementById("isbn").value);
+            formData.append("pageNumber", document.getElementById("pageNumber").value);
+            formData.append("language", document.getElementById("language").value);
+            formData.append("weight", document.getElementById("weight").value);
+
+            // Bullet points
+            formData.append("bulletPoints", [
+                document.getElementById("bulletPoint1").value,
+                document.getElementById("bulletPoint2").value,
+                document.getElementById("bulletPoint3").value,
+                document.getElementById("bulletPoint4").value,
+                document.getElementById("bulletPoint5").value
+            ].filter(Boolean));
+
+            // Image inputs
+            const imageFields = [
+                "bookImage1",
+                "bookImage2",
+                "bookImage3",
+                "bookImage4",
+                "bookImage5"
+            ];
+
+            for (let field of imageFields) {
+                const fileInput = document.querySelector(`input[name="${field}"]`);
+                if (!fileInput.files[0]) {
+                    alert("❌ All 5 images are required.");
+                    return;
+                }
+                formData.append("bookImages", fileInput.files[0]);
+            }
+
+            const res = await fetch("/api/add-book", {
+                method: "POST",
+                body: formData
+            });
+
+            if (res.ok) {
+                alert("✅ Book Uploaded Successfully!");
+                document.getElementById("book-form").reset();
+            } else {
+                const err = await res.json();
+                alert("❌ Error: " + err.message);
+            }
+        });
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>
+

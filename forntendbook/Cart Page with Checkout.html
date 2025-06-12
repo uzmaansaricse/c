@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+
+
+        }
+
+      /* Headings */
+
+
+/* Cart Container */
+.cart-container {
+    width: 95%;
+    max-width: 1200px;
+    margin: 50px auto;
+    background: linear-gradient(135deg, #e9fbe5, #f7fff3);
+    box-shadow: 0 0 15px rgba(44, 110, 49, 0.2);
+    border-radius: 15px;
+    padding: 30px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    font-size: 600;
+}
+
+th, td {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: center;
+    font-size: 16px;
+}
+
+th {
+    background-color: #d6f5d3;
+    color: #2c6e31;
+    font-weight: 600;
+}
+
+/* Product Info */
+.cart-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cart-item img {
+    width: 70px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.cart-item p {
+    font-size: 15px;
+    margin-top: 10px;
+    color: #444;
+}
+
+/* Total Price Section */
+
+
+/* Checkout Button */
+#checkout {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin: 30px auto 0;
+    padding: 15px 0;
+    background: linear-gradient(90deg, #2c6e31, #46a049);
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(44, 110, 49, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+#checkout:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px rgba(44, 110, 49, 0.4);
+    background: linear-gradient(90deg, #218e2a, #399d35);
+}
+
+/* Quantity Button */
+.qty-btn {
+    padding: 8px 14px;
+    background: #f0fff2;
+    color: #2c6e31;
+    border: 1px solid #2c6e31;
+    font-size: 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    margin: 0 5px;
+    box-shadow: 0 2px 5px rgba(44, 110, 49, 0.2);
+}
+
+.qty-btn:hover {
+    background-color: #2c6e31;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Remove Button */
+.remove-btn {
+    padding: 8px 16px;
+    background: #fff1f1;
+    color: #d62828;
+    border: 1px solid #d62828;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 2px 6px rgba(214, 40, 40, 0.15);
+}
+
+.remove-btn:hover {
+    background-color: #d62828;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(214, 40, 40, 0.25);
+}
+
+
+        /* Delivery Form */
+        .delivery-form {
+            display: none;
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .delivery-form label {
+            display: block;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .delivery-form input {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .delivery-form button {
+            background-color: #2c6e31;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            padding: 20px;
+            background-color: #2c6e31;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .cart-container {
+                width: 95%;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            .cart-item img {
+                width: 50px;
+            }
+
+            #checkout {
+                font-size: 16px;
+            }
+
+            .delivery-form input,
+            .delivery-form button {
+                font-size: 14px;
+            }
+        }
+
+        /* Medium devices (tablets, 768px - 1024px) */
+@media (max-width: 1024px) {
+    .cart-container {
+        padding: 20px;
+    }
+
+    th, td {
+        padding: 12px;
+        font-size: 15px;
+    }
+
+    #checkout {
+        font-size: 18px;
+    }
+
+    .qty-btn,
+    .remove-btn {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    .cart-item p {
+        font-size: 14px;
+    }
+}
+
+/* Small devices (phones, <768px) */
+@media (max-width: 768px) {
+    table {
+        font-size: 13px;
+        display: block;
+      
+       
+    }
+
+    .cart-container {
+        padding: 15px;
+    }
+
+    th, td {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .cart-item img {
+        width: 50px;
+    }
+
+    .cart-item p {
+        font-size: 13px;
+    }
+
+    .qty-text{
+        display: flex;
+    flex-direction: column;
+   
+    }
+    .qty-btn,
+    .remove-btn {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+
+    #checkout {
+        font-size: 15px;
+        padding: 12px 0;
+    }
+
+    .delivery-form input,
+    .delivery-form button {
+        font-size: 13px;
+    }
+}
+
+/* Extra small devices (very narrow screens <480px) */
+@media (max-width: 480px) {
+    .cart-container {
+        padding: 10px;
+    }
+
+    th, td {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .cart-item img {
+        width: 45px;
+    }
+
+    .qty-btn,
+    .remove-btn {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+
+    #checkout {
+        font-size: 14px;
+        padding: 10px 0;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    .delivery-form input,
+    .delivery-form button {
+        font-size: 12px;
+    }
+
+    .delivery-form {
+        padding: 15px;
+    }
+}
+
+    </style>
+</head>
+
+<body>
+    
+    <div class="top-header d-flex justify-content-center align-items-center">
+
+       <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
+        <div class="heading">
+
+            <h5 class="mb-0">Aravali Publication</h5>
+        </div>
+        <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
+    </div>
+
+ <div class="col-sm-12 navbar">
+  <div class="menu-toggle">
+    <i class="fas fa-bars"></i>
+  </div>
+
+  <div class="col-sm-6 nav-items">
+    <ul>
+         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li class="nav-item">
+        <i class="fa-solid fa-book-open"></i> Books
+        <ul class="dropdown">
+          <li><a href="AllBookShow.html">All Book</a></li>
+          <li><a href="newBookAdd.html">New Book</a></li>
+          <li><a href="oldBookAdd.html">Old Book</a></li>
+        </ul>
+      </li>
+
+      <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+      <li><a href="FAQ.html"><i class="fas fa-question-circle"></i> FAQs</a></li>
+      <li><a href="terms&conditions.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+      <li><a href="Return-policy.html"><i class="fas fa-undo"></i> Return Policy</a></li>
+      <li><a href="shipping-info.html"><i class="fas fa-shipping-fast"></i> Shipping Info</a></li>
+      <li><a href="privacy-policy.html"><i class="fas fa-user-secret"></i> Privacy Policy</a></li>
+    </ul>
+  </div>
+
+  <div class="col-sm-3 contactsupport">
+    <!-- 🔐 SIGNUP BUTTON (shown when not logged in) -->
+    <a href="signup-login.html" id="signup-section" style="display: block;">
+      <button class="SignUp">
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </a>
+
+    <!-- ✅ PROFILE DROPDOWN (shown when logged in) -->
+    <li class="nav-item profile-dropdown-container" id="profile-dropdown-section" style="display: none;">
+      <a href="#" class="nav-link profile-dropdown-toggle">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <span class="profile-username">Profile</span>
+      </a>
+      <ul class="dropdown-menu profile-dropdown-menu">
+        <li><a href="My profile.html">My Profile</a></li>
+        <li><a href="UserStatusOrderMobleNumber.html">Orders</a></li>
+        <li><a href="Raiseissue.html">Raise an Issue</a></li>
+        <li><a href="Logout.html" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </li>
+    <a href="Cart Page with Checkout.html">
+      <button class="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <sup id="cart-count">0</sup>
+      </button>
+    </a>
+
+    <a href="QrCodeScan.html">
+      <button class="Scanner">
+        <i class="fa fa-qrcode"></i>
+      </button>
+    </a>
+
+    
+  </div>
+</div>
+
+<!-- ✅ JS SCRIPT -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem("authToken");
+
+
+    const signupSection = document.getElementById("signup-section");
+    const profileDropdown = document.getElementById("profile-dropdown-section");
+
+    // Show/hide sections based on login status
+    if (token) {
+      if (signupSection) signupSection.style.display = "none";
+      if (profileDropdown) profileDropdown.style.display = "block";
+    } else {
+      if (signupSection) signupSection.style.display = "block";
+      if (profileDropdown) profileDropdown.style.display = "none";
+    }
+  });
+
+  function logoutUser() {
+    localStorage.removeItem("authToken");
+    location.reload();
+  }
+</script>
+
+
+    <div class="cart-container">
+        <h2>Your Cart</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="cart-items"></tbody>
+        </table>
+        <h3>Total: ₹<span id="cart-total">0</span></h3>
+        <button id="checkout">Checkout</button>
+    </div>
+
+    <div id="delivery-form" class="delivery-form">
+        <h2>Enter Delivery Details</h2>
+        <label>Full Name: <input type="text" id="fullName" required></label><br>
+        <label>Mobile: <input type="text" id="mobile" required></label><br>
+        <label>Email: required for tracking update <input type="email" id="email" required></label><br> 
+        <label>Address: <input type="text" id="address" required></label><br>
+        <label>City: <input type="text" id="city" required></label><br>
+        <label>State: <input type="text" id="state" required></label><br>
+        <label>Pincode: <input type="text" id="pincode" required></label><br>
+        <button id="pay-now">Proceed to Payment</button>
+    </div>
+
+    <div id="success-message" class="success-message">
+        <h2>🎉 Order Placed Successfully!</h2>
+        <p>Thank you for your order.</p>
+    </div>
+
+
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Section 1: Logo & About -->
+            <div class="footer-section">
+                <img alt="Bookstore Logo - A stylized open book with pages turning" class="footer-logo" height="150"
+                    src="img/Aravli-final-logo.jpg" width="150" />
+
+            </div>
+            <!-- Section 2: Quick Links -->
+            <div class="footer-section">
+                <h3>
+                    Quick Links
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-home">
+                        </i>
+                        <a href="./index.html">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-th-list">
+                        </i>
+                        <a href="AllBookShow.html">
+                            All Books
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <i class="fas fa-envelope">
+                        </i>
+                        <a href="contact-us.html">
+                            Contact Us
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Section 3: Customer Support -->
+            <div class="footer-section">
+                <h3>
+                    Customer Support
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-question-circle">
+                        </i>
+                        <a href="./FAQ.html">
+                            FAQs
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-undo">
+                        </i>
+                        <a href="./Return-policy.html">
+                            Return Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-shipping-fast">
+                        </i>
+                        <a href="./shipping-info.html">
+                            Shipping Info
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-user-secret">
+                        </i>
+                        <a href="./privacy-policy.html">
+                            Privacy Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-file-contract">
+                        </i>
+                        <a href="./terms&conditions.html">
+                            Terms &amp; Conditions
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- section Contact Us -->
+            <div class="footer-section">
+                <div class="Contact-US">
+                    <h3>Contact-US</h3>
+                    <a href="tel:+919358087121">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919358087121</p>
+                    </a>
+                    <a href="tel:+919982934869">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919982934869</p>
+                    </a>
+                    <p><i class="fa fa-location"></i> <b>Address:</b>&nbsp; Plot number 1, Rajeev Nagar, Vidhyadhar
+                        Nagar
+                        Sector 3, Jaipur 302038</p>
+                </div>
+            </div>
+            <!-- Section 4: Social Media -->
+            <div class="Social-Media">
+                <h3>
+                    Follow Us
+                </h3>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/15TCANusow/" target="_blank">
+                        <i class="fab fa-facebook fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://t.me/aravalipublication" target="_blank">
+                        <i class="fa-brands fa-telegram fa-2x"></i>
+                    </a>
+                    <a href="https://www.instagram.com/prahladramyadav?igsh=emM0emJocmg0Yncx " target="_blank">
+                        <i class="fab fa-instagram fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://wa.me/+919358087121" target="_blank"> <i class="fa-brands fa-whatsapp fa-2x"></i>
+                    </a>
+
+                </div>
+                <p class="mt-4">
+                    Stay connected with us.
+                </p>
+            </div>
+
+
+
+        </div>
+        <!-- Copyright Section -->
+        <div class="footer-bottom">
+            <p>
+                © 2025 Aravali publication | All Rights Reserved | Designed & Developed by <a
+                    href="https://www.techbro24.com/" target="_blank"> TechBro24</a>
+                <hr>
+            </p>
+        </div>
+    </footer>
+
+
+
+
+    <script>
+    const API_BASE = window.location.origin;
+
+    window.onload = function () {
+        loadCart();
+        autoRedirectToDelivery();
+    };
+
+    async function getRazorpayKey() {
+        let response = await fetch(`${API_BASE}/api/get-razorpay-key`);
+        let data = await response.json();
+        return data.key;
+    }
+
+   function autoRedirectToDelivery() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const redirect = localStorage.getItem("redirectAfterLogin");
+
+    if (user && redirect === "./Cart Page with Checkout.html") {
+        verifyUserSession(() => {
+            Swal.fire({
+                icon: "success",
+                title: "✅ Welcome back!",
+                text: "You are already logged in."
+            });
+            showDeliveryForm();
+            localStorage.removeItem("redirectAfterLogin");
+        });
+    }
+}
+
+function showDeliveryForm() {
+    document.getElementById("delivery-form").style.display = "block";
+    window.scrollTo(0, document.getElementById("delivery-form").offsetTop);
+}
+
+function verifyUserSession(callback) {
+    const user = JSON.parse(localStorage.getItem("user"));
+    fetch(`${API_BASE}/verifyUser`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user?.token}`
+        }
+    })
+        .then(res => res.json())
+        .then(result => {
+            if (result.success) {
+                callback();
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "❌ Session expired",
+                    text: "Please login again."
+                });
+                localStorage.removeItem("user");
+                localStorage.setItem("redirectAfterLogin", "Cart Page with Checkout.html");
+
+                window.location.href = "signup-login.html";
+            }
+        });
+}
+
+document.getElementById("checkout").addEventListener("click", function () {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.token) {
+        Swal.fire({
+            icon: "warning",
+            title: "⚠️ User not logged in",
+            text: "Please login first.",
+            confirmButtonText: "Go to Login"
+        }).then(() => {
+            localStorage.setItem("redirectAfterLogin", "Cart Page with Checkout.html");
+            window.location.href = "signup-login.html";
+        });
+    } else {
+        verifyUserSession(() => {
+            Swal.fire({
+                icon: "success",
+                title: "✅ Verified",
+                text: "User verified & already logged in.",
+                timer: 2000,
+                showConfirmButton: false
+            });
+            showDeliveryForm();
+        });
+    }
+});
+
+   document.getElementById("pay-now").addEventListener("click", async function () {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (cart.length === 0) {
+        Swal.fire({
+            icon: "info",
+            title: "🛒 Cart is empty!",
+            text: "Please add some items to proceed."
+        });
+        return;
+    }
+
+    if (!validateDeliveryForm()) {
+        Swal.fire({
+            icon: "warning",
+            title: "⚠️ Incomplete Delivery Details!",
+            text: "Please fill in all delivery details."
+        });
+        return;
+    }
+
+    let totalAmount = parseInt(document.getElementById("cart-total").innerText) || 0;
+    let deliveryDetails = getDeliveryDetails();
+
+    try {
+        let response = await fetch(`${API_BASE}/api/create-order`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cart, totalAmount, deliveryDetails })
+        });
+        let data = await response.json();
+        let key = await getRazorpayKey();
+
+        if (data.orderId) {
+            let rzp = new Razorpay({
+                key: key,
+                amount: data.amount,
+                currency: "INR",
+                order_id: data.orderId,
+                handler: function (response) {
+                    saveOrder(response.razorpay_payment_id, deliveryDetails, cart, totalAmount);
+                },
+                modal: {
+                    ondismiss: function () {
+                        Swal.fire({
+                            icon: "info",
+                            title: "Payment popup closed!",
+                            text: "You can try again anytime."
+                        });
+                    }
+                }
+            });
+            rzp.open();
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Payment initiation failed",
+                text: "Unable to generate order. Please try again."
+            });
+        }
+    } catch (err) {
+        console.error("Payment Error:", err);
+        Swal.fire({
+            icon: "error",
+            title: "Something went wrong!",
+            text: "Please check your connection and try again."
+        });
+    }
+});
+
+  async function saveOrder(paymentId, deliveryDetails, cart, totalAmount) {
+    let response = await fetch(`${API_BASE}/api/save-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId, deliveryDetails, cart, totalAmount })
+    });
+
+    let data = await response.json();
+    if (data.success) {
+        localStorage.removeItem("cart");
+
+        const orderId = data.orderId;
+        const bookIds = data.bookIds.join(",");
+
+        Swal.fire({
+            icon: "success",
+            title: "✅ Order Confirmed!",
+            text: "Redirecting to review page...",
+            timer: 1500,
+            showConfirmButton: false
+        });
+
+        setTimeout(() => {
+            window.location.href = `rating-review.html?orderId=${orderId}&bookIds=${bookIds}`;
+        }, 1500);
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "❌ Order save failed!",
+            text: "Please try again."
+        });
+    }
+}
+
+
+    function getDeliveryDetails() {
+        return {
+            fullName: document.getElementById("fullName").value,
+            mobile: document.getElementById("mobile").value,
+            email: document.getElementById("email").value,
+            address: document.getElementById("address").value,
+            city: document.getElementById("city").value,
+            state: document.getElementById("state").value,
+            pincode: document.getElementById("pincode").value
+        };
+    }
+
+    function validateDeliveryForm() {
+        let details = getDeliveryDetails();
+        return details.fullName && details.mobile && details.email && details.address && details.city && details.state && details.pincode;
+    }
+
+    function removeItem(index) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart.splice(index, 1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        loadCart();
+    }
+
+  
+        // loadCart + Remove item function
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const cartItemsContainer = document.getElementById("cart-items");
+            const cartTotal = document.getElementById("cart-total");
+            cartItemsContainer.innerHTML = "";
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+            <td>
+                <div class="cart-item">
+                    <img src="${item.image}" alt="${item.name}">
+                    <p>${item.title}</p>
+                </div>
+            </td>
+            <td>₹${item.price}</td>
+            <td>
+                <button class="qty-btn" onclick="changeQuantity(${index}, -1)">➖</button>
+                <span class="qty-text">${item.quantity}</span>
+                <button class="qty-btn" onclick="changeQuantity(${index}, 1)">➕</button>
+            </td>
+            <td>₹${itemTotal}</td>
+            <td><button class="remove-btn" onclick="removeItem(${index})">Remove</button></td>
+        `;
+
+                cartItemsContainer.appendChild(row);
+            });
+
+            cartTotal.textContent = total;
+            document.getElementById("pay-now").disabled = cart.length === 0;
+        }
+
+        function changeQuantity(index, change) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            if (cart[index].quantity + change > 0) {
+                cart[index].quantity += change;
+            }
+            localStorage.setItem("cart", JSON.stringify(cart));
+            loadCart();
+        }
+</script>
+
+   <script src="script.js"></script>
+</body>
+
+</html>

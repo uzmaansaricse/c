@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>logout</title>
+ 
+ <style>
+  /* Reset & base styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  justify-content: center; /* Horizontally center */
+  align-items: center;     /* Vertically center */
+  background-color: #f5f5f5; /* Optional background color */
+}
+
+h2 {
+  font-size: 2.2rem;
+  color: #333;
+  margin-bottom: 30px;
+  text-shadow: 1px 1px 2px #ccc;
+}
+
+/* Logout button styling */
+#logoutBtn {
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ff4e50, #f9d423);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+#logoutBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+#logoutBtn:active {
+  transform: scale(0.98);
+}
+
+ </style>
+</head>
+<body>
+  
+  <button id="logoutBtn">Logout</button>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    const res = await fetch("/logout", {
+      method: "GET"
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      localStorage.removeItem("authToken"); // remove token, keep consistent with login key
+      localStorage.removeItem("user");      // remove user data
+      localStorage.removeItem("role");      // remove role if stored
+      localStorage.setItem("userLoggedIn", "false"); // optional flag reset
+
+      Swal.fire({
+        icon: 'success',
+        title: data.message,
+        toast: true,
+        position: 'top-end',
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true
+      });
+
+      setTimeout(() => {
+        window.location.href = "index.html"; // redirect after logout
+      }, 2000);
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Logout failed.',
+        toast: true,
+        position: 'top-end',
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

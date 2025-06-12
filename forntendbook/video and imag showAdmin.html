@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <title>Admin Panel - Upload Content</title>
+    <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f4fdfd;
+        color: #2c6e31;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        min-height: 100vh;
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 220px;
+        background-color: #2c6e31;
+        color: white;
+        padding: 20px 0;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        flex-shrink: 0;
+    }
+
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+    }
+
+    .sidebar a {
+        display: block;
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+        background-color: #3f8744;
+    }
+
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .main-content {
+        margin-left: 240px;
+        padding: 20px;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .container {
+        flex: 1;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin: 40px auto;
+        padding: 20px;
+        border: 2px solid #2c6e31;
+        max-width: 900px;
+    }
+
+    .heading {
+        color: #2c6e31;
+        font-size: 24px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #2c6e31;
+        display: inline-block;
+    }
+
+    #uploadForm {
+        background: #e0f2f2;
+        padding: 25px;
+        border-radius: 12px;
+        max-width: 450px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    label {
+        font-weight: 600;
+        display: block;
+        margin-top: 15px;
+        color: #2c6e31;
+    }
+
+    input, select {
+        width: 90%;
+        padding: 10px;
+        margin-top: 8px;
+        border: 2px solid #2c6e31;
+        border-radius: 6px;
+        background: white;
+        font-size: 14px;
+    }
+
+    button {
+        background-color: #2c6e31;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        padding: 12px;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    #latestContent {
+        margin-top: 30px;
+        padding: 20px;
+        background: #e0f2f2;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .content-item {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 10px;
+        text-align: center;
+    }
+
+    /* Responsive CSS */
+    @media (max-width: 768px) {
+        body {
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+
+        .main-content {
+            margin-left: 0;
+            margin-top: 0;
+            
+            
+        }
+
+        .container {
+            margin: 20px;
+            width: auto;
+        }
+
+        #uploadForm, #latestContent {
+            width: 90%;
+            margin-left: 0px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .heading {
+            font-size: 20px;
+        }
+
+        button {
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        input, select {
+            font-size: 13px;
+        }
+    }
+</style>
+
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <ul>
+            <li><a href="book-upload.html">Upload Book</a></li>
+            <li><a href="BookUpdate Admin.html">Book Update</a></li>
+            <li><a href="video and imag showAdmin.html">News Box</a></li>
+            <li><a href="orderAdmin-analytics.html">Order Analytics</a></li>
+            <li><a href="Admin order summery.html">Order Summary</a></li>
+            <li><a href="admin-all-ordersWithUpdate.html">All Orders</a></li>
+            <li><a href="AdminBookDelete.html">Delete Book</a></li>
+            <li><a href="AdminPendingOrdersSavenday.html">Pending Orders</a></li>
+            <li><a href="BenerAdmin.html">Manage Banner</a></li>
+            <li><a href="uploadcsv.html">Upload CSV</a></li>
+            <li><a href="tech-support.html">Tech Support</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <h2 class="heading">Upload Content</h2>
+
+            <form id="uploadForm">
+                <label>Select Content Type:</label>
+                <select id="contentType" onchange="toggleFields()">
+                    <option value="text">Text</option>
+                    <option value="image">Image</option>
+                    <option value="video">Video</option>
+                    <option value="link">Link</option>
+                    <option value="image_text">Image + Text</option>
+                    <option value="video_text">Video + Text</option>
+                </select>
+
+                <div id="fileGroup" style="display:none;">
+                    <label>Upload File:</label>
+                    <input type="file" id="fileInput">
+                </div>
+
+                <div id="textGroup" style="display:none;">
+                    <label>Enter Text:</label>
+                    <input type="text" id="textInput">
+                </div>
+
+                <button type="button" onclick="uploadContent()">Upload</button>
+            </form>
+
+            <h2 class="heading">Latest Content</h2>
+            <div id="latestContent"></div>
+        </div>
+    </div>
+
+    
+<script>
+  function toggleFields() {
+    const contentType = document.getElementById("contentType").value;
+    document.getElementById("fileGroup").style.display = (contentType.includes("image") || contentType.includes("video")) ? "block" : "none";
+    document.getElementById("textGroup").style.display = (contentType.includes("text") || contentType === "link" || contentType.includes("image_text") || contentType.includes("video_text")) ? "block" : "none";
+  }
+
+  async function uploadContent() {
+    const contentType = document.getElementById("contentType").value;
+    const fileInput = document.getElementById("fileInput").files[0];
+    const textInput = document.getElementById("textInput").value;
+
+    const formData = new FormData();
+    formData.append("type", contentType);
+    if (fileInput) formData.append("file", fileInput);
+    if (textInput) formData.append("content", textInput);
+
+    try {
+      const response = await fetch("/upload-content", { method: "POST", body: formData });
+      const result = await response.json();
+
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Content uploaded successfully!',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        document.getElementById("uploadForm").reset();
+        toggleFields();
+        fetchLatestContent();
+      } else {
+        throw new Error(result.error || "Unknown error");
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Upload failed',
+        text: error.message,
+      });
+    }
+  }
+
+  async function fetchLatestContent() {
+    try {
+      const response = await fetch("/content");
+      const contentList = await response.json();
+      const contentDiv = document.getElementById("latestContent");
+      contentDiv.innerHTML = "";
+
+      contentList.forEach(content => {
+        let wrapper = document.createElement("div");
+        wrapper.classList.add("content-item");
+
+        if (content.filePath) {
+          if (content.type.includes("image")) {
+            let img = document.createElement("img");
+            img.src = content.filePath;
+            img.width = 300;
+            wrapper.appendChild(img);
+          } else if (content.type.includes("video")) {
+            let video = document.createElement("video");
+            video.src = content.filePath;
+            video.width = 300;
+            video.controls = true;
+            video.autoplay = true;
+            video.muted = true;
+            video.loop = true;
+            wrapper.appendChild(video);
+          }
+        }
+
+        if (content.content) {
+          if (content.type === "link") {
+            let link = document.createElement("a");
+            link.href = content.content;
+            link.target = "_blank";
+            link.innerText = content.content;
+            link.style.color = "#007777";
+            link.style.fontWeight = "bold";
+            wrapper.appendChild(link);
+          } else {
+            let text = document.createElement("p");
+            text.innerText = content.content;
+            wrapper.appendChild(text);
+          }
+        }
+
+        let deleteBtn = document.createElement("button");
+        deleteBtn.innerText = "Delete";
+        deleteBtn.onclick = () => deleteContent(content._id);
+        wrapper.appendChild(deleteBtn);
+
+        contentDiv.appendChild(wrapper);
+      });
+    } catch (error) {
+      console.error("Error fetching latest content:", error);
+    }
+  }
+
+  async function deleteContent(id) {
+    try {
+      await fetch(`/content/${id}`, {
+        method: "DELETE"
+      });
+      fetchLatestContent();
+      Swal.fire({
+        icon: 'success',
+        title: 'Content deleted successfully!',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error("Error deleting content:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to delete content',
+        text: error.message,
+      });
+    }
+  }
+
+  // Initial setup
+  toggleFields();
+  fetchLatestContent();
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>

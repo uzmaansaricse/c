@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Upload Book</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+   <style>
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #2c6e31;
+      color: white;
+      padding: 20px 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      flex-shrink: 0;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 12px 20px;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #3f8744;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-content {
+      flex: 1;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 40px;
+      padding: 20px;
+      border: 2px solid #2c6e31;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 5px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    input, textarea, select {
+      width: 95%;
+      padding: 14px;
+      margin-bottom: 15px;
+      border: 1px solid #ccd6dd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border 0.3s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #2c6e31;
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color:#2c6e31;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color:#3f8744;
+      transform: translateY(-2px);
+    }
+
+    .image-section, .bullet-points-section {
+      margin-top: 20px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #444;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    small {
+      display: block;
+      margin-top: 5px;
+      color: #777;
+      font-size: 12px;
+    }
+
+    input[type="file"] {
+      padding: 12px;
+      border: 1px solid #ccd6dd;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .bullet-points-section input {
+      margin-bottom: 8px;
+    }
+
+    .image-section input {
+      margin-right: 10px;
+      width: calc(20% - 10px);
+      display: inline-block;
+    }
+
+    @media (max-width: 1024px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        text-align: center;
+      }
+
+      .sidebar a {
+        padding: 10px;
+      }
+
+      .main-content {
+        margin: 20px;
+        padding: 15px;
+        border-radius: 0;
+        box-shadow: none;
+        border-left: none;
+        border-right: none;
+      }
+
+      .image-section input {
+        width: 100%;
+        margin-right: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      input, textarea, select {
+        width: 100%;
+        font-size: 14px;
+      }
+
+      .main-content {
+        margin: 10px;
+        padding: 10px;
+      }
+
+      button {
+        font-size: 14px;
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .section-title {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <ul>
+            <li><a href="book-upload.html">Upload Book</a></li>
+            <li><a href="BookUpdate Admin.html">Book Update</a></li>
+            <li><a href="video and imag showAdmin.html">News Box</a></li>
+            <li><a href="orderAdmin-analytics.html">Order Analytics</a></li>
+            <li><a href="Admin order summery.html">Order Summary</a></li>
+            <li><a href="admin-all-ordersWithUpdate.html">All Orders</a></li>
+            <li><a href="AdminBookDelete.html">Delete Book</a></li>
+            <li><a href="AdminPendingOrdersSavenday.html">Pending Orders</a></li>
+            <li><a href="BenerAdmin.html">Manage Banner</a></li>
+            <li><a href="uploadcsv.html">Upload CSV</a></li>
+            <li><a href="tech-support.html">Tech Support</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <h1>Upload New Book</h1>
+            <form id="book-form">
+                <label for="title">Book Title</label>
+                <input type="text" id="title" placeholder="Book Title" required>
+
+                <label for="author">Author</label>
+                <input type="text" id="author" placeholder="Author" required>
+
+                <label for="price">Price ₹</label>
+                <input type="number" id="price" placeholder="Price ₹" required>
+
+                <label for="offerPrice">Offer Price ₹</label>
+                <input type="number" id="offerPrice" placeholder="Offer Price ₹" required>
+
+                <label for="description">Description</label>
+                <textarea id="description" placeholder="Description" required></textarea>
+
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="">Select Category</option>
+                    <option value="New">New</option>
+                    <option value="Old">Old</option>
+                    <option value="All">All</option>
+                </select>
+
+                <label for="isbn">ISBN</label>
+                <input type="text" id="isbn" placeholder="ISBN" required>
+
+                <label for="pageNumber">Page Number</label>
+                <input type="number" id="pageNumber" placeholder="Page Number" required>
+
+                <label for="language">Language</label>
+                <input type="text" id="language" placeholder="Language" required>
+
+                <label for="weight">Weight (e.g., 500g or 1.2kg)</label>
+                <input type="text" id="weight" placeholder="Weight" required>
+
+                <div class="image-section">     <!--changes isha-->
+                    <div class="section-title">Book Images (Upload 1-5 images)</div>
+                    <input type="file" name="bookImage1" accept="image/*" required>
+                    <input type="file" name="bookImage2" accept="image/*">
+                    <input type="file" name="bookImage3" accept="image/*">
+                    <input type="file" name="bookImage4" accept="image/*">
+                    <input type="file" name="bookImage5" accept="image/*">
+                    <small>Note: Upload at least 1 image, up to 5 images.</small>
+                </div>
+
+                <div class="bullet-points-section">
+                    <div class="section-title">Bullet Points</div>
+                    <input type="text" id="bulletPoint1" placeholder="Bullet Point 1">
+                    <input type="text" id="bulletPoint2" placeholder="Bullet Point 2">
+                    <input type="text" id="bulletPoint3" placeholder="Bullet Point 3">
+                    <input type="text" id="bulletPoint4" placeholder="Bullet Point 4">
+                    <input type="text" id="bulletPoint5" placeholder="Bullet Point 5">
+                </div>
+
+                <button type="submit">Upload Book</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+  document.getElementById("book-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("title", document.getElementById("title").value);
+    formData.append("author", document.getElementById("author").value);
+    formData.append("price", document.getElementById("price").value);
+    formData.append("offerPrice", document.getElementById("offerPrice").value);
+    formData.append("description", document.getElementById("description").value);
+    formData.append("category", document.getElementById("category").value);
+    formData.append("isbn", document.getElementById("isbn").value);
+    formData.append("pageNumber", document.getElementById("pageNumber").value);
+    formData.append("language", document.getElementById("language").value);
+    formData.append("weight", document.getElementById("weight").value);
+
+    // — bulletPoints as comma-separated string (for backend compatibility)
+    const bulletPointsArr = [
+      document.getElementById("bulletPoint1").value,
+      document.getElementById("bulletPoint2").value,
+      document.getElementById("bulletPoint3").value,
+      document.getElementById("bulletPoint4").value,
+      document.getElementById("bulletPoint5").value
+    ].filter(Boolean);
+    if (bulletPointsArr.length > 0) {
+      formData.append("bulletPoints", bulletPointsArr.join(","));
+    }
+
+    // — require at least 1 image, rest optional
+    const imageFields = ["bookImage1","bookImage2","bookImage3","bookImage4","bookImage5"];
+    let atLeastOne = false;
+    for (let field of imageFields) {
+      const input = document.querySelector(`input[name="${field}"]`);
+      if (input && input.files[0]) {
+        formData.append("bookImages", input.files[0]);
+        atLeastOne = true;
+      }
+    }
+    if (!atLeastOne) {
+      Swal.fire("❌ At least 1 image is required.", "", "error");
+      return;
+    }
+
+    try {
+      Swal.fire({
+        title: "📤 Uploading...",
+        text:  "Please wait, your book is uploading.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      // — relative URL, exactly like your 1st JS
+      const res = await fetch("/api/add-book", {
+        method: "POST",
+        body:   formData
+      });
+
+      Swal.close();
+
+      if (res.ok) {
+        Swal.fire("✅ Success!", "Book uploaded successfully.", "success");
+        document.getElementById("book-form").reset();
+      } else {
+        let errText = "";
+        try {
+          const err = await res.json();
+          errText = (err.message ? err.message + "\n" : "") + JSON.stringify(err, null, 2);
+        } catch (e) {
+          errText = "Unknown error";
+        }
+        Swal.fire("❌ Error", errText, "error");
+      }
+    } catch (_) {
+      Swal.close();
+      Swal.fire("❌ Error", "Network error or server not responding.", "error");
+    }
+  });
+</script>
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Book</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #222;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        input,
+        textarea,
+        select,
+        button {
+            margin: 8px 0;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .image-section {
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .image-section h3 {
+            margin-bottom: 5px;
+            color: #444;
+            font-size: 16px;
+        }
+
+        .bullet-points-section {
+            margin-top: 15px;
+        }
+
+        .bullet-points-section h3 {
+            margin-bottom: 5px;
+            color: #444;
+            font-size: 16px;
+        }
+
+        .bullet-points-section input {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Upload New Book</h1>
+        <form id="book-form">
+            <input type="text" id="title" placeholder="Book Title" required>
+            <input type="text" id="author" placeholder="Author" required>
+            <input type="number" id="price" placeholder="Price ₹" required>
+            <input type="number" id="offerPrice" placeholder="Offer Price ₹" required>
+            <textarea id="description" placeholder="Description" required></textarea>
+
+            <select id="category" required>
+                <option value="">Select Category</option>
+                <option value="New">New</option>
+                <option value="Old">Old</option>
+                <option value="All">All</option>
+            </select>
+
+            <input type="text" id="isbn" placeholder="ISBN" required>
+
+            <input type="number" id="pageNumber" placeholder="Page Number" required>
+            <input type="text" id="language" placeholder="Language" required>
+            <input type="text" id="weight" placeholder="Weight (e.g., 500g or 1.2kg)" required>
+
+            <div class="image-section">
+                <h3>Book Images (Choose 5 separate files)</h3>
+                <input type="file" name="bookImage1" accept="image/*" required>
+                <input type="file" name="bookImage2" accept="image/*">
+                <input type="file" name="bookImage3" accept="image/*">
+                <input type="file" name="bookImage4" accept="image/*">
+                <input type="file" name="bookImage5" accept="image/*">
+                <small>Note: Upload at least 1 image, up to 5 images</small>
+            </div>
+
+            <div class="bullet-points-section">
+                <h3>Bullet Points</h3>
+                <input type="text" id="bulletPoint1" placeholder="Bullet Point 1">
+                <input type="text" id="bulletPoint2" placeholder="Bullet Point 2">
+                <input type="text" id="bulletPoint3" placeholder="Bullet Point 3">
+                <input type="text" id="bulletPoint4" placeholder="Bullet Point 4">
+                <input type="text" id="bulletPoint5" placeholder="Bullet Point 5">
+            </div>
+
+            <button type="submit">Upload Book</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("book-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append("title", document.getElementById("title").value);
+            formData.append("author", document.getElementById("author").value);
+            formData.append("price", document.getElementById("price").value);
+            formData.append("offerPrice", document.getElementById("offerPrice").value);
+            formData.append("description", document.getElementById("description").value);
+            formData.append("category", document.getElementById("category").value);
+            formData.append("isbn", document.getElementById("isbn").value);
+            // Removed shippingDetails from FormData
+            formData.append("pageNumber", document.getElementById("pageNumber").value);
+            formData.append("language", document.getElementById("language").value);
+            formData.append("weight", document.getElementById("weight").value);
+
+            // Bullet points
+            formData.append("bulletPoints", [
+                document.getElementById("bulletPoint1").value,
+                document.getElementById("bulletPoint2").value,
+                document.getElementById("bulletPoint3").value,
+                document.getElementById("bulletPoint4").value,
+                document.getElementById("bulletPoint5").value
+            ].filter(Boolean));
+
+            // Image inputs
+            const imageFields = [
+                "bookImage1",
+                "bookImage2",
+                "bookImage3",
+                "bookImage4",
+                "bookImage5"
+            ];
+
+            let imageCount = 0;
+            for (let field of imageFields) {
+                const fileInput = document.querySelector(`input[name="${field}"]`);
+                if (fileInput.files[0]) {
+                    formData.append("bookImages", fileInput.files[0]);
+                    imageCount++;
+                }
+            }
+
+            if (imageCount === 0) {
+                return alert("❌ At least 1 image is required.");
+            }
+
+            const res = await fetch("/api/add-book", {
+                method: "POST",
+                body: formData
+            });
+
+            if (res.ok) {
+                alert("✅ Book Uploaded Successfully!");
+                document.getElementById("book-form").reset();
+            } else {
+                const err = await res.json();
+                alert("❌ Error: " + err.message);
+            }
+        });
+    </script>
+</body>
+
+</html>
+ -->

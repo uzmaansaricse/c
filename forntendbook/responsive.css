@@ -1,0 +1,570 @@
+@media (max-width: 1280px) {
+
+    .navbar {
+       margin: 0;
+    }
+
+    .nav-items ul {
+        margin: 0 0 0 -70px;
+    }
+
+    .logo {
+        margin: -37px 0 0 -19px;
+    }
+
+    .book-station {
+        margin: 0 10px;
+    }
+    .nav-items li {
+        white-space: nowrap;
+        gap: 0;
+        padding-left: 10px;
+    }
+    .contactsupport {
+        margin-top: -18px;
+        font-size: 11px;
+    }
+   .SignUp, .Login, .Cart {
+        background: none;
+        color: white;
+        border: none;
+        padding: 24px 3px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: 0.3s;
+      
+    }
+    
+  
+}
+
+@media (max-width: 900px) {
+    .navbar{
+        margin: 0;
+    }
+    .nav-items ul {
+        gap: 0;
+    }
+    .nav-items li {
+        padding: 0px 6px;
+        font-size: 20px;
+     
+    }
+    }
+    .Social-Media {
+        margin: 0;
+    }
+
+  
+   
+
+    .assured {
+        padding: 27px 9px 27px 21px;
+    }
+    .col {
+        line-height: 1.2;
+    }
+
+
+@media (max-width: 768px) {
+
+    .top-header h4 {
+        font-size: 17px;
+    }
+
+    .rightcontact {
+        margin: 0;
+        z-index: 5;
+    }
+
+    .techsupport ul {
+        gap: 17px;
+        font-size: 15px;
+        flex-direction: row;
+    }
+
+  
+    .logo {
+        height: auto;
+        margin: -37px -18px;
+        width: 138px;
+    }
+
+    .slider {
+        height: 281px;
+        margin-top: 55px;
+    }
+
+    .card {
+        flex: 0 0 auto;
+        width: 130px;
+        margin: 10px;
+    }
+
+    .card img {
+        WIDTH: 130PX;
+        HEIGHT: 183px;
+    }
+
+    .card h3 {
+        font-size: 11px;
+    }
+
+    .card p {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .buy-btn {
+        padding: 7px 17px;
+    }
+
+    .col {
+        gap: 4px;
+        padding: 5px 6px 5px 0px;
+    }
+
+    .assured {
+        gap: 44px;
+        padding: 20px 0px 20px 7px;
+        margin-top: 60px;
+    }
+
+    .col h3,
+    h4 {
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .popup-content {
+        font-size: 10px;
+    }
+
+    .about-container {
+        gap: 12px;
+    }
+
+
+    .about-img {
+        width: 180px;
+    }
+
+
+
+    .about-card P {
+        FONT-SIZE: 9PX;
+    }
+}
+
+/* Mobile Responsive */
+@media screen and (max-width: 768px) {
+    .navbar {
+     margin: 0;
+        height: 62px;
+        justify-content: normal !important;
+        width: 100%;
+    }
+
+    
+
+.hero {
+          padding-bottom: 10px;
+        margin-bottom: 37px;
+        margin-top: -52px;
+}
+    .nav-items {
+        display: none;
+        position: absolute;
+        top: 45px;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: #2c6e31;
+        flex-direction: column;
+        text-align: center;
+        padding: 20px 0;
+
+    }
+
+    .nav-items ul {
+        flex-direction: column;
+        gap: 10px;
+        margin: 0 0 0 -70px;
+    }
+
+    .nav-items li {
+        line-height: 0.5;
+        margin-left:40px;
+    }
+
+
+    .nav-items.actives {
+        display: flex;
+        margin-top: 180px;
+        background-color: #2c6e31;
+        padding-left: 10px;
+        z-index: 1000;
+        
+    }
+
+   
+    .menu-toggle {
+        position: absolute;
+        display: block;
+        font-size: 23px;
+        margin-left: 18px;
+        margin-top: 16px;
+    }
+
+    .search-container {
+        flex: 1;
+        margin: 9px 0 0 4px;
+    }
+
+  
+
+
+    .contactsupport {
+       margin-left: auto;
+       margin-top: 8px;
+    }
+
+    .wish-list,
+    .SignUp,
+    .Login,
+    .Cart {
+        padding: 0 12px;
+       
+       
+    }
+
+    #cart-count {
+        color: white;
+        position: relative;
+        font-size: 8px;
+    }
+
+    .head-text {
+        margin-top: 39px;
+    }
+
+    .head-text h1 {
+
+        margin-bottom: 23px;
+        font-family: monospace;
+        border-bottom: 1px solid black;
+        font-size: 22px;
+        padding: 10px;
+    }
+
+   
+
+    .oldbookh1 {
+        font-size: 2.5rem;
+        color: #2c6e31;
+        font-weight: 700;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        position: relative;
+        margin-top: 60px;
+    }
+    /* sidebar for allbook newbook & oldbook */
+    .sidebar {
+        width: 100%;
+        display: block;
+        top: 51px;
+        height: auto;
+        background: #ffffff;
+        font-family: 'Poppins', sans-serif;
+        padding: 0px;
+        box-shadow: 0px 0 0px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar ul {
+        display: flex;
+        white-space: nowrap;
+        text-align: center;
+        margin: 67px 9px 0;
+    }
+
+    .sidebar ul a {
+        text-decoration: none;
+        margin-top: 30px;
+    }
+
+    .sidebar ul li {
+        background-color: #2c6e31;
+    }
+
+    #booksContainer {
+        margin-top: 30px !important;
+        padding: 55px 0;
+     }
+    
+     .book-station {
+        margin: 10px;
+        overflow-x: hidden;
+     }
+
+     .popup {
+        padding: 30px 10px;
+     } 
+}
+
+@media (max-width:420px) {
+    .menu-toggle {
+  
+        margin-left: 18px;
+        font-size: 30px;
+    }
+
+    
+}
+
+@media (max-width:480px) {
+    .slider {
+        height: 156px;
+        margin-top: 55px;
+    }
+
+    .techsupport ul {
+        gap: 4px;
+        font-size: 11px;
+        margin-right: 26px;
+        flex-direction: column;
+    }
+
+    
+
+    .wish-list,
+    .SignUp,
+    .Login,
+    .Cart {
+        padding: 2px;
+      
+    }
+
+    .col {
+        display: flex;
+        line-height: 0.5;
+        background-color: white;
+        padding: 5px 5px;
+    }
+
+    .assured {
+        display: flex;
+        gap: 28px;
+        position: relative;
+        background-color: rgba(160, 181, 201, 0.829);
+        padding: 20px  20px;
+        margin-top: 40px;
+      
+    }
+
+    .col h3,
+    h4 {
+        font-size: 8px;
+        white-space: nowrap;
+    }
+
+    .popup-content {
+        font-size: 10px;
+    }
+
+    .Social-Media {
+        margin: 0;
+    }
+}
+
+@media (max-width:380px) {
+    
+
+    .assured {
+        gap: 8px;
+    }
+
+    .col {
+        padding: 5px 6px;
+        gap: 2px;
+    }
+
+    .col h3,
+    h4 {
+        font-size: 7px;
+    }
+    .menu-toggle {
+        margin-left: 18px;
+    }
+ 
+
+}
+
+
+@media (max-width:820px) {
+    .nav-items ul {
+        margin: 0 0 0 -70px;
+    }
+
+    .logo {
+        margin: -37px 0 0 -19px;
+    }
+
+    .book-station {
+        margin: 0 10px;
+    }
+}
+
+
+@media (max-width:834px) {
+
+     .nav-items ul {
+        margin: 0 0 0 -40px;
+        gap: 25px;
+    }
+
+    .logo {
+        margin: -37px 0 0 -19px;
+    }
+
+    .book-station {
+        margin: 0 10px;
+    }
+}
+
+/* topbar responsive */
+/* Tablet Screens (max-width: 1024px) */
+@media (max-width: 1024px) {
+    .top-header img {
+   
+        border-radius: 10px;
+    }
+    .heading h4 {
+        font-size: 1.2rem;
+    }
+    .heading h5 {
+        font-size: 1rem;
+    }
+}
+
+/* Mobile Screens (max-width: 768px) */
+@media (max-width: 768px) {
+    .top-header {
+       
+        text-align: center;
+        padding: 15px;
+        overflow: hidden;
+    }
+
+    .top-header img {
+      width: 130px;
+      height: 130px;
+        border-radius: 10px;
+    }
+    .heading h4 {
+        font-size: 1.1rem;
+    }
+
+    .heading h5 {
+        font-size: 0.9rem;
+    }
+
+    
+}
+
+/* Extra Small Screens (max-width: 480px) */
+@media (max-width: 480px) {
+    .top-header img {
+      
+        border-radius: 10px;
+      
+    }
+
+
+    .heading h4 {
+        font-size: 1rem;
+    }
+
+    .heading h5 {
+        font-size: 0.8rem;
+    }
+}
+
+
+/* ======= News Box ======= */
+@media (max-width: 768px) {
+    .mainbox {
+        width: 95%;
+      
+    }
+
+    .mainbox h2 {
+        font-size: 22px;
+    }
+
+    .newsabout p {
+        font-size: 14px;
+    }
+
+    .newsbox {
+        padding: 10px;
+    }
+
+    #contentArea p {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .mainbox {
+        width: 98%;
+       
+    }
+
+    .mainbox h2 {
+        font-size: 20px;
+    }
+
+    .newsabout p {
+        font-size: 13px;
+    }
+
+    .newsbox {
+        padding: 8px;
+    }
+
+    #contentArea p {
+        font-size: 13px;
+    }
+}
+
+ @media (max-width: 768px) {
+    .dropdown {
+     
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: none;
+        background: transparent;
+        padding: 0;
+        flex-direction: column;
+        align-items: stretch;
+        left: 129px;
+        top: -40px;
+    }
+
+    .dropdown li {
+     
+        padding: 12px 16px;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.5);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-items li:hover > .dropdown {
+        visibility: visible;
+        opacity: 1;
+        transform: scale(1);
+        display: flex;
+    }
+} 

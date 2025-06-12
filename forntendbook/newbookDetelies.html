@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>/* Outer wrapper */
+#bookDetails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    padding: 40px;
+    max-width: 1200px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Image slider section */
+.left-section {
+    flex: 1 1 40%;
+    max-width: 500px;
+    position: relative;
+}
+
+.image-slider-wrapper {
+    overflow: hidden;
+    position: relative;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+.image-slider {
+    display: flex;
+    width: 100%;
+    transition: transform 0.5s ease;
+}
+
+.slider-image {
+    width: 100%;
+    height: 400px;
+    object-fit: contain;
+    background: #f3f3f3;
+    flex-shrink: 0;
+}
+
+/* Slider buttons */
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    font-size: 24px;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.3s;
+}
+
+.slider-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.slider-btn.prev {
+    left: 10px;
+}
+
+.slider-btn.next {
+    right: 10px;
+}
+
+/* Book details section */
+.right-section {
+    flex: 1 1 55%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.right-section h2 {
+    font-size: 26px;
+    margin-bottom: 5px;
+}
+
+.right-section p {
+    font-size: 16px;
+    margin: 2px 0;
+}
+
+.book-price {
+    margin: 15px 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: #009966;
+}
+
+.old-price {
+    color: #888;
+    margin-right: 10px;
+    font-size: 18px;
+    text-decoration: line-through;
+}
+
+.offer-price {
+    color: #d32f2f;
+}
+
+
+/* ⭐ Rating display */
+.rating-overlays {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    margin: 10px 0;
+    color: #fbc02d;
+}
+
+.total-reviews {
+    color: #666;
+    font-size: 14px;
+}
+
+/* ✅ Professional Bullet Points */
+.bullet-points {
+    margin-top: 20px;
+    background: #f9f9f9;
+    padding: 15px 20px;
+    border-left: 5px solid #4caf50;
+    border-radius: 6px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
+}
+
+.bullet-points strong {
+    font-size: 18px;
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.bullet-points ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.bullet-points li {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: #444;
+}
+
+.bullet-points li::before {
+    content: "✔";
+    position: absolute;
+    left: 0;
+    color: #4caf50;
+    font-weight: bold;
+}
+</style>
+
+ </head>
+
+<body>
+
+    <div class="top-header d-flex justify-content-center align-items-center">
+
+       <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
+        <div class="heading">
+
+            <h5 class="mb-0">Aravali Publication</h5>
+        </div>
+        <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
+    </div>
+ <!-- Navbar Start -->
+<!-- ✅ NAVBAR -->
+<div class="col-sm-12 navbar">
+  <div class="menu-toggle">
+    <i class="fas fa-bars"></i>
+  </div>
+
+  <div class="col-sm-6 nav-items">
+    <ul>
+         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li class="nav-item">
+        <i class="fa-solid fa-book-open"></i> Books
+        <ul class="dropdown">
+          <li><a href="AllBookShow.html">All Book</a></li>
+          <li><a href="newBookAdd.html">New Book</a></li>
+          <li><a href="oldBookAdd.html">Old Book</a></li>
+        </ul>
+      </li>
+
+      <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+      <li><a href="FAQ.html"><i class="fas fa-question-circle"></i> FAQs</a></li>
+      <li><a href="terms&conditions.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+      <li><a href="Return-policy.html"><i class="fas fa-undo"></i> Return Policy</a></li>
+      <li><a href="shipping-info.html"><i class="fas fa-shipping-fast"></i> Shipping Info</a></li>
+      <li><a href="privacy-policy.html"><i class="fas fa-user-secret"></i> Privacy Policy</a></li>
+    </ul>
+  </div>
+
+  <div class="col-sm-3 contactsupport">
+    <!-- 🔐 SIGNUP BUTTON (shown when not logged in) -->
+    <a href="signup-login.html" id="signup-section" style="display: block;">
+      <button class="SignUp">
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </a>
+
+    <!-- ✅ PROFILE DROPDOWN (shown when logged in) -->
+    <li class="nav-item profile-dropdown-container" id="profile-dropdown-section" style="display: none;">
+      <a href="#" class="nav-link profile-dropdown-toggle">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <span class="profile-username">Profile</span>
+      </a>
+      <ul class="dropdown-menu profile-dropdown-menu">
+        <li><a href="My profile.html">My Profile</a></li>
+        <li><a href="UserStatusOrderMobleNumber.html">Orders</a></li>
+        <li><a href="Raiseissue.html">Raise an Issue</a></li>
+        <li><a href="Logout.html" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </li>
+    <a href="Cart Page with Checkout.html">
+      <button class="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <sup id="cart-count">0</sup>
+      </button>
+    </a>
+
+    <a href="QrCodeScan.html">
+      <button class="Scanner">
+        <i class="fa fa-qrcode"></i>
+      </button>
+    </a>
+
+    <!-- <a href="Search book.html">
+      <button class="Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </a> -->
+  </div>
+</div>
+
+<!-- ✅ JS SCRIPT -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem("authToken");
+
+
+    const signupSection = document.getElementById("signup-section");
+    const profileDropdown = document.getElementById("profile-dropdown-section");
+
+    // Show/hide sections based on login status
+    if (token) {
+      if (signupSection) signupSection.style.display = "none";
+      if (profileDropdown) profileDropdown.style.display = "block";
+    } else {
+      if (signupSection) signupSection.style.display = "block";
+      if (profileDropdown) profileDropdown.style.display = "none";
+    }
+  });
+
+  function logoutUser() {
+    localStorage.removeItem("authToken");
+    location.reload();
+  }
+</script>
+
+
+
+    <div id="bookDetails"></div>
+
+
+
+
+   
+ 
+
+
+
+    <!-- new book -->
+
+    <div class="head-text">
+        <h1>Similar Books</h1>
+    </div>
+
+    <div class="bookscard">
+        <div class="slide-track">
+            <section id="newBooksContainer" class="books-grid">
+                <!-- New books will be displayed here -->
+            </section>
+        </div>
+    </div>
+
+    <!-- reviews -->
+    <div style="padding: 20px;">
+        <h4 class="review-heading" style="text-align: center;"> Customer Reviews⭐</h4>
+        <div id="toggleReviewsBtn">
+         
+        </div>
+        <div id="reviewsContainer">
+            <!-- Reviews will be loaded here -->
+        </div>
+    </div>    
+    <!-- footer -->
+  
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Section 1: Logo & About -->
+            <div class="footer-section">
+                <img alt="Bookstore Logo - A stylized open book with pages turning" class="footer-logo" height="150"
+                    src="img/Aravli-final-logo.jpg" width="150" />
+
+            </div>
+            <!-- Section 2: Quick Links -->
+            <div class="footer-section">
+                <h3>
+                    Quick Links
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-home">
+                        </i>
+                        <a href="./index.html">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-th-list">
+                        </i>
+                        <a href="AllBookShow.html">
+                            All Books
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <i class="fas fa-envelope">
+                        </i>
+                        <a href="contact-us.html">
+                            Contact Us
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Section 3: Customer Support -->
+            <div class="footer-section">
+                <h3>
+                    Customer Support
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-question-circle">
+                        </i>
+                        <a href="./FAQ.html">
+                            FAQs
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-undo">
+                        </i>
+                        <a href="./Return-policy.html">
+                            Return Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-shipping-fast">
+                        </i>
+                        <a href="./shipping-info.html">
+                            Shipping Info
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-user-secret">
+                        </i>
+                        <a href="./privacy-policy.html">
+                            Privacy Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-file-contract">
+                        </i>
+                        <a href="./terms&conditions.html">
+                            Terms &amp; Conditions
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- section Contact Us -->
+            <div class="footer-section">
+                <div class="Contact-US">
+                    <h3>Contact-US</h3>
+                    <a href="tel:+919358087121">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919358087121</p>
+                    </a>
+                    <a href="tel:+919982934869">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919982934869</p>
+                    </a>
+                    <p><i class="fa fa-location"></i> <b>Address:</b>&nbsp; Plot number 1, Rajeev Nagar, Vidhyadhar Nagar
+                        Sector 3, Jaipur 302038</p>
+                </div>
+            </div>
+            <!-- Section 4: Social Media -->
+            <div class="Social-Media">
+                <h3>
+                    Follow Us
+                </h3>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/15TCANusow/" target="_blank">
+                        <i class="fab fa-facebook fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://t.me/aravalipublication" target="_blank">
+                        <i class="fa-brands fa-telegram fa-2x"></i>
+                    </a>
+                    <a href="https://www.instagram.com/prahladramyadav?igsh=emM0emJocmg0Yncx " target="_blank">
+                        <i class="fab fa-instagram fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://wa.me/+919358087121" target="_blank"> <i class="fa-brands fa-whatsapp fa-2x"></i>
+                    </a>
+
+                </div>
+                <p class="mt-4">
+                    Stay connected with us.
+                </p>
+            </div>
+
+
+
+        </div>
+        <!-- Copyright Section -->
+        <div class="footer-bottom">
+            <p>
+                © 2025 Aravali publication | All Rights Reserved | Designed & Developed by <a
+                    href="https://www.techbro24.com/" target="_blank"> TechBro24</a>
+                    <hr>
+            </p>
+        </div>
+    </footer>
+   
+        // menu toggle active
+        document.querySelector(".menu-toggle").addEventListener("click", function () {
+            document.querySelector(".nav-items").classList.toggle("active");
+        });
+ </script>  
+ 
+   <script>
+    async function fetchBookDetails() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookId = urlParams.get("id");
+    
+        if (!bookId) {
+            alert("Book ID not found!");
+            return;
+        }
+    
+        try {
+            const response = await fetch(`/BookDetails/${bookId}`);
+            const data = await response.json();
+            const book = data.book;
+    
+            if (!book || Object.keys(book).length === 0) {
+                alert("Book not found!");
+                return;
+            }
+    
+            document.getElementById("bookDetails").innerHTML = `
+                <div class="left-section">
+                 
+                    <div class="image-slider-wrapper">
+                        <div class="image-slider">
+                            ${book.bookImages.map((img, index) => `
+                                <img src="${img}" alt="${book.title}" class="slider-image" data-index="${index}">
+                            `).join('')}
+                        </div>
+                        <button class="slider-btn prev">&#10094;</button>
+                        <button class="slider-btn next">&#10095;</button>
+                    </div>
+                </div>
+                <div class="right-section">
+                    <h2>${book.title}</h2>
+                
+                    
+                  
+                    <div class="rating-overlays">
+                        ${generateStars(book.averageRating)}
+                        <span class="avg-text">(${book.averageRating || 0} ⭐)</span>
+                        <span class="total-reviews">${book.totalReviews || 0} reviews</span>
+                    </div>
+                        <p><strong>Author:</strong> ${book.author}</p>
+                    <p><strong>Description:</strong> ${book.description}</p>
+                    <p><strong>ISBN:</strong> ${book.isbn}</p>
+                    <p><strong>Pages:</strong> ${book.pageNumber}</p>
+                    <p><strong>Language:</strong> ${book.language}</p>
+                    <p><strong>Weight:</strong> ${book.weight} gm</p>
+                    
+                    <div class="book-price">
+                        <span class="old-price" style="text-decoration: line-through;">₹${book.price}</span> 
+                        <span class="offer-price">₹${book.offerPrice}</span>
+                    </div>
+               
+    
+                    <div class="bullet-points">
+                        <strong>bullet-points</strong>
+                        <ul>
+                            ${book.bulletPoints.map(point => `
+                                <li>${point}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                         <button id="addToCartBtn" class="add-cart">Add to cart</button>
+                </div>
+            `;
+    
+
+            // JavaScript for Slider Functionality
+let currentIndex = 0;  // Current slide index
+const slides = document.querySelectorAll('.slider-image');  // All images in the slider
+
+// Get slider buttons
+const prevButton = document.querySelector('.slider-btn.prev');
+const nextButton = document.querySelector('.slider-btn.next');
+
+// Function to move to the next slide
+function showNextSlide() {
+    if (currentIndex < slides.length - 1) {
+        currentIndex++;
+    } else {
+        currentIndex = 0;  // Loop back to the first slide
+    }
+    updateSliderPosition();
+}
+
+// Function to move to the previous slide
+function showPrevSlide() {
+    if (currentIndex > 0) {
+        currentIndex--;
+    } else {
+        currentIndex = slides.length - 1;  // Loop back to the last slide
+    }
+    updateSliderPosition();
+}
+
+// Function to update the position of the slider based on currentIndex
+function updateSliderPosition() {
+    const newTransformValue = `translateX(-${currentIndex * 100}%)`;  // Calculate how much to move
+    document.querySelector('.image-slider').style.transform = newTransformValue;
+}
+
+// Add event listeners to buttons
+prevButton.addEventListener('click', showPrevSlide);
+nextButton.addEventListener('click', showNextSlide);
+
+            // 👇 Always enabled Buy Now button
+            document.getElementById("addToCartBtn").addEventListener("click", function () {
+                addToCart(book._id || book.id, book.title, book.bookImages[0], book.offerPrice);
+                // Hide Add to Cart, show Go to Cart            // changes isha
+                this.style.display = "none";
+                let goCartBtn = document.getElementById("goToCartBtn");
+                if (!goCartBtn) {
+                    goCartBtn = document.createElement("button");
+                    goCartBtn.id = "goToCartBtn";
+                    goCartBtn.textContent = "Go to Cart";
+                    goCartBtn.className = "go-cart blue-btn";
+                    this.parentNode.appendChild(goCartBtn);
+                    goCartBtn.addEventListener("click", function() {
+                        window.location.href = "Cart Page with Checkout.html";
+                    });
+                } else {
+                    goCartBtn.style.display = "inline-block";
+                }
+            });
+    
+            const reviewsContainer = document.getElementById("reviewsContainer");
+            const reviews = await fetchReviews(bookId);
+            reviewsContainer.innerHTML = reviews;
+            reviewsContainer.style.display = "block"; // Ensure reviews are visible
+    
+        } catch (error) {
+            console.error("Error fetching book details:", error);
+        }
+    }
+    
+    // ⭐ Fetch reviews API call
+    async function fetchReviews(bookId) {
+        try {
+            const res = await fetch(`/BookReviews/${bookId}`);
+            const data = await res.json();
+            if (data.reviews.length === 0) {
+                return `<p>No reviews found for this book.</p>`;
+            }
+            return data.reviews.map(r => `
+                <div style="border-bottom: 1px solid #ddd; padding: 5px 0;">
+                    <strong>${r.name || "Anonymous"}</strong>
+                    <div>${generateStars(r.rating)} (${r.rating} ⭐)</div>
+                    <p style="margin: 5px 0;">${r.review}</p>
+                </div>
+            `).join('');
+        } catch (err) {
+            return `<p>Failed to load reviews.</p>`;
+        }
+    }
+    
+    function addToCart(id, title, image, price) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let existingItem = cart.find(item => item.id === id);
+    
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ id, title, image, price, quantity: 1 });
+        }
+    
+        localStorage.setItem("cart", JSON.stringify(cart));
+        
+        // ✅ **Cart icon ka count update karein**
+        updateCartNotification();
+    
+        alert("Book added to cart!");
+    }
+    
+    // 🔔 **Cart Badge Update Function**
+    function updateCartNotification() {
+        const cartBadge = document.querySelector("sup#cart-count");
+    
+        if (!cartBadge) {
+            console.warn("❌ Cart count element not found in DOM!");
+            return;
+        }
+    
+        let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+        const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    
+        cartBadge.textContent = totalQuantity; 
+        cartBadge.style.display = totalQuantity === 0 ? "none" : "inline-block";
+    }
+    
+    // ✅ **Page Load par bhi Cart Badge Update karein**
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchBookDetails();
+        updateCartNotification();
+    });
+    
+    // Image slider logic
+    window.onload = function() {
+        const slider = document.querySelector('.image-slider');
+        const images = document.querySelectorAll('.slider-image');
+        let slideIndex = 0;
+    
+        const nextButton = document.querySelector('.slider-btn.next');
+        const prevButton = document.querySelector('.slider-btn.prev');
+    
+        // Show the first image by default
+        showSlide(slideIndex);
+    
+        // Next button functionality
+        nextButton.addEventListener('click', function() {
+            slideIndex = (slideIndex + 1) % images.length;
+            showSlide(slideIndex);
+        });
+    
+        // Previous button functionality
+        prevButton.addEventListener('click', function() {
+            slideIndex = (slideIndex - 1 + images.length) % images.length;
+            showSlide(slideIndex);
+        });
+    
+        
+        // Function to display a particular slide
+        function showSlide(index) {
+            slider.style.transform = `translateX(-${index * 100}%)`;
+        }
+    };
+    </script>
+    
+ <script src="script.js"></script>
+</body>
+
+</html>
+

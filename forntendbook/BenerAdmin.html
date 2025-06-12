@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <title>Admin Panel - Image Management</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   <style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+
+    h2 {
+        color: #333;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        background-color: #2c6e31;
+        color: white;
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding: 20px 0;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 22px;
+    }
+
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar ul li {
+        margin: 10px 0;
+    }
+
+    .sidebar ul li a {
+        display: block;
+        padding: 12px 20px;
+        text-decoration: none;
+        color: white;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        border-radius: 5px;
+    }
+
+    .sidebar ul li a:hover {
+        background-color: #3f8744;
+    }
+
+    .container {
+        margin-left: 270px;
+        padding: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .upload-box {
+        width: 180px;
+        height: 180px;
+        border: 3px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 24px;
+        color: #666;
+        border-radius: 10px;
+        background: #fff;
+        transition: all 0.3s ease;
+    }
+
+    .upload-box:hover {
+        background: #e0e0e0;
+    }
+
+    .upload-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .image-card {
+        position: relative;
+        width: 180px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background: #fff;
+        padding: 10px;
+    }
+
+    .image-card img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .btn-container {
+        display: flex;
+        gap: 5px;
+        margin-top: 8px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 8px;
+        cursor: pointer;
+        border: none;
+        font-size: 14px;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+
+    .delete-btn {
+        background: red;
+        color: white;
+    }
+
+    .banner-btn {
+        background: green;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.8;
+    }
+
+    /* RESPONSIVE STYLES */
+    @media (max-width: 768px) {
+        .sidebar {
+            position: relative;
+            width: 100%;
+            height: auto;
+            box-shadow: none;
+        }
+
+        .container {
+            margin-left: 0;
+            padding: 20px 10px;
+        }
+
+        .upload-box, .image-card {
+            width: 45%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .upload-box, .image-card {
+            width: 100%;
+        }
+
+        .sidebar ul li a {
+            font-size: 14px;
+            padding: 10px 15px;
+        }
+
+        .btn {
+            font-size: 12px;
+            padding: 6px;
+        }
+    }
+</style>
+
+</head>
+<body>
+       <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <ul>
+            <li><a href="book-upload.html">Upload Book</a></li>
+            <li><a href="BookUpdate Admin.html">Book Update</a></li>
+            <li><a href="video and imag showAdmin.html">News Box</a></li>
+            <li><a href="orderAdmin-analytics.html">Order Analytics</a></li>
+            <li><a href="Admin order summery.html">Order Summary</a></li>
+            <li><a href="admin-all-ordersWithUpdate.html">All Orders</a></li>
+            <li><a href="AdminBookDelete.html">Delete Book</a></li>
+            <li><a href="AdminPendingOrdersSavenday.html">Pending Orders</a></li>
+            <li><a href="BenerAdmin.html">Manage Banner</a></li>
+            <li><a href="uploadcsv.html">Upload CSV</a></li>
+            <li><a href="tech-support.html">Tech Support</a></li>
+        </ul>
+    </div>
+    <h2>Manage Images</h2>
+    <div class="container" id="imageContainer">
+        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+            <span>+</span>
+            <input type="file" id="fileInput" style="display: none" accept="image/*" onchange="uploadImage(event)">
+        </div>
+    </div>
+
+<script>
+    async function uploadImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("image", file); // Change 'file' to 'image' to match backend multer field
+
+        // Show loader while uploading
+        Swal.fire({
+            title: 'Please wait...',
+            text: 'Uploading image...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        try {
+            const response = await fetch("/api/upload-imagepanel", {
+                method: "POST",
+                body: formData
+            });
+            let result, text;
+            try {
+                result = await response.json();
+            } catch (e) {
+                // If not JSON, get the raw text before any other reads
+                text = await response.clone().text();
+                Swal.close();
+                Swal.fire({
+                    icon: "error",
+                    title: "Upload Failed!",
+                    text: text.length > 200 ? text.slice(0,200)+"..." : text
+                });
+                return;
+            }
+
+            Swal.close(); // Close loader after response
+
+            if (result.success) {
+                addImage(result.imageUrl, result.id, false);
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Image uploaded successfully!",
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Upload Failed!",
+                    text: result.message || "Something went wrong."
+                });
+            }
+        } catch (error) {
+            Swal.close(); // Ensure loader closes on error
+            Swal.fire({
+                icon: "error",
+                title: "Upload Failed!",
+                text: error.message
+            });
+        }
+    }
+
+    function addImage(url, id, isBanner) {
+        const imgBox = document.createElement("div");
+        imgBox.classList.add("image-card");
+
+        const img = document.createElement("img");
+        img.src = url;
+        if (isBanner) img.style.border = "3px solid green";
+
+        const btnContainer = document.createElement("div");
+        btnContainer.classList.add("btn-container");
+
+        const bannerBtn = document.createElement("button");
+        bannerBtn.classList.add("btn", "banner-btn");
+        bannerBtn.innerText = isBanner ? "Remove from Banner" : "Set as Banner";
+
+        bannerBtn.onclick = async function () {
+            Swal.fire({
+                title: 'Please wait...',
+                text: 'Updating banner status...',
+                allowOutsideClick: false,
+                timer: 10000, // Loader will show for up to 10 seconds
+                didOpen: () => Swal.showLoading()
+            });
+            const res = await fetch(`/api/toggle-banner/${id}`, { method: "PUT" });
+            const data = await res.json();
+            Swal.close();
+            if (data.success) {
+                img.style.border = data.newBannerStatus ? "3px solid green" : "";
+                bannerBtn.innerText = data.newBannerStatus ? "Remove from Banner" : "Set as Banner";
+            }
+        };
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.classList.add("btn", "delete-btn");
+        deleteBtn.innerText = "Delete";
+
+        deleteBtn.onclick = async function () {
+            const result = await Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            });
+
+            if (result.isConfirmed) {
+                const res = await fetch(`/api/delete-image/${id}`, {
+                    method: "DELETE"
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    imgBox.remove();
+                    Swal.fire({
+                        icon: "success",
+                        title: "Deleted!",
+                        text: "Your image has been deleted.",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Delete Failed!",
+                        text: data.message || "Something went wrong."
+                    });
+                }
+            }
+        };
+
+        btnContainer.appendChild(bannerBtn);
+        btnContainer.appendChild(deleteBtn);
+        imgBox.appendChild(img);
+        imgBox.appendChild(btnContainer);
+        document.getElementById("imageContainer").appendChild(imgBox);
+    }
+
+    async function fetchImages() {
+        const response = await fetch("/api/get-images");
+        const result = await response.json();
+        if (result.success) {
+            const imageContainer = document.getElementById("imageContainer");
+            imageContainer.innerHTML = "";
+            const uploadDiv = document.createElement("div");
+            uploadDiv.innerHTML = `
+                <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+                    <span>+</span>
+                    <input type="file" id="fileInput" style="display: none" accept="image/*" onchange="uploadImage(event)">
+                </div>
+            `;
+            imageContainer.appendChild(uploadDiv);
+            result.images.forEach(img => addImage(img.url, img._id, img.isBanner));
+        }
+    }
+
+    // Add a filter to show only banners or all images
+    function addBannerFilter() {
+        const container = document.querySelector('.container');
+        if (!container) return;
+        const filterDiv = document.createElement('div');
+        filterDiv.style.margin = '10px 0 20px 0';
+        filterDiv.style.textAlign = 'center';
+        filterDiv.innerHTML = `
+            <button id="showAllBtn" class="btn" style="background:#2c6e31;color:white;margin-right:10px;">Show All Images</button>
+            <button id="showBannerBtn" class="btn" style="background:#3f8744;color:white;">Show Only Banners</button>
+        `;
+        container.parentNode.insertBefore(filterDiv, container);
+        document.getElementById('showAllBtn').onclick = () => fetchImages();
+        document.getElementById('showBannerBtn').onclick = () => fetchBannersOnly();
+    }
+
+    async function fetchBannersOnly() {
+        const response = await fetch("/api/get-images");
+        const result = await response.json();
+        if (result.success) {
+            const imageContainer = document.getElementById("imageContainer");
+            imageContainer.innerHTML = "";
+            const uploadDiv = document.createElement("div");
+            uploadDiv.innerHTML = `
+                <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+                    <span>+</span>
+                    <input type="file" id="fileInput" style="display: none" accept="image/*" onchange="uploadImage(event)">
+                </div>
+            `;
+            imageContainer.appendChild(uploadDiv);
+            result.images.filter(img => img.isBanner).forEach(img => addImage(img.url, img._id, img.isBanner));
+        }
+    }
+
+    addBannerFilter();
+    fetchImages();
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>

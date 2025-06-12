@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+   
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Arawali Publication Bookstore</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="responsive.css">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        
+
+        body {
+            font-family: 'Poppins', sans-serif;
+         
+           
+          
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+
+
+
+        .logo {
+            display: flex;
+        }
+
+        .logo-img {
+            border-radius: 10px;
+            height: 111px;
+        }
+
+        header:hover {
+            background-color: #34495e;
+        }
+
+        .about-section {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 40px;
+            margin-top: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1.5s ease-in-out;
+            transition: all 0.3s;
+        }
+
+        .about-section:hover {
+            transform: translateY(-5px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .about-section img {
+            width: 50%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .about-section img:hover {
+            transform: scale(1.05);
+        }
+
+        .about-content {
+            text-align: left;
+            flex: 1;
+            margin-left: 20px;
+        }
+
+        .about-content h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .about-content p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 14px 28px;
+            background-color: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 18px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .testimonials {
+            background: #ecf0f1;
+            padding: 40px;
+            margin-top: 40px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .testimonial {
+            font-style: italic;
+            font-size: 18px;
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+
+        .testimonial::before {
+            content: "“";
+            font-size: 40px;
+            color: #e74c3c;
+            margin-right: 10px;
+        }
+
+       
+
+       
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .about-section {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .about-section img {
+                width: 70%;
+                margin-bottom: 20px;
+            }
+
+            .about-content {
+                margin-left: 0;
+            }
+
+            .cta-button {
+                width: 100%;
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+  
+  
+    <div class="top-header d-flex justify-content-center align-items-center">
+
+       <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
+        <div class="heading">
+
+            <h5 class="mb-0">Aravali Publication</h5>
+        </div>
+        <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
+    </div>
+ <!-- Navbar Start -->
+<!-- ✅ NAVBAR -->
+<div class="col-sm-12 navbar">
+  <div class="menu-toggle">
+    <i class="fas fa-bars"></i>
+  </div>
+
+  <div class="col-sm-6 nav-items">
+    <ul>
+         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li class="nav-item">
+        <i class="fa-solid fa-book-open"></i> Books
+        <ul class="dropdown">
+          <li><a href="AllBookShow.html">All Book</a></li>
+          <li><a href="newBookAdd.html">New Book</a></li>
+          <li><a href="oldBookAdd.html">Old Book</a></li>
+        </ul>
+      </li>
+
+      <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+      <li><a href="FAQ.html"><i class="fas fa-question-circle"></i> FAQs</a></li>
+      <li><a href="terms&conditions.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+      <li><a href="Return-policy.html"><i class="fas fa-undo"></i> Return Policy</a></li>
+      <li><a href="shipping-info.html"><i class="fas fa-shipping-fast"></i> Shipping Info</a></li>
+      <li><a href="privacy-policy.html"><i class="fas fa-user-secret"></i> Privacy Policy</a></li>
+    </ul>
+  </div>
+
+  <div class="col-sm-3 contactsupport">
+    <!-- 🔐 SIGNUP BUTTON (shown when not logged in) -->
+    <a href="signup-login.html" id="signup-section" style="display: block;">
+      <button class="SignUp">
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </a>
+
+    <!-- ✅ PROFILE DROPDOWN (shown when logged in) -->
+    <li class="nav-item profile-dropdown-container" id="profile-dropdown-section" style="display: none;">
+      <a href="#" class="nav-link profile-dropdown-toggle">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <span class="profile-username">Profile</span>
+      </a>
+      <ul class="dropdown-menu profile-dropdown-menu">
+        <li><a href="My profile.html">My Profile</a></li>
+        <li><a href="UserStatusOrderMobleNumber.html">Orders</a></li>
+        <li><a href="Raiseissue.html">Raise an Issue</a></li>
+        <li><a href="Logout.html" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </li>
+    <a href="Cart Page with Checkout.html">
+      <button class="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <sup id="cart-count">0</sup>
+      </button>
+    </a>
+
+    <a href="QrCodeScan.html">
+      <button class="Scanner">
+        <i class="fa fa-qrcode"></i>
+      </button>
+    </a>
+
+    <a href="Search book.html">
+      <button class="Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </a>
+  </div>
+</div>
+
+<!-- ✅ JS SCRIPT -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem("authToken");
+
+
+    const signupSection = document.getElementById("signup-section");
+    const profileDropdown = document.getElementById("profile-dropdown-section");
+
+    // Show/hide sections based on login status
+    if (token) {
+      if (signupSection) signupSection.style.display = "none";
+      if (profileDropdown) profileDropdown.style.display = "block";
+    } else {
+      if (signupSection) signupSection.style.display = "block";
+      if (profileDropdown) profileDropdown.style.display = "none";
+    }
+  });
+
+  function logoutUser() {
+    localStorage.removeItem("authToken");
+    location.reload();
+  }
+</script>
+
+    <div class="container">
+        <!-- About Section -->
+        <div class="about-section">
+
+
+
+            <div class="about-content">
+                <h2>Welcome to Aravali Publication Bookstore</h2>
+                <p>At Aravali Publication Bookstore, we believe in the power of books to shape minds, ignite
+                    imaginations, and open doors to endless possibilities. Located at the heart of the literary world,
+                    we are a leading bookstore offering a wide range of high-quality publications for readers of all
+                    ages and interests.</p>
+
+                <h2>Our Mission</h2>
+                <p>Our mission is simple: to bring the world of knowledge to your doorstep. Whether you're a student
+                    looking for textbooks, a professional searching for industry-specific references, or a casual reader
+                    exploring new worlds, we've got something for everyone. Our carefully curated collection includes
+                    everything from educational books, self-help guides, fiction, to rare finds and more.</p>
+
+                <h2>Why Choose Us?</h2>
+                <ul>
+                    <li><b>Wide Selection:</b> We carry books in various genres, including educational, academic,
+                        self-improvement, fiction, children's books, and rare finds.</li>
+                    <li><b>Affordable Prices:</b> We believe that knowledge should be accessible to everyone, so we
+                        strive to offer books at affordable prices.</li>
+                    <li><b>Quality & Authenticity:</b> All our books are sourced from trusted publishers, ensuring you
+                        get authentic, high-quality publications.</li>
+                    <li><b>Personalized Recommendations:</b> Whether you're looking for the latest bestseller or an old
+                        classic, our team of passionate book lovers is here to guide you to the perfect pick.</li>
+                    <li><b>Exceptional Service:</b> We offer excellent customer support, providing assistance with any
+                        queries and helping you find exactly what you're looking for.</li>
+                </ul>
+
+                <h2>Our Values</h2>
+                <ul>
+                    <li><b>Knowledge:</b> We believe in the power of knowledge and learning, and we strive to make it
+                        accessible to all.</li>
+                    <li><b>Passion for Books:</b> At the heart of Arawali Publication Bookstore is our deep passion for
+                        books. We are committed to sharing that love with you.</li>
+                    <li><b>Customer Satisfaction:</b> Our customers are at the center of everything we do. We prioritize
+                        their satisfaction and go the extra mile to exceed their expectations.</li>
+                </ul>
+
+                <h2>Our Journey</h2>
+                <p>Founded in 2010, Arawali Publication Bookstore has grown from a small local shop to one of the most
+                    trusted bookstores in the region. Today, we are proud to be a destination for book lovers, students,
+                    and professionals alike.</p>
+
+                <a href="#" class="cta-button">Shop Now</a>
+            </div>
+        </div>
+
+        <!-- Testimonials Section -->
+        <div class="testimonials">
+            <h2>What Our Readers Say</h2>
+            <p class="testimonial">"Aravali Publication has the best collection of educational books!" - Rajesh K.</p>
+            <p class="testimonial">"A great place to find rare and unique books." - Pooja M.</p>
+        </div>
+
+        <!-- Social Media Links -->
+        <div class="social-icons">
+            <h3>Follow Us</h3>
+            <a href="https://www.facebook.com/share/15TCANusow/" target="_blank"><i
+                    class="fa-brands fa-facebook"></i></a>
+            <a href="https://www.instagram.com/prahladramyadav?igsh=emM0emJocmg0Yncx" target="_blank"><i
+                    class="fa-brands fa-instagram"></i></a>
+            <a href="https://t.me/aravalipublication" target="_blank">
+                <i class="fa-brands fa-telegram "></i>
+            </a>
+        </div>
+    </div>
+
+   
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Section 1: Logo & About -->
+            <div class="footer-section">
+                <img alt="Bookstore Logo - A stylized open book with pages turning" class="footer-logo" height="150"
+                    src="img/Aravli-final-logo.jpg" width="150" />
+
+            </div>
+            <!-- Section 2: Quick Links -->
+            <div class="footer-section">
+                <h3>
+                    Quick Links
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-home">
+                        </i>
+                        <a href="./index.html">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-th-list">
+                        </i>
+                        <a href="AllBookShow.html">
+                            All Books
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <i class="fas fa-envelope">
+                        </i>
+                        <a href="contact-us.html">
+                            Contact Us
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Section 3: Customer Support -->
+            <div class="footer-section">
+                <h3>
+                    Customer Support
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-question-circle">
+                        </i>
+                        <a href="./FAQ.html">
+                            FAQs
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-undo">
+                        </i>
+                        <a href="./Return-policy.html">
+                            Return Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-shipping-fast">
+                        </i>
+                        <a href="./shipping-info.html">
+                            Shipping Info
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-user-secret">
+                        </i>
+                        <a href="./privacy-policy.html">
+                            Privacy Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-file-contract">
+                        </i>
+                        <a href="./terms&conditions.html">
+                            Terms &amp; Conditions
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- section Contact Us -->
+            <div class="footer-section">
+                <div class="Contact-US">
+                    <h3>Contact-US</h3>
+                    <a href="tel:+919358087121">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919358087121</p>
+                    </a>
+                    <a href="tel:+919982934869">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919982934869</p>
+                    </a>
+                    <p><i class="fa fa-location"></i> <b>Address:</b>&nbsp; Plot number 1, Rajeev Nagar, Vidhyadhar
+                        Nagar
+                        Sector 3, Jaipur 302038</p>
+                </div>
+            </div>
+            <!-- Section 4: Social Media -->
+            <div class="Social-Media">
+                <h3>
+                    Follow Us
+                </h3>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/15TCANusow/" target="_blank">
+                        <i class="fab fa-facebook fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://t.me/aravalipublication" target="_blank">
+                        <i class="fa-brands fa-telegram fa-2x"></i>
+                    </a>
+                    <a href="https://www.instagram.com/prahladramyadav?igsh=emM0emJocmg0Yncx " target="_blank">
+                        <i class="fab fa-instagram fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://wa.me/+919358087121" target="_blank"> <i class="fa-brands fa-whatsapp fa-2x"></i>
+                    </a>
+
+                </div>
+                <p class="mt-4">
+                    Stay connected with us.
+                </p>
+            </div>
+
+
+
+        </div>
+        <!-- Copyright Section -->
+        <div class="footer-bottom">
+            <p>
+                © 2025 Aravali publication | All Rights Reserved | Designed & Developed by <a
+                    href="https://www.techbro24.com/" target="_blank"> TechBro24</a>
+                <hr>
+            </p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

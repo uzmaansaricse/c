@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Banner</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+
+        .slider-container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            position: relative;
+            border: 3px solid green;
+        }
+
+        .banner-container {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            width: max-content;
+        }
+
+        .banner-container img {
+            width: 200px;
+            height: 120px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Website Banner</h2>
+    <div class="slider-container">
+        <div class="banner-container" id="bannerContainer"></div>
+    </div>
+
+    <script>
+        async function fetchBanners() {
+            try {
+                const response = await fetch("/api/banners");
+                const result = await response.json();
+                if (result.success) {
+                    const container = document.getElementById("bannerContainer");
+                    container.innerHTML = "";
+
+                    result.banners.forEach(img => {
+                        const imgEl = document.createElement("img");
+                        imgEl.src = img.url;
+                        container.appendChild(imgEl);
+                    });
+
+                    startSlider(); // Start the auto-slide
+                }
+            } catch (error) {
+                console.error("Error fetching banners:", error);
+            }
+        }
+
+        function startSlider() {
+            const container = document.getElementById("bannerContainer");
+            let scrollAmount = 0;
+
+            setInterval(() => {
+                if (scrollAmount >= container.scrollWidth - container.clientWidth) {
+                    scrollAmount = 0;
+                } else {
+                    scrollAmount += 210; // Image width + margin
+                }
+                container.style.transform = `translateX(-${scrollAmount}px)`;
+            }, 5000); // Slide every 2 seconds
+        }
+
+        fetchBanners();
+    </script>
+</body>
+</html>

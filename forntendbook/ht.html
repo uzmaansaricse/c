@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Books</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* Sidebar Styling */
+    .sidebar {
+      height: 100%;
+      width: 250px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color:  #2c6e31;
+      padding-top: 20px;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    .sidebar a {
+      padding: 15px 25px;
+      text-decoration: none;
+      font-size: 18px;
+      color: white;
+      display: block;
+      transition: background-color 0.3s;
+    }
+    .sidebar a:hover {
+      background-color: #3f8744;
+    }
+        .sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+    /* Main Content Styling */
+    .main-content {
+      margin-left: 260px; /* Adjust to account for sidebar width */
+      padding: 20px;
+    }
+    table {
+      width: 90%;
+      margin: 40px auto;
+      border-collapse: collapse;
+      font-family: Arial, sans-serif;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background-color:#2c6e31;
+      color: white;
+    }
+    img {
+      width: 60px;
+      height: auto;
+      border-radius: 4px;
+    }
+    button {
+      padding: 5px 10px;
+      background-color: orange;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    #updateForm {
+      display: none;
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+    }
+    #updateForm label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    #updateForm input, #updateForm textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+    #updateForm img {
+      margin-top: 10px;
+      max-width: 100px;
+      display: block;
+    }
+    #updateForm button {
+      margin-top: 15px;
+      background-color: #2c6e31;
+    }
+  </style>
+</head>
+<body>
+
+
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <ul>
+            <li><a href="book-upload.html">Upload Book</a></li>
+            <li><a href="BookUpdate Admin.html">Book Update</a></li>
+            <li><a href="video and imag showAdmin.html">News Box</a></li>
+            <li><a href="orderAdmin-analytics.html">Order Analytics</a></li>
+            <li><a href="Admin order summery.html">Order Summary</a></li>
+            <li><a href="admin-all-ordersWithUpdate.html">All Orders</a></li>
+            <li><a href="AdminBookDelete.html">Delete Book</a></li>
+            <li><a href="AdminPendingOrdersSavenday.html">Pending Orders</a></li>
+            <li><a href="BenerAdmin.html">Manage Banner</a></li>
+            <li><a href="uploadcsv.html">Upload CSV</a></li>
+            <li><a href="tech-support.html">Tech Support</a></li>
+        </ul>
+    </div>
+
+
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <h2 style="text-align: center;">📚 All Book List with Image</h2>
+
+    <table id="bookTable">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Price (₹)</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="bookTableBody"></tbody>
+    </table>
+
+    <!-- Update Form -->
+    <div id="updateForm">
+      <h3>📘 Update Book</h3>
+      <form id="bookUpdateForm">
+        <input type="hidden" id="bookId" />
+        <label>Title:</label>
+        <input type="text" id="title" required />
+        <label>Author:</label>
+        <input type="text" id="author" required />
+        <label>Price (₹):</label>
+        <input type="number" id="price" required />
+        <label>Offer Price (₹):</label>
+        <input type="number" id="offerPrice" />
+        <label>Description:</label>
+        <textarea id="description" rows="3"></textarea>
+        <label>Category:</label>
+        <input type="text" id="category" />
+        <label>ISBN:</label>
+        <input type="text" id="isbn" />
+        <label>Page Number:</label>
+        <input type="number" id="pageNumber" />
+        <label>Language:</label>
+        <input type="text" id="language" />
+        <label>Weight (kg):</label>
+        <input type="text" id="weight" />
+
+        <!-- Bullet Points -->
+        <label>Bullet Points (separate with commas):</label>
+        <textarea id="bulletPoints" rows="3"></textarea>
+
+        <label>Image Preview:</label>
+        <img id="previewImage" src="" alt="Book Image" />
+        <label>Change Image:</label>
+        <input type="file" id="newImage" accept="image/*" />
+        <button type="submit">Update Book</button>
+      </form>
+    </div>
+  </div>
+
+ 
+  <script>
+    async function loadBooks() {
+      const res = await fetch('/api/all-book-Show');
+      const data = await res.json();
+      const bookTableBody = document.getElementById('bookTableBody');
+      bookTableBody.innerHTML = '';
+
+      data.books.forEach(book => {
+        const row = document.createElement('tr');
+        row.innerHTML = 
+          `<td><img src="${book.bookImage}" alt="${book.title}" /></td>
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>${book.price}</td>
+          <td><button onclick="showUpdateForm('${book._id}')">View</button></td>`;
+        bookTableBody.appendChild(row);
+      });
+    }
+
+    async function showUpdateForm(bookId) {
+      const res = await fetch(`/api/book/${bookId}`);
+      const data = await res.json();
+      const book = data.book;
+      if (!book) return alert('Book not found');
+
+      document.getElementById('updateForm').style.display = 'block';
+      document.getElementById('bookId').value = book._id;
+      document.getElementById('title').value = book.title;
+      document.getElementById('author').value = book.author;
+      document.getElementById('price').value = book.price;
+      document.getElementById('offerPrice').value = book.offerPrice;
+      document.getElementById('description').value = book.description;
+      document.getElementById('category').value = book.category;
+      document.getElementById('isbn').value = book.isbn;
+      document.getElementById('pageNumber').value = book.pageNumber;
+      document.getElementById('language').value = book.language;
+      document.getElementById('weight').value = book.weight;
+      document.getElementById('bulletPoints').value = book.bulletPoints ? book.bulletPoints.join(', ') : '';
+      document.getElementById('previewImage').src = book.bookImage;
+    }
+
+    document.getElementById('bookUpdateForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const bookId = document.getElementById('bookId').value;
+      const formData = new FormData();
+
+      formData.append('title', document.getElementById('title').value);
+      formData.append('author', document.getElementById('author').value);
+      formData.append('price', document.getElementById('price').value);
+      formData.append('offerPrice', document.getElementById('offerPrice').value);
+      formData.append('description', document.getElementById('description').value);
+      formData.append('category', document.getElementById('category').value);
+      formData.append('isbn', document.getElementById('isbn').value);
+      formData.append('pageNumber', document.getElementById('pageNumber').value);
+      formData.append('language', document.getElementById('language').value);
+      formData.append('weight', document.getElementById('weight').value);
+      formData.append('bulletPoints', document.getElementById('bulletPoints').value);
+
+      const newImage = document.getElementById('newImage').files[0];
+      if (newImage) {
+        formData.append('bookImage', newImage);
+      }
+
+      try {
+        const res = await fetch(`/api/updatebook/${bookId}`, {
+          method: 'PUT',
+          body: formData,
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          alert('✅ Book updated successfully!');
+          document.getElementById('updateForm').style.display = 'none';
+          loadBooks();
+        } else {
+          alert('❌ ' + result.message);
+        }
+      } catch (err) {
+        console.error('❌ Update Error:', err);
+        alert('Something went wrong while updating the book.');
+      }
+    });
+
+    // Initial load
+    loadBooks();
+  </script>
+</body>
+</html>  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mear wala 
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Books</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7f9;
+    }
+
+    h2 {
+      text-align: center;
+      padding: 20px;
+      color: #333;
+    }
+
+    table {
+      width: 95%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      text-align: center;
+    }
+
+    th {
+      background-color: teal;
+      color: white;
+    }
+
+    img {
+      width: 60px;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 6px 12px;
+      background-color: #ff9800;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #e68900;
+    }
+
+    #updateForm {
+      display: none;
+      width: 95%;
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 25px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    #updateForm h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    #updateForm label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+
+    #updateForm input,
+    #updateForm textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    #updateForm img {
+      margin-top: 10px;
+      max-width: 100px;
+      display: block;
+    }
+
+    #updateForm button {
+      margin-top: 20px;
+      background-color: teal;
+      font-size: 16px;
+      padding: 10px 20px;
+    }
+
+    /* Add extra styling for the image preview */
+    #imagePreview {
+      margin-top: 15px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h2>📚 सभी पुस्तकों की सूची</h2>
+
+  <!-- 📘 Book Table -->
+  <table id="bookTable">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Price (₹)</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="bookTableBody"></tbody>
+  </table>
+
+  <!-- 🛠️ Update Form -->
+  <div id="updateForm">
+    <h3>📘 पुस्तक अपडेट करें</h3>
+    <form id="bookUpdateForm">
+      <input type="hidden" id="bookId" />
+      <label>Title:</label>
+      <input type="text" id="title" required />
+      <label>Author:</label>
+      <input type="text" id="author" required />
+      <label>Price (₹):</label>
+      <input type="number" id="price" required />
+      <label>Offer Price (₹):</label>
+      <input type="number" id="offerPrice" />
+      <label>Description:</label>
+      <textarea id="description" rows="3"></textarea>
+      <label>Category (New/Old/All):</label>
+      <input type="text" id="category" />
+      <label>ISBN:</label>
+      <input type="text" id="isbn" />
+      <label>Page Number:</label>
+      <input type="number" id="pageNumber" />
+      <label>Language:</label>
+      <input type="text" id="language" />
+      <label>Weight (kg):</label>
+      <input type="number" id="weight" />
+      <label>Bullet Points (comma से अलग करें):</label>
+      <textarea id="bulletPoints" rows="2"></textarea>
+      <label>Main Image Index:</label>
+      <input type="number" id="mainImageIndex" />
+      <label>Image URLs (comma से अलग करें):</label>
+      <textarea id="bookImages" rows="2"></textarea>
+      
+      <!-- ✅ Choose Image -->
+      <label>Choose Image:</label>
+      <input type="file" id="imageUpload" accept="image/*" onchange="previewImage()" />
+      <div id="imagePreview"></div>
+
+      <button type="submit">अपडेट करें</button>
+    </form>
+  </div>
+
+  <script>
+    async function loadBooks() {
+      const res = await fetch('/api/all-book-Show');
+      const data = await res.json();
+      const bookTableBody = document.getElementById('bookTableBody');
+      bookTableBody.innerHTML = '';
+
+      data.books.forEach(book => {
+        const row = document.createElement('tr');
+        row.innerHTML = ` 
+          <td><img src="${book.bookImage}" alt="${book.title}" /></td>
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>${book.price}</td>
+          <td><button onclick="showUpdateForm('${book._id}')">देखें</button></td>
+        `;
+        bookTableBody.appendChild(row);
+      });
+    }
+
+    async function showUpdateForm(bookId) {
+      const res = await fetch(`/api/book/${bookId}`);
+      const data = await res.json();
+      const book = data.book;
+      if (!book) return alert('Book नहीं मिली');
+
+      document.getElementById('updateForm').style.display = 'block';
+      document.getElementById('bookId').value = bookId;
+      document.getElementById('title').value = book.title;
+      document.getElementById('author').value = book.author;
+      document.getElementById('price').value = book.price;
+      document.getElementById('offerPrice').value = book.offerPrice || '';
+      document.getElementById('description').value = book.description || '';
+      document.getElementById('category').value = book.category || '';
+      document.getElementById('isbn').value = book.isbn || '';
+      document.getElementById('pageNumber').value = book.pageNumber || '';
+      document.getElementById('language').value = book.language || '';
+      document.getElementById('weight').value = book.weight || '';
+      document.getElementById('bulletPoints').value = book.bulletPoints?.join(', ') || '';
+      document.getElementById('mainImageIndex').value = book.mainImageIndex || 0;
+      document.getElementById('bookImages').value = book.bookImages?.join(', ') || '';
+    }
+
+    document.getElementById('bookUpdateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const bookId = document.getElementById('bookId').value;
+
+      const payload = {
+        title: document.getElementById('title').value,
+        author: document.getElementById('author').value,
+        price: document.getElementById('price').value,
+        offerPrice: document.getElementById('offerPrice').value,
+        description: document.getElementById('description').value,
+        category: document.getElementById('category').value,
+        isbn: document.getElementById('isbn').value,
+        pageNumber: document.getElementById('pageNumber').value,
+        language: document.getElementById('language').value,
+        weight: document.getElementById('weight').value,
+        bulletPoints: document.getElementById('bulletPoints').value,
+        mainImageIndex: document.getElementById('mainImageIndex').value,
+        bookImages: document.getElementById('bookImages').value,
+        imageUrl: document.getElementById('imageUpload').files[0] ? URL.createObjectURL(document.getElementById('imageUpload').files[0]) : ''
+      };
+
+      const res = await fetch(`/api/updatebook/${bookId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        alert('📘 Book अपडेट हो गई!');
+        document.getElementById('updateForm').style.display = 'none';
+        loadBooks();
+      } else {
+        alert('❌ Error: ' + result.message);
+      }
+    });
+
+    function previewImage() {
+      const file = document.getElementById('imageUpload').files[0];
+      const previewContainer = document.getElementById('imagePreview');
+      previewContainer.innerHTML = '';
+
+      if (file) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = 'Image Preview';
+        img.style.width = '60px';
+        img.style.height = 'auto';
+        img.style.borderRadius = '4px';
+        img.style.border = '1px solid #ccc';
+        previewContainer.appendChild(img);
+      }
+    }
+
+    loadBooks();
+  </script>
+<script src="script.js"></script>
+</body>
+</html>

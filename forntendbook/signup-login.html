@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Authentication</title>
+  <link rel="stylesheet" href="singup.css"/>
+  <style>
+    body {
+      background: linear-gradient(120deg, #025005 0%, #22a559 100%);
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-container {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+      padding: 36px 32px 28px 32px;
+      max-width: 370px;
+      width: 100%;
+      margin: 30px auto;
+      position: relative;
+      animation: fadeIn 0.7s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .auth-container img {
+      display: block;
+      margin: 0 auto 10px auto;
+      max-width: 70px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .auth-container h2 {
+      text-align: center;
+      color: #ff4e50;
+      margin-bottom: 10px;
+      font-size: 1.7rem;
+      letter-spacing: 1px;
+    }
+    .auth-container .welcome {
+      text-align: center;
+      color: #222;
+      font-size: 1.1rem;
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
+    .auth-container form input {
+      width: 100%;
+      padding: 11px 12px;
+      margin: 8px 0 14px 0;
+      border: 1px solid #e0e0e0;
+      border-radius: 7px;
+      font-size: 1rem;
+      background: #f9f9f9;
+      transition: border 0.2s;
+    }
+    .auth-container form input:focus {
+      border: 1.5px solid #ff4e50;
+      outline: none;
+      background: #fffbe7;
+    }
+    .auth-container form button {
+      width: 100%;
+      padding: 12px 0;
+      background: linear-gradient(90deg, #ff4e50 0%, #f9d423 100%);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 6px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      transition: background 0.2s, transform 0.1s;
+    }
+    .auth-container form button:hover {
+      background: linear-gradient(90deg, #f9d423 0%, #ff4e50 100%);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .auth-container p, .auth-container a {
+      text-align: center;
+      color: #444;
+      font-size: 1rem;
+      margin: 0;
+      text-decoration: none;
+    }
+    .auth-container a {
+      color: #ff4e50;
+      font-weight: 500;
+      margin: 0 4px;
+      transition: color 0.2s;
+    }
+    .auth-container a:hover {
+      color: #f9d423;
+      text-decoration: underline;
+    }
+    @media (max-width: 500px) {
+      .auth-container {
+        padding: 18px 6vw 18px 6vw;
+        max-width: 98vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container" id="login-section">
+    <img src="img/Aravli-final-logo.jpg" alt="Aravali Publication Logo">
+    <h2>Login</h2>
+    <div class="welcome">Welcome to Aravali Publication</div>
+    <form id="login-form">
+      <input type="text" id="login-mobile" placeholder="Mobile Number"><br>
+      <input type="password" id="login-password" placeholder="Password" autocomplete="current-password"><br>
+      <button type="submit">Login</button>
+    </form>
+    <p>
+      <a href="#" onclick="showSection('signup-section')">Signup</a> |
+      <a href="#" onclick="showSection('forgot-password-section')">Forgot Password?</a>
+    </p>
+  </div>
+
+  <div class="auth-container" id="signup-section" style="display: none;">
+    <img src="img/Aravli-final-logo.jpg" alt="Aravali Publication Logo">
+    <h2>Signup</h2>
+    <div class="welcome">Welcome to Aravali Publication</div>
+    <form id="signup-form">
+      <input type="text" id="signup-name" placeholder="Full Name"><br>
+      <input type="email" id="signup-email" placeholder="Email"><br>
+      <input type="text" id="signup-mobile" placeholder="Mobile Number"><br>
+      <button type="button" onclick="sendOtp()">Send OTP</button><br>
+      <input type="password" id="signup-password" placeholder="Password" autocomplete="current-password"><br>
+      <input type="text" id="signup-otp" placeholder="OTP"><br>
+      <button type="submit">Signup</button>
+    </form>
+    <p><a href="#" onclick="showSection('login-section')">Login</a></p>
+  </div>
+
+  <div class="auth-container" id="forgot-password-section" style="display: none;">
+    <img src="img/Aravli-final-logo.jpg" alt="Aravali Publication Logo">
+    <h2>Forgot Password</h2>
+    <form id="forgot-form">
+      <input type="text" id="forgot-mobile" placeholder="Mobile Number"><br>
+      <button type="button" onclick="forgotPassword()">Send OTP</button><br>
+      <input type="text" id="forgot-otp" placeholder="Enter OTP" style="display: none;"><br>
+      <input type="password" id="new-password" placeholder="New Password" style="display: none;" autocomplete="current-password"><br>
+      <button type="button" onclick="resetPassword()" style="display: none;" id="reset-btn">Reset Password</button>
+    </form>
+    <p><a href="#" onclick="showSection('login-section')">Back to Login</a></p>
+  </div>
+
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function showSection(section) {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('signup-section').style.display = 'none';
+    document.getElementById('forgot-password-section').style.display = 'none';
+    document.getElementById(section).style.display = 'block';
+  }
+
+  async function login() {
+    debugger
+    const mobile = document.getElementById('login-mobile').value;
+    const password = document.getElementById('login-password').value;
+    debugger
+    const response = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile, password })
+    });
+debugger
+    const result = await response.json();
+debugger
+    if (response.status === 200) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Login successful!',
+        toast: true,
+        position: 'top-end',
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true
+      });
+
+      localStorage.setItem('user', JSON.stringify(result));
+
+      if (result.token) {
+        localStorage.setItem('authToken', result.token);
+        console.log('✅ Token saved:', result.token);
+      } else {
+        console.warn('⚠ No token found in response');
+      }
+
+      // Direct admin to Admin Panel
+      if (result.role === 'admin') {
+        window.location.href = "11Admin-panel.html";
+        return;
+      } else if (result.role === 'user') {
+        // User redirect logic (if any)
+        const redirectURL = localStorage.getItem('redirectAfterLogin');
+        if (redirectURL) {
+          localStorage.removeItem('redirectAfterLogin');
+          window.location.href = redirectURL;
+        } else {
+          window.location.href = "index.html";
+        }
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Unknown role: ' + result.role,
+          toast: true,
+          position: 'top-end',
+          timer: 2000,
+          showConfirmButton: false,
+          timerProgressBar: true
+        });
+      }
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid login credentials',
+        toast: true,
+        position: 'top-end',
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true
+      });
+    }
+  }
+
+  async function sendOtp() {
+    const mobile = document.getElementById('signup-mobile').value;
+    const response = await fetch('/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile })
+    });
+    const data = await response.json();
+    Swal.fire({
+      icon: 'info',
+      title: data.message,
+      toast: true,
+      position: 'top-end',
+      timer: 2000,
+      showConfirmButton: false,
+      timerProgressBar: true
+    });
+  }
+
+  async function signup() {
+    const name = document.getElementById('signup-name').value;
+    const email = document.getElementById('signup-email').value;
+    const mobile = document.getElementById('signup-mobile').value;
+    const password = document.getElementById('signup-password').value;
+    const otp = document.getElementById('signup-otp').value;
+    const response = await fetch('/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, mobile, password, otp })
+    });
+    const data = await response.json();
+    Swal.fire({
+      icon: response.ok ? 'success' : 'error',
+      title: data.message,
+      toast: true,
+      position: 'top-end',
+      timer: 2000,
+      showConfirmButton: false,
+      timerProgressBar: true
+    });
+  }
+
+  async function forgotPassword() {
+    const mobile = document.getElementById('forgot-mobile').value;
+    const response = await fetch('/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile })
+    });
+    const data = await response.json();
+    Swal.fire({
+      icon: response.ok ? 'success' : 'error',
+      title: data.message,
+      toast: true,
+      position: 'top-end',
+      timer: 2000,
+      showConfirmButton: false,
+      timerProgressBar: true
+    });
+
+    if (response.ok) {
+      document.getElementById('forgot-otp').style.display = 'block';
+      document.getElementById('new-password').style.display = 'block';
+      document.getElementById('reset-btn').style.display = 'block';
+    }
+  }
+
+  async function resetPassword() {
+    const mobile = document.getElementById('forgot-mobile').value;
+    const otp = document.getElementById('forgot-otp').value;
+    const newPassword = document.getElementById('new-password').value;
+
+    const response = await fetch('/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile, otp, newPassword })
+    });
+
+    const data = await response.json();
+    Swal.fire({
+      icon: response.ok ? 'success' : 'error',
+      title: data.message,
+      toast: true,
+      position: 'top-end',
+      timer: 2000,
+      showConfirmButton: false,
+      timerProgressBar: true
+    });
+
+    if (response.ok) {
+      showSection('login-section');
+    }
+  }
+
+  // Attach form submit handlers
+  document.getElementById('login-form').onsubmit = function(e) {
+    e.preventDefault();
+    login();
+  };
+  document.getElementById('signup-form').onsubmit = function(e) {
+    e.preventDefault();
+    signup();
+  };
+  // Forgot password form uses button onclicks for steps
+</script>
+
+</body>
+</html>

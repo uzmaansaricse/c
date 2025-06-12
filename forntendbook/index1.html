@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookstore</title>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="responsive.css">
+
+    <style>
+
+      
+        .slider-container {
+            width: 70%;
+            overflow: hidden;
+            margin: auto;
+            position: relative;
+            border-radius: 10px;
+          
+        }
+
+        .news-slider {
+            display: flex;
+            transition: transform 1s ease-in-out;
+        }
+
+        .news-slide {
+            flex: 1;
+            min-width: 100%;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        img,
+        video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        video {
+            display: block;
+            margin: auto;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="top-header d-flex justify-content-center align-items-center">
+
+       <a href="index.html"> <img src="img/Aravli-final-logo.jpg" alt=" Logo"></a>
+        <div class="heading">
+
+            <h5 class="mb-0">Aravali Publication</h5>
+        </div>
+        <div class="qrcode"><a href="QrCodeScan.html"><img src="./img/scanning-qr-code-removebg-preview.png" alt=""></a></div>
+    </div>
+ <!-- Navbar Start -->
+  <div class="col-sm-12 navbar">
+
+
+    <div class="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+
+  
+    <div class="col-sm-6 nav-items">
+        <ul>
+    
+            <li class="nav-item">
+              
+                    <i class="fa-solid fa-book-open"></i>  Books
+               
+                <ul class="dropdown">
+                    <li><a href="AllBookShow.html">All Book</a></li>
+                    <li><a href="newBookAdd.html">New Book</a></li>
+                    <li><a href="oldBookAdd.html">Old Book</a></li>
+                </ul>
+            </li>
+
+            <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+            <li><a href="FAQ.html"><i class="fas fa-question-circle"></i> FAQs</a></li>
+            <li><a href="terms&conditions.html"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+            <li><a href="Return-policy.html"><i class="fas fa-undo"></i> Return Policy</a></li>
+            <li><a href="shipping-info.html"><i class="fas fa-shipping-fast"></i> Shipping Info</a></li>
+            <li><a href="privacy-policy.html"><i class="fas fa-user-secret"></i> Privacy Policy</a></li>
+        </ul>
+    </div>
+
+
+    <div class="col-sm-3 contactsupport">
+      
+   
+<li class="nav-item profile-dropdown-container" id="signup-section">
+  <a href="#" class="nav-link profile-dropdown-toggle" id="profileDropdown">
+    <i class="fas fa-user-circle profile-icon"></i>
+    <span class="profile-username">Profile</span>
+  </a>
+  <ul class="dropdown-menu profile-dropdown-menu" aria-labelledby="profileDropdown">
+    <li>
+      <a class="dropdown-link profile-link" href="My profile.html">
+        <i class="fas fa-user profile-link-icon"></i>
+        <span class="profile-link-text">My Profile</span>
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-link orders-link" href="UserStatusOrderMobleNumber.html">
+        <i class="fas fa-box orders-link-icon"></i>
+        <span class="orders-link-text">Orders</span>
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-link issue-link" href="Raiseissue.html">
+        <i class="fas fa-exclamation-circle issue-link-icon"></i>
+        <span class="issue-link-text">Raise an Issue</span>
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-link logout-link" href="Logout.html">
+        <i class="fas fa-sign-out-alt logout-link-icon"></i>
+        <span class="logout-link-text">Logout</span>
+      </a>
+    </li>
+  </ul>
+</li>
+
+        <a href="Cart Page with Checkout.html">
+            <button class="Cart">
+                <i class="fas fa-shopping-cart"></i>
+                <sup id="cart-count">0</sup>
+            </button>
+        </a>
+
+        <a href="QrCodeScan.html">
+            <button class="Scanner">
+                <i class="fa fa-qrcode"></i>
+            </button>
+        </a>
+
+        <a href="Search book.html">
+            <button class="Search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </a>
+    </div>
+</div> 
+<!-- Navbar End -->
+    
+
+    <section class="hero">
+        <div class="slider">
+            <div class="slides" id="bannerContainer"></div>
+            <div class="navigation">
+                <i class="fas fa-chevron-left" onclick="prevSlide()"></i>
+                <i class="fas fa-chevron-right" onclick="nextSlide()"></i>
+            </div>
+        </div>
+    </section>
+
+
+  <div class="about-section">
+        <h2 class="about-h2">Books By P.R. Yadav</h2>
+        <p class="tagline">From Cells to Ecosystems-Discover the Science of Life</p>
+        <div class="about-container">
+            <div class="about-card">
+
+                <img class="about-img" src="./img/book vol 1" alt="Book 1">
+                <p>Competitive Handbook of Nursing Vol 1" is a comprehensive resource for nursing competitive exam
+                    preparation, covering all essential nursing topics in a concise and easy-to-understand manner.</p>
+            </div>
+            <div class="about-card">
+
+                <img class="about-img" src="./img/book vol 2" alt="Book 2">
+                <p>Competitive Handbook of Nursing Vol 2" is a comprehensive resource for nursing competitive exam
+                    preparation, covering all essential nursing topics in a concise and easy-to-understand manner.</p>
+            </div>
+            <div class="about-card">
+
+                <img class="about-img" src="./img/bool vol 3" alt="Book 3">
+                <p>Competitive Handbook of Nursing Vol 3" is a comprehensive resource for nursing competitive exam
+                    preparation, covering all essential nursing topics in a concise and easy-to-understand manner.</p>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Section 1: Logo & About -->
+            <div class="footer-section">
+                <img alt="Bookstore Logo - A stylized open book with pages turning" class="footer-logo" height="150"
+                    src="img/Aravli-final-logo.jpg"/>
+
+            </div>
+            <!-- Section 2: Quick Links -->
+            <div class="footer-section">
+                <h3>
+                    Quick Links
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-home">
+                        </i>
+                        <a href="./index.html">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-th-list">
+                        </i>
+                        <a href="AllBookShow.html">
+                            All Books
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <i class="fas fa-envelope">
+                        </i>
+                        <a href="contact-us.html">
+                            Contact Us
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Section 3: Customer Support -->
+            <div class="footer-section">
+                <h3>
+                    Customer Support
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-question-circle">
+                        </i>
+                        <a href="./FAQ.html">
+                            FAQs
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-undo">
+                        </i>
+                        <a href="./Return-policy.html">
+                            Return Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-shipping-fast">
+                        </i>
+                        <a href="./shipping-info.html">
+                            Shipping Info
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-user-secret">
+                        </i>
+                        <a href="./privacy-policy.html">
+                            Privacy Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-file-contract">
+                        </i>
+                        <a href="./terms&conditions.html">
+                            Terms &amp; Conditions
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- section Contact Us -->
+            <div class="footer-section">
+                <div class="Contact-US">
+                    <h3>Contact-US</h3>
+                    <a href="tel:+919358087121">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919358087121</p>
+                    </a>
+                    <a href="tel:+919982934869">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919982934869</p>
+                    </a>
+                    <p><i class="fa fa-location"></i> <b>Address:</b>&nbsp; Plot number 1, Rajeev Nagar, Vidhyadhar
+                        Nagar
+                        Sector 3, Jaipur 302038</p>
+                </div>
+            </div>
+            <!-- Section 4: Social Media -->
+            <div class="Social-Media">
+                <h3>
+                    Follow Us
+                </h3>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/15TCANusow/" target="_blank">
+                        <i class="fab fa-facebook fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://t.me/aravalipublication" target="_blank">
+                        <i class="fa-brands fa-telegram fa-2x"></i>
+                    </a>
+                    <a href="https://www.instagram.com/prahladramyadav?igsh=emM0emJocmg0Yncx " target="_blank">
+                        <i class="fab fa-instagram fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://wa.me/+919358087121" target="_blank"> <i class="fa-brands fa-whatsapp fa-2x"></i>
+                    </a>
+
+                </div>
+                <p class="mt-4">
+                    Stay connected with us.
+                </p>
+            </div>
+
+
+
+        </div>
+        <!-- Copyright Section -->
+        <div class="footer-bottom">
+            <p>
+                © 2025 Aravali publication | All Rights Reserved | Designed & Developed by <a
+                    href="https://www.techbro24.com/" target="_blank"> TechBro24</a>
+                <hr>
+            </p>
+        </div>
+    </footer>
+
+
+<!-- news box and Qr scanner  -->
+    <div class="col-sm-12 book-station">
+
+
+        <div class="row station-container">
+            <!-- Left Side: News Box -->
+            <div class="mainbpx-main">
+                <h2>Latest News</h2>
+                <div class="slider-container">
+                    <div class="news-slider" id="news-slider"></div>
+                </div>
+            </div>
+
+            <!-- Right Side: QR Scanner Image & Button -->
+            <div class="scanner-container">
+                <h1>Scan Your Book</h1>
+                <a href="QrCodeScan.html">
+                    <img src="./img/scanning-qr-code.jpg" alt="Scan QR Code" class="scanner-img">
+                </a>
+                <br>
+                <!-- <a href="QrCodeScan.html">
+                    <button class="buy-btn">Scan Your Book</button>
+                </a> -->
+            </div>
+        </div>
+    </div>
+
+    <!--new arrivals books container  -->
+  <div class="head-text">
+    <h1>New Arrivals</h1>        <!-- Main Title -->
+    <h2>Books By P.R. Yadav</h2> <!-- Subtitle -->
+    <div class="bookscard">
+        <div class="slide-track">
+            <section id="newBooksContainer" class="books-grid">
+                <!-- New books will be displayed here -->
+            </section>
+        </div>
+    </div>
+</div>
+
+
+
+
+    <div class="assured">
+        <!-- Popup 1 -->
+        <div class="overlay" id="overlay1"></div>
+        <div class="popup" id="popup1">
+            <div class="popup-content">
+                <span class="close" onclick="closePopup('popup1', 'overlay1')">&times;</span>
+                <h3>100% Genuine Books</h3>
+                <p>The books that you get are completely genuine. The genuinity of the publication and authenticity of
+                    the books are individually checked. You will never receive a pirated product.</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="img">
+                <img src="./img/check-mark-circle.jpg" alt="">
+            </div>
+            <div class="etxt">
+                <h3>100% Genuine books</h3>
+                <h4 class="learn-more" onclick="openPopup('popup1', 'overlay1')">Learn More</h4>
+            </div>
+        </div>
+
+        <!-- Popup 2 -->
+        <div class="overlay" id="overlay2"></div>
+        <div class="popup" id="popup2">
+            <div class="popup-content">
+                <span class="close" onclick="closePopup('popup2', 'overlay2')">&times;</span>
+                <h3>Maximum Quality Assured</h3>
+                <p>The books that you get are completely genuine. The genuinity of the publication and authenticity of
+                    the books are individually checked. You will never receive a pirated product.</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="img">
+                <img src="./img/blue-book-with-blue-star.jpg" alt="">
+            </div>
+            <div class="etxt">
+                <h3>Maximum Quality Assured</h3>
+                <h4 class="learn-more" onclick="openPopup('popup2', 'overlay2')">Learn More</h4>
+            </div>
+        </div>
+
+        <!-- Popup 3 -->
+        <div class="overlay" id="overlay3"></div>
+        <div class="popup" id="popup3">
+            <div class="popup-content">
+                <span class="close" onclick="closePopup('popup3', 'overlay3')">&times;</span>
+                <h3>Get What You See</h3>
+                <p>The books that you get are completely genuine. The genuinity of the publication and authenticity of
+                    the books are individually checked. You will never receive a pirated product.</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="img">
+                <img src="./img/graduation-cap-.jpg" alt="">
+            </div>
+            <div class="etxt">
+                <h3>Get What You See</h3>
+                <h4 class="learn-more" onclick="openPopup('popup3', 'overlay3')">Learn More</h4>
+            </div>
+        </div>
+
+
+        <!-- Popup 4 -->
+        <div class="overlay" id="overlay3"></div>
+        <div class="popup" id="popup3">
+            <div class="popup-content">
+                <span class="close" onclick="closePopup('popup3', 'overlay3')">&times;</span>
+                <h3>Honest discounts</h3>
+                <p>We do not offer discounts just to attract you. The prices of the books are not falsely hiked to lure
+                    you
+                    into the greed of discounts. We offer flat discounts on MRP. The discount sales run throughout the
+                    year.
+                </p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="img">
+                <img src="./img/best offers.jpg" alt="">
+            </div>
+            <div class="etxt">
+                <h3>Honest discounts</h3>
+                <h4 class="learn-more" onclick="openPopup('popup3', 'overlay3')">Learn More</h4>
+            </div>
+        </div>
+    </div>
+
+     <!--old arrivals books container  -->
+  <div class="head-text">
+    <h1>Old Arrivals</h1>        <!-- Main Title -->
+    <h2>Books By P.R. Yadav</h2> <!-- Subtitle -->
+    <div class="bookscard">
+        <div class="slide-track">
+            <section id="oldBooksContainer" class="books-grid">
+                <!-- Old books will be displayed here -->
+            </section>
+        </div>
+    </div>
+</div>
+
+    <div class="about-section">
+        <h2 class="about-h2">Books By P.R. Yadav</h2>
+        <p class="tagline">From Cells to Ecosystems-Discover the Science of Life</p>
+        <div class="about-container">
+            <div class="about-card">
+
+                <img class="about-img" src="./img/book vol 1" alt="Book 1">
+                <p>Competitive Handbook of Nursing Vol 1" is a comprehensive resource for nursing competitive exam
+                    preparation, covering all essential nursing topics in a concise and easy-to-understand manner.</p>
+            </div>
+            <div class="about-card">
+
+                <img class="about-img" src="./img/book vol 2" alt="Book 2">
+                <p>Competitive Handbook of Nursing Vol 2" is a comprehensive resource for nursing competitive exam
+                    preparation, covering all essential nursing topics in a concise and easy-to-understand manner.</p>
+            </div>
+            <div class="about-card">
+
+                <img class="about-img" src="./img/bool vol 3" alt="Book 3">
+                <p>Competitive Handbook of Nursing Vol 3" is a comprehensive resource for nursing competitive exam
+                    preparation, covering all essential nursing topics in a concise and easy-to-understand manner.</p>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Section 1: Logo & About -->
+            <div class="footer-section">
+                <img alt="Bookstore Logo - A stylized open book with pages turning" class="footer-logo" height="150"
+                    src="img/Aravli-final-logo.jpg"  />
+
+            </div>
+            <!-- Section 2: Quick Links -->
+            <div class="footer-section">
+                <h3>
+                    Quick Links
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-home">
+                        </i>
+                        <a href="./index.html">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-th-list">
+                        </i>
+                        <a href="AllBookShow.html">
+                            All Books
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <i class="fas fa-envelope">
+                        </i>
+                        <a href="contact-us.html">
+                            Contact Us
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Section 3: Customer Support -->
+            <div class="footer-section">
+                <h3>
+                    Customer Support
+                </h3>
+                <ul class="footer-anchor">
+                    <li>
+                        <i class="fas fa-question-circle">
+                        </i>
+                        <a href="./FAQ.html">
+                            FAQs
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-undo">
+                        </i>
+                        <a href="./Return-policy.html">
+                            Return Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-shipping-fast">
+                        </i>
+                        <a href="./shipping-info.html">
+                            Shipping Info
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-user-secret">
+                        </i>
+                        <a href="./privacy-policy.html">
+                            Privacy Policy
+                        </a>
+                    </li>
+                    <li>
+                        <i class="fas fa-file-contract">
+                        </i>
+                        <a href="./terms&conditions.html">
+                            Terms &amp; Conditions
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- section Contact Us -->
+            <div class="footer-section">
+                <div class="Contact-US">
+                    <h3>Contact-US</h3>
+                    <a href="tel:+919358087121">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919358087121</p>
+                    </a>
+                    <a href="tel:+919982934869">
+                        <p><img class="telephone" src="./images/telephone_724664.png" alt="">+919982934869</p>
+                    </a>
+                    <p><i class="fa fa-location"></i> <b>Address:</b>&nbsp; Plot number 1, Rajeev Nagar, Vidhyadhar
+                        Nagar
+                        Sector 3, Jaipur 302038</p>
+                </div>
+            </div>
+            <!-- Section 4: Social Media -->
+            <div class="Social-Media">
+                <h3>
+                    Follow Us
+                </h3>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/share/15TCANusow/" target="_blank">
+                        <i class="fab fa-facebook fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://t.me/aravalipublication" target="_blank">
+                        <i class="fa-brands fa-telegram fa-2x"></i>
+                    </a>
+                    <a href="https://www.instagram.com/prahladramyadav?igsh=emM0emJocmg0Yncx " target="_blank">
+                        <i class="fab fa-instagram fa-2x">
+                        </i>
+                    </a>
+                    <a href="https://wa.me/+919358087121" target="_blank"> <i class="fa-brands fa-whatsapp fa-2x"></i>
+                    </a>
+
+                </div>
+                <p class="mt-4">
+                    Stay connected with us.
+                </p>
+            </div>
+
+
+
+        </div>
+        <!-- Copyright Section -->
+        <div class="footer-bottom">
+            <p>
+                © 2025 Aravali publication | All Rights Reserved | Designed & Developed by <a
+                    href="https://www.techbro24.com/" target="_blank"> TechBro24</a>
+                <hr>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+     
+
+
+
+        // add to cart
+        async function fetchBooks() {
+            try {
+                const response = await fetch("http://localhost:9000/api/get-books"); // Backend URL
+                const books = await response.json();
+                const bookList = document.getElementById("book-list");
+
+                bookList.innerHTML = ""; // Purana content clear karein
+
+                books.forEach(book => {
+                    const bookCard = document.createElement("div");
+                    bookCard.classList.add("card");
+
+                    bookCard.innerHTML = `
+                    <img src="${book.bookImage}" alt="${book.title}" width="150">
+                    <h3 class="book-title">${book.title}</h3>
+                    <p>₹${book.offerPrice} <s>₹${book.price}</s></p>
+                    <button class="buy-btn" onclick="addToCart('${book._id}', '${book.title}', '${book.offerPrice}', '${book.bookImage}')">Add to Cart</button>
+                `;
+
+                    bookList.appendChild(bookCard);
+                });
+            } catch (error) {
+                console.error("Error fetching books:", error);
+            }
+        }
+
+        function addToCart(bookId, title, price, image) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+            let existingBook = cart.find(book => book.id === bookId);
+
+            if (existingBook) {
+                existingBook.quantity += 1;
+            } else {
+                cart.push({ id: bookId, title, price, image, quantity: 1 });
+            }
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+            alert($`{title} added to cart!`);
+        }
+
+        fetchBooks();
+
+
+
+
+        // news box
+        async function fetchLatestContent() {
+            try {
+                const response = await fetch("/content");
+                const contentList = await response.json();
+                const newsslider = document.getElementById("news-slider");
+
+                newsslider.innerHTML = "";
+                contentList.forEach(content => {
+                    let slide = document.createElement("div");
+                    slide.classList.add("news-slide");
+
+                    if (content.filePath) {
+                        if (content.type.includes("image")) {
+                            let img = document.createElement("img");
+                            img.src = content.filePath;
+                            slide.appendChild(img);
+                        } else if (content.type.includes("video")) {
+                            let video = document.createElement("video");
+                            video.src = content.filePath;
+                            video.controls = true;
+                            video.autoplay = true;
+                            video.loop = false;
+                            video.muted = true;
+                            slide.appendChild(video);
+                        }
+                    }
+
+                    if (content.content) {
+                        if (content.type === "link") {
+                            let link = document.createElement("a");
+                            link.href = content.content;
+                            link.target = "_blank";
+                            link.innerText = content.content;
+                            slide.appendChild(link);
+                        } else {
+                            let text = document.createElement("p");
+                            text.innerText = content.content;
+                            slide.appendChild(text);
+                        }
+                    }
+
+                    newsslider.appendChild(slide);
+                });
+
+                startSlider();
+            } catch (error) {
+                console.error("Error fetching latest content:", error);
+            }
+        }
+
+        function startSlider() {
+            let index = 0;
+            const newsslider = document.getElementById("news-slider");
+            const slides = document.querySelectorAll(".news-slide");
+            const totalSlides = slides.length;
+
+            function nextSlide() {
+                let currentSlide = slides[index];
+                let video = currentSlide.querySelector("video");
+                let delay = 12000;
+
+                if (video) {
+                    delay = video.duration * 1000 || 5000;
+                }
+
+                setTimeout(() => {
+                    index = (index + 1) % totalSlides;
+                    newsslider.style.transform = `translateX(-${index * 100}%)`;
+                    nextSlide();
+                }, delay);
+            }
+
+            nextSlide();
+        }
+
+        fetchLatestContent();
+
+
+  // 📘 Old Arrivals
+async function fetchOldBooks() {
+    try {
+        const response = await fetch('/api/old-book');  
+        const data = await response.json();
+        console.log("Fetched Books:", data);
+
+        const oldBooksContainer = document.getElementById("oldBooksContainer");
+        oldBooksContainer.innerHTML = "";
+
+        data.books.forEach(book => {
+            if (!book || !book._id || !book.title) {
+                console.warn("Skipping invalid book:", book);
+                return;
+            }
+
+            const bookCard = document.createElement("div");
+            bookCard.classList.add("book-card");
+
+            bookCard.innerHTML = `
+                <img class="book-image" src="${book.bookImage || 'default.jpg'}" alt="${book.title}">
+                <div class="rating-overlay">
+                    ${generateStars(book.averageRating)}
+                    <span class="avg-text">(${book.averageRating || 0} ⭐)</span>
+                </div>
+                <div class="book-title">${book.title}</div>
+                <div class="book-author">by ${book.author || 'Unknown'}</div>
+                <div class="book-price">
+                    ${
+                        book.offerPrice && book.offerPrice < book.price
+                        ? `<span class="original-price" style="text-decoration: line-through;">₹${book.price}</span> <span class="offer-price">₹${book.offerPrice}</span>`
+                        : `₹${book.price}`
+                    }
+                </div>
+                <button class="add-cart">Add to Cart</button>
+                <button class="go-cart" style="display: none;">Go to Cart</button>
+            `;
+
+            bookCard.querySelector(".book-image").addEventListener("click", () => {
+                window.location.href = `/newbookDetelies.html?id=${book._id}`;
+            });
+
+            const addCartBtn = bookCard.querySelector(".add-cart");
+            const goCartBtn = bookCard.querySelector(".go-cart");
+
+            addCartBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                addToCart(book._id, book.title, book.bookImage, book.offerPrice || book.price);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Added to Cart',
+                    text: `"${book.title}" has been added to your cart.`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+
+                addCartBtn.style.display = "none";
+                goCartBtn.style.display = "inline-block";
+            });
+
+            goCartBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                window.location.href = "Cart Page with Checkout.html";
+            });
+
+            oldBooksContainer.appendChild(bookCard);
+        });
+
+    } catch (err) {
+        console.error("Error fetching old books:", err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops!',
+            text: 'Failed to load old books.',
+        });
+    }
+}
+
+function generateStars(rating) {
+    rating = parseFloat(rating) || 0;
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+            stars += `<i class="fas fa-star" style="color: gold;"></i>`;
+        } else if (i - rating < 1) {
+            stars += `<i class="fas fa-star-half-alt" style="color: gold;"></i>`;
+        } else {
+            stars += `<i class="far fa-star" style="color: gold;"></i>`;
+        }
+    }
+    return stars;
+}
+
+function addToCart(id, title, image, price) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let existingItem = cart.find(item => item.id === id);
+
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({ id, title, image, price, quantity: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartNotification();
+}
+
+function updateCartNotification() {
+    const cartBadge = document.querySelector("sup#cart-count");
+    if (!cartBadge) return;
+    let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+    const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    cartBadge.textContent = totalQuantity;
+    cartBadge.style.display = totalQuantity === 0 ? "none" : "inline-block";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    fetchOldBooks();
+    updateCartNotification();
+});
+
+    </script>
+
+    <!-- custom JS -->
+    <script src="./script.js"></script>
+</body>
+
+</html>

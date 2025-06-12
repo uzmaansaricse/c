@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Order Summary</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+       body { 
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #2c6e31;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    margin: 10px 0;
+}
+
+.sidebar ul li a {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+}
+
+.sidebar ul li a:hover {
+    background-color: #3f8744;
+}
+
+.main-content {
+    margin-left: 270px;
+    padding: 30px;
+    flex: 1;
+    min-height: 100vh;
+}
+
+.container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+    border: 2px solid #2c6e31;
+    max-width: 1100px;
+    margin: auto;
+    transition: transform 0.3s ease;
+}
+
+.container:hover {
+    transform: scale(1.01);
+}
+
+h2 {
+    text-align: center;
+    color: #2c6e31;
+    font-size: 32px;
+    margin-bottom: 30px;
+}
+
+#filter-container {
+    margin: 20px 0;
+    text-align: center;
+}
+
+label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #2c6e31;
+}
+
+input[type="date"] {
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-left: 10px;
+    transition: border-color 0.3s ease;
+}
+
+input[type="date"]:focus {
+    border-color: #2c6e31;
+    outline: none;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    overflow-x: auto;
+    display: block;  /* allow horizontal scroll on small */
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 14px;
+    font-size: 15px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+th {
+    background-color: #2c6e31;
+    color: white;
+    cursor: pointer;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+th:hover {
+    background-color: #3f8744;
+}
+
+td {
+    background-color: #fff;
+    transition: background-color 0.3s;
+}
+
+tr:hover td {
+    background-color: #f1f1f1;
+}
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        box-shadow: none;
+        padding: 15px 0;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 15px 20px;
+    }
+    .container {
+        padding: 20px;
+    }
+    table th, table td {
+        font-size: 13px;
+        padding: 10px;
+    }
+    h2 {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 480px) {
+    table {
+        font-size: 12px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <ul>
+            <li><a href="book-upload.html">Upload Book</a></li>
+            <li><a href="BookUpdate Admin.html">Book Update</a></li>
+            <li><a href="video and imag showAdmin.html">News Box</a></li>
+            <li><a href="orderAdmin-analytics.html">Order Analytics</a></li>
+            <li><a href="Admin order summery.html">Order Summary</a></li>
+            <li><a href="admin-all-ordersWithUpdate.html">All Orders</a></li>
+            <li><a href="AdminBookDelete.html">Delete Book</a></li>
+            <li><a href="AdminPendingOrdersSavenday.html">Pending Orders</a></li>
+            <li><a href="BenerAdmin.html">Manage Banner</a></li>
+            <li><a href="uploadcsv.html">Upload CSV</a></li>
+            <li><a href="tech-support.html">Tech Support</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <h2>Order Summary</h2>
+
+            <div id="filter-container">
+                <label for="order-date">Select Date:</label>
+                <input type="date" id="order-date" onchange="filterByDate()">
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortOrders('date')">Order Date 📅</th>
+                        <th>Order ID</th>
+                        <th>Book Title</th>
+                        <th>Quantity</th>
+                        <th>Book Price</th>
+                        <th>Total Price</th>
+                        <th>Status</th>
+                         <th>Phone Number</th>
+    <th>Address</th>
+ 
+                    </tr>
+                </thead>
+                <tbody id="order-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+   <script>
+    let ordersData = [];
+
+    async function fetchOrders() {
+        let response = await fetch("/api/get");
+        let data = await response.json();
+         console.log("Fetched Orders:", data); 
+
+        if (data.success) {
+            ordersData = data.orders;
+            renderOrders();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Fetch Orders',
+                text: 'There was an issue fetching the orders. Please try again later.',
+            });
+        }
+    }
+
+    function renderOrders(filteredOrders = ordersData) {
+        const orderTable = document.getElementById("order-table");
+        orderTable.innerHTML = "";
+
+        filteredOrders.forEach(order => {
+            let orderDate = new Date(order.createdAt).toISOString().split('T')[0]; // YYYY-MM-DD format
+            order.books.forEach(book => {
+                let row = `<tr>
+                    <td>${orderDate}</td>
+                    <td>${order._id}</td>
+                    <td>${book.title}</td>
+                    <td>${book.quantity}</td>
+                    <td>₹${book.price}</td> <!-- ✅ Individual book price -->
+                    <td>₹${book.price * book.quantity}</td> <!-- ✅ Total price for that book -->
+                    <td>${order.status}</td>
+                    <td>${order.deliveryDetails.mobile}</td>
+                <td>${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state} - ${order.deliveryDetails.pincode}</td>
+                </tr>`;
+                orderTable.innerHTML += row;
+            });
+        });
+    }
+
+    function sortOrders(field) {
+        let sortedOrders = [...ordersData];
+        if (field === "date") {
+            sortedOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+        renderOrders(sortedOrders);
+    }
+
+    function filterByDate() {
+        let selectedDate = document.getElementById("order-date").value;
+        if (selectedDate) {
+            let filteredOrders = ordersData.filter(order => 
+                new Date(order.createdAt).toISOString().split('T')[0] === selectedDate
+            );
+            renderOrders(filteredOrders);
+        } else {
+            renderOrders();
+        }
+    }
+
+    fetchOrders();
+</script>
+<script src="script.js"></script>
+</body>
+</html>
