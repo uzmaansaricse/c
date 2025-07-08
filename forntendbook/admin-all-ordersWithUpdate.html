@@ -3,25 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin Orders</title>
+    <title>Admin Orders & Summary</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Container for the whole admin panel */
-        .container {
-            flex: 1;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin: 40px;
-            padding: 20px;
-            border: 2px solid #2c6e31;
-            margin-left: 270px;
-            /* Added margin to avoid overlap with the sidebar */
-        }
-
-        /* Sidebar */
         .sidebar {
             width: 250px;
             height: 100vh;
@@ -34,22 +20,18 @@
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
         }
-
         .sidebar h2 {
             text-align: center;
             margin-bottom: 20px;
             font-size: 22px;
         }
-
         .sidebar ul {
             list-style: none;
             padding: 0;
         }
-
         .sidebar ul li {
             margin: 10px 0;
         }
-
         .sidebar ul li a {
             display: block;
             padding: 12px 20px;
@@ -59,12 +41,19 @@
             transition: background-color 0.3s ease;
             border-radius: 5px;
         }
-
         .sidebar ul li a:hover {
             background-color: #3f8744;
         }
-
-        /* Admin Orders Heading */
+        .container {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 40px;
+            padding: 20px;
+            border: 2px solid #2c6e31;
+            margin-left: 270px;
+        }
         h1 {
             text-align: center;
             background: #2c6e31;
@@ -75,8 +64,6 @@
             font-size: 24px;
             margin-bottom: 20px;
         }
-
-        /* Filter */
         .filter-section {
             display: flex;
             flex-wrap: wrap;
@@ -84,12 +71,10 @@
             margin-bottom: 20px;
             gap: 10px;
         }
-
         .filter-section label {
             font-weight: bold;
         }
-
-        input[type="date"] {
+        .filter-section select, .filter-section input[type="date"], .filter-section input[type="text"] {
             padding: 8px 10px;
             border: 2px solid #2c6e31;
             border-radius: 5px;
@@ -97,12 +82,32 @@
             max-width: 200px;
             outline: none;
         }
-
-        /* Order Table Styling */
+        .filter-section button {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            background: #2c6e31;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .filter-section button:hover {
+            background: #3f8744;
+        }
+        .action-btn {
+            margin: 2px 0;
+        }
+        .download-btn {
+            background: #ff9800;
+            color: #fff;
+            margin-top: 4px;
+        }
+        .download-btn:hover {
+            background: #e67e22;
+        }
         .table-responsive {
             overflow-x: auto;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -110,27 +115,22 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
+            margin-bottom: 40px;
         }
-
-        th,
-        td {
+        th, td {
             padding: 12px 15px;
             border-bottom: 1px solid #ddd;
             text-align: center;
             min-width: 120px;
         }
-
         th {
             background: #2c6e31;
             color: white;
             font-weight: bold;
         }
-
         td {
             color: #333;
         }
-
-        /* Status Dropdown Styling */
         select {
             padding: 8px;
             border: 2px solid #2c6e31;
@@ -138,12 +138,9 @@
             outline: none;
             cursor: pointer;
         }
-
         select:focus {
             border-color: #2c6e31;
         }
-
-        /* Update Button Styling */
         button {
             background: #2c6e31;
             color: white;
@@ -154,48 +151,42 @@
             font-weight: bold;
             transition: background 0.3s;
         }
-
         button:hover {
             background: #3f8744;
         }
-
-        /* Hover effect for table rows */
         tbody tr:hover {
             background-color: #f1f1f1;
         }
-
-        /* Responsive for smaller devices */
         @media (max-width: 768px) {
             .container {
                 margin-left: 0;
                 padding: 10px;
             }
-
             .sidebar {
                 position: relative;
                 width: 100%;
                 height: auto;
                 box-shadow: none;
             }
-
             .sidebar h2 {
                 font-size: 20px;
             }
-
             h1 {
                 font-size: 20px;
             }
-
-            th,
-            td {
+            th, td {
                 font-size: 14px;
+            }
+        }
+        @media (max-width: 480px) {
+            table {
+                font-size: 12px;
             }
         }
     </style>
 </head>
 
 <body>
-
     <div class="sidebar">
         <h2>Admin Dashboard</h2>
         <ul>
@@ -214,24 +205,55 @@
     </div>
 
     <div class="container">
-        <h1>Admin Orders</h1>
-
-        <!-- 🔹 Date Filter -->
+        <h1>Admin Orders & Summary</h1>
         <div class="filter-section">
-            <label for="orderDate">Filter by Date:</label>
-            <input type="date" id="orderDate" onchange="fetchOrders()">
-        </div>
+            <label for="searchInput">Search:</label>
+            <input type="text" id="searchInput" placeholder="Order ID / Tracking ID" oninput="fetchOrders()">
 
+            <label for="statusFilter">Order Status:</label>
+            <select id="statusFilter" onchange="fetchOrders()">
+                <option value="">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Unshipped">Unshipped</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="Refunded">Refunded</option>
+            </select>
+
+            <label for="dateRange">Date:</label>
+            <select id="dateRange" onchange="fetchOrders()">
+                <option value="1">Last Day (24 hours)</option>
+                <option value="3">Last 3 Days</option>
+                <option value="7" selected>Last 7 Days</option>
+                <option value="14">Last 14 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="all">All</option>
+            </select>
+
+            <label for="sortDate">Sort:</label>
+            <select id="sortDate" onchange="fetchOrders()">
+                <option value="desc" selected>Date Desc</option>
+                <option value="asc">Date Asc</option>
+            </select>
+        </div>
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
+                        <th>Order Date 📅</th>
                         <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Date</th>
+                        <th>Book Title</th>
+                        <th>Quantity</th>
+                        <th>Book Price</th>
+                        <th>Total Price</th>
                         <th>Status</th>
+                        <th>Customer</th>
+                        <th>Phone Number</th>
+                        <th>Address</th>
                         <th>Action</th>
                         <th>Tracking ID</th>
+                        <th>Details</th>
                     </tr>
                 </thead>
                 <tbody id="orderTable">
@@ -247,44 +269,109 @@
             return `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
         }
 
+        function filterOrders(orders) {
+            const search = document.getElementById("searchInput").value.trim().toLowerCase();
+            const status = document.getElementById("statusFilter").value;
+            const dateRange = document.getElementById("dateRange").value;
+            const sort = document.getElementById("sortDate").value;
+
+            let filtered = orders;
+
+            // Filter by search (Order ID or Tracking ID)
+            if (search) {
+                filtered = filtered.filter(order =>
+                    order._id.toLowerCase().includes(search) ||
+                    (order.trackingId && order.trackingId.toLowerCase().includes(search))
+                );
+            }
+
+            // Filter by status
+            if (status) {
+                filtered = filtered.filter(order => order.status === status);
+            }
+
+            // Filter by date range
+            if (dateRange !== "all") {
+                const days = parseInt(dateRange, 10);
+                const now = new Date();
+                filtered = filtered.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return (now - orderDate) / (1000 * 60 * 60 * 24) <= days;
+                });
+            }
+
+            // Sort by date
+            filtered.sort((a, b) => {
+                if (sort === "asc") {
+                    return new Date(a.createdAt) - new Date(b.createdAt);
+                } else {
+                    return new Date(b.createdAt) - new Date(a.createdAt);
+                }
+            });
+
+            return filtered;
+        }
+
         async function fetchOrders() {
             try {
-                const dateInput = document.getElementById("orderDate").value;
-                let apiUrl = `/admin/orders`;
+                // Always get all orders, filter on frontend
+                const res = await fetch(`/admin/orders`);
+                let orders = await res.json();
 
-                if (dateInput) {
-                    apiUrl += `?date=${dateInput}`; // 🔹 Sending date to the backend
-                }
+                // Flatten books for table display
+                let flatOrders = [];
+                orders.forEach(order => {
+                    order.books.forEach(book => {
+                        flatOrders.push({
+                            ...order,
+                            bookTitle: book.title,
+                            bookQuantity: book.quantity,
+                            bookPrice: book.price,
+                            bookTotal: book.price * book.quantity
+                        });
+                    });
+                });
 
-                const res = await fetch(apiUrl);
-                const orders = await res.json();
+                // Filter and sort
+                flatOrders = filterOrders(flatOrders);
 
                 const table = document.getElementById("orderTable");
                 table.innerHTML = '';
 
-                orders.forEach(order => {
+                flatOrders.forEach(order => {
                     const row = document.createElement("tr");
-
                     row.innerHTML = `
-    <td>${order._id}</td>
-    <td>${order.deliveryDetails.fullName} (${order.deliveryDetails.mobile})</td>
-    <td>${formatDate(order.createdAt)}</td>
-    <td>${order.status}</td>
-    <td>
-        <select id="status-${order._id}">
-            <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
-            <option value="Shipped" ${order.status === "Shipped" ? "selected" : ""}>Shipped</option>
-            <option value="Delivered" ${order.status === "Delivered" ? "selected" : ""}>Delivered</option>
-        </select>
-        <button onclick="updateOrder('${order._id}')">Update</button>
-        <div><small>${order.userEmail ? order.userEmail : (order.deliveryDetails && order.deliveryDetails.email ? order.deliveryDetails.email : 'No Email')}</small></div>
-    </td>
-    <td>
-        <input type="text" id="tracking-${order._id}" placeholder="Enter message" value="${order.trackingId || ''}" />
-        <button onclick="saveTrackingId('${order._id}')">Send</button>
-    </td>
-`;
-
+                        <td>${formatDate(order.createdAt)}</td>
+                        <td>${order._id}</td>
+                        <td>${order.bookTitle}</td>
+                        <td>${order.bookQuantity}</td>
+                        <td>₹${order.bookPrice}</td>
+                        <td>₹${order.bookTotal}</td>
+                        <td>
+                            <select id="status-${order._id}" style="min-width:100px">
+                                <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
+                                <option value="Unshipped" ${order.status === "Unshipped" ? "selected" : ""}>Unshipped</option>
+                                <option value="Shipped" ${order.status === "Shipped" ? "selected" : ""}>Shipped</option>
+                                <option value="Delivered" ${order.status === "Delivered" ? "selected" : ""}>Delivered</option>
+                                <option value="Cancelled" ${order.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+                                <option value="Refunded" ${order.status === "Refunded" ? "selected" : ""}>Refunded</option>
+                            </select>
+                        </td>
+                        <td>${order.deliveryDetails.fullName} (${order.deliveryDetails.mobile})</td>
+                        <td>${order.deliveryDetails.mobile}</td>
+                        <td>${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state} - ${order.deliveryDetails.pincode}</td>
+                        <td>
+                            <button class="action-btn" onclick="updateOrder('${order._id}')">Update</button>
+                            <div><small>${order.userEmail ? order.userEmail : (order.deliveryDetails && order.deliveryDetails.email ? order.deliveryDetails.email : 'No Email')}</small></div>
+                        </td>
+                        <td>
+                            <input type="text" id="tracking-${order._id}" placeholder="Enter message" value="${order.trackingId || ''}" style="width:90px"/>
+                            <button class="action-btn" onclick="saveTrackingId('${order._id}')">Send</button>
+                        </td>
+                        <td>
+                            <button class="action-btn" onclick="viewOrderDetails('${order._id}')">View</button>
+                        </td>
+                    `;
                     table.appendChild(row);
                 });
             } catch (error) {
@@ -325,8 +412,6 @@
                 });
             }
         }
-
-        fetchOrders();
 
         async function saveTrackingId(orderId) {
             try {
@@ -380,9 +465,40 @@
             }
         }
 
+        // Order detail page (popup)
+        async function viewOrderDetails(orderId) {
+            try {
+                const res = await fetch(`/admin/order/${orderId}`);
+                const order = await res.json();
+                let html = `
+                    <b>Order ID:</b> ${order._id}<br>
+                    <b>Date:</b> ${formatDate(order.createdAt)}<br>
+                    <b>Status:</b> ${order.status}<br>
+                    <b>Customer:</b> ${order.deliveryDetails.fullName} (${order.deliveryDetails.mobile})<br>
+                    <b>Address:</b> ${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state} - ${order.deliveryDetails.pincode}<br>
+                    <b>Email:</b> ${order.userEmail || (order.deliveryDetails && order.deliveryDetails.email ? order.deliveryDetails.email : 'No Email')}<br>
+                    <b>Books:</b>
+                    <ul>
+                        ${order.books.map(book => `<li>${book.title} (Qty: ${book.quantity}) - ₹${book.price}</li>`).join('')}
+                    </ul>
+                    <b>Tracking ID:</b> ${order.trackingId || 'N/A'}
+                `;
+                Swal.fire({
+                    title: 'Order Details',
+                    html: html,
+                    width: 600
+                });
+            } catch (error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Could not fetch order details."
+                });
+            }
+        }
 
+        fetchOrders();
     </script>
     <script src="script.js"></script>
 </body>
-
 </html>

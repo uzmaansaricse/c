@@ -154,6 +154,7 @@
         <th>Author</th>
         <th>Price (₹)</th>
         <th>Action</th>
+        <th>Delete</th>
       </tr>
     </thead>
     <tbody id="bookTableBody"></tbody>
@@ -193,9 +194,10 @@
     </form>
   </div>
 
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    async function loadBooks() {
+   async function loadBooks() {
       const res = await fetch('/api/all-book-Show');
       const data = await res.json();
       const bookTableBody = document.getElementById('bookTableBody');
@@ -209,6 +211,7 @@
           <td>${book.author}</td>
           <td>${book.price}</td>
           <td><button onclick="showUpdateForm('${book._id}')">View</button></td>
+          <td><button style="background:#e74c3c;" onclick="deleteBook('${book._id}')">Delete</button></td>
         `;
         bookTableBody.appendChild(row);
       });
@@ -263,6 +266,10 @@
       window._bookImageUrls = urls;
       // Reset file input
       document.getElementById('bookImages').value = '';
+      // Set delete button handler for this book
+      document.getElementById('deleteBookBtn').onclick = function() {
+        deleteBook(bookId, true);
+      };
     }
 
     // Preview selected images before upload
@@ -360,8 +367,46 @@
       }
     });
 
+    // Delete book function (with confirmation)
+    async function deleteBook(bookId, fromForm = false) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "This will permanently delete the book.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const response = await fetch(`/api/delete-book/${bookId}`, {
+              method: "DELETE"
+            });
+            if (!response.ok) throw new Error("Delete failed");
+            Swal.fire({
+              icon: 'success',
+              title: 'Book Deleted',
+              text: 'The book has been deleted successfully.'
+            });
+            if (fromForm) {
+              document.getElementById('updateForm').style.display = 'none';
+            }
+            loadBooks();
+          } catch (error) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error Deleting Book',
+              text: 'There was an error while deleting the book. Please try again later.'
+            });
+          }
+        }
+      });
+    }
+
     loadBooks();
   </script>
+<!-- ...existing code... -->
 
 </body>
 </html>

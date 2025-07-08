@@ -284,27 +284,50 @@
         const btnContainer = document.createElement("div");
         btnContainer.classList.add("btn-container");
 
-        const bannerBtn = document.createElement("button");
-        bannerBtn.classList.add("btn", "banner-btn");
-        bannerBtn.innerText = isBanner ? "Remove from Banner" : "Set as Banner";
+        // ...existing code...
+const bannerBtn = document.createElement("button");
+bannerBtn.classList.add("btn", "banner-btn");
+bannerBtn.innerText = isBanner ? "Remove from Banner" : "Set as Banner";
 
-        bannerBtn.onclick = async function () {
+bannerBtn.onclick = async function () {
+    Swal.fire({
+        title: 'Please wait...',
+        text: 'Updating banner status...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    try {
+        const res = await fetch(`/api/toggle-banner/${id}`, { method: "PUT" });
+        const data = await res.json();
+        Swal.close();
+        if (data.success) {
+            img.style.border = data.newBannerStatus ? "3px solid green" : "";
+            bannerBtn.innerText = data.newBannerStatus ? "Remove from Banner" : "Set as Banner";
             Swal.fire({
-                title: 'Please wait...',
-                text: 'Updating banner status...',
-                allowOutsideClick: false,
-                timer: 10000, // Loader will show for up to 10 seconds
-                didOpen: () => Swal.showLoading()
+                icon: "success",
+                title: "Banner status updated!",
+                timer: 1200,
+                showConfirmButton: false
             });
-            const res = await fetch(`/api/toggle-banner/${id}`, { method: "PUT" });
-            const data = await res.json();
-            Swal.close();
-            if (data.success) {
-                img.style.border = data.newBannerStatus ? "3px solid green" : "";
-                bannerBtn.innerText = data.newBannerStatus ? "Remove from Banner" : "Set as Banner";
-            }
-        };
-
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Update Failed!",
+                text: data.message || "Something went wrong."
+            });
+        }
+    } catch (err) {
+        Swal.close();
+        Swal.fire({
+            icon: "error",
+            title: "Update Failed!",
+            text: err.message || "Something went wrong."
+        });
+    }
+};
+// ...existing code...
         const deleteBtn = document.createElement("button");
         deleteBtn.classList.add("btn", "delete-btn");
         deleteBtn.innerText = "Delete";
