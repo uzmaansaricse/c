@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Order</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    .sidebar { width: 250px; height: 100vh; background-color: #2c6e31; color: white; position: fixed; top: 0; left: 0; padding: 20px 0; box-shadow: 2px 0 5px rgba(0,0,0,0.1); overflow-y: auto; }
+    .sidebar h2 { text-align: center; margin-bottom: 20px; font-size: 22px; }
+    .sidebar ul { list-style: none; padding: 0; }
+    .sidebar ul li { margin: 10px 0; }
+    .sidebar ul li a { display: block; padding: 12px 20px; text-decoration: none; color: white; font-size: 16px; transition: background-color 0.3s ease; border-radius: 5px; }
+    .sidebar ul li a:hover { background-color: #3f8744; }
+    .container { flex: 1; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin: 40px; padding: 20px; border: 2px solid #2c6e31; margin-left: 270px; }
+    h1 { text-align: center; background: #2c6e31; color: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 24px; margin-bottom: 20px; }
+    h2 { margin-bottom: 10px; }
+    .section { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; background: #fafafa; }
+    .section h3 { margin-top: 0; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select { width: 100%; padding: 6px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; }
+    .flex { display: flex; gap: 20px; }
+    .half { flex: 1; }
+    .button { background-color: #0073aa; color: #fff; padding: 8px 15px; border: none; border-radius: 4px; margin-top: 10px; cursor: pointer; }
+    .button.green { background-color: green; }
+    .button.gray { background-color: gray; }
+    .button.red { background-color: red; }
+    .button.blue { background-color: #1976d2; color: #fff; }
+    .button.orange { background-color: #ff9800; color: #fff; }
+    .button-group { display: flex; gap: 10px; }
+    .pdf-buttons { margin-top: 18px; }
+    .back-btn { display:inline-block;margin-top:18px;padding:8px 18px;background:#1976d2;color:#fff;text-decoration:none;border-radius:5px;font-weight:bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #eee; }
+    .note { font-size: 0.9em; color: #555; margin-top: 10px; }
+    .right-align { text-align: right; font-size: 1.1em; margin-top: 10px; }
+    .refund-box { margin-top: 20px; text-align: right; }
+    .summary-table { width: 350px; float: right; margin-top: 10px; margin-bottom: 10px; border: 1px solid #ddd; background: #f9f9f9; }
+    .summary-table td { border: none; padding: 6px 10px; font-size: 1em; }
+    .summary-table tr.total-row td { font-weight: bold; color: #2c6e31; font-size: 1.1em; border-top: 1px solid #ccc; }
+    @media (max-width: 900px) { .container { margin: 10px; } .summary-table { float: none; width: 100%; } }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Admin Dashboard</h2>
+    <ul>
+      <li><a href="video and imag showAdmin.html"><i class="fa-solid fa-box"></i> News Box</a></li>
+      <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Banner</a></li>
+      <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
+      <li><a href="AdminPendingOrdersSavenday.html"><i class="fa-solid fa-clock"></i> Pending Orders</a></li>
+      <li><a href="admin-all-ordersWithUpdate.html"><i class="fa-solid fa-globe"></i> Manage Orders</a></li>
+      <li><a href="orderAdmin-analytics.html"><i class="fa-solid fa-chart-line"></i> Order Analytics</a></li>
+      <li><a href="Admin order summery.html"><i class="fa-solid fa-list"></i> Order Summary</a></li>
+      <li><a href="book-upload.html"><i class="fa-solid fa-upload"></i> Book Upload</a></li>
+      <li><a href="BookUpdate Admin.html"><i class="fa-solid fa-pen-to-square"></i> Book Update/Delete</a></li>
+      <li><a href="uploadcsv.html"><i class="fa-solid fa-cloud-arrow-up"></i> Upload CSV</a></li>
+      <li><a href="tech-support.html"><i class="fa-solid fa-headset"></i> Tech Support</a></li>
+    </ul>
+  </div>
+  <div class="container" id="order-container">
+    Loading...
+  </div>
+  <script>
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+    }
+    function formatTime(iso) {
+      const d = new Date(iso);
+      return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+    }
+
+    let currentOrder = null;
+
+    async function loadOrder() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (!id) {
+        document.getElementById('order-container').innerHTML += "<br>No order ID provided.";
+        return;
+      }
+      const res = await fetch(`/admin/order/${id}`);
+      if (!res.ok) {
+        document.getElementById('order-container').innerHTML += "<br>Order not found.";
+        return;
+      }
+      const order = await res.json();
+      currentOrder = order;
+
+      // Calculate subtotal, discount, total
+      let subtotal = 0;
+      order.books.forEach(book => {
+        subtotal += (book.price * book.quantity);
+      });
+      let discount = order.discount || 0;
+      let total = subtotal - discount;
+      if (total < 0) total = 0;
+
+      document.getElementById('order-container').innerHTML = `
+        <h2>Edit Order #${order._id}</h2>
+        <p>Paid on ${formatDate(order.createdAt)} @ ${formatTime(order.createdAt)} | Customer IP: ${order.customerIP || '-'}</p>
+        <div class="section">
+          <h3>Order Details</h3>
+          <div class="flex">
+            <div class="half">
+              <label>Date Created</label>
+              <input type="date" value="${order.createdAt ? order.createdAt.split('T')[0] : ''}" disabled />
+              <label>Time</label>
+              <input type="time" value="${formatTime(order.createdAt)}" disabled />
+              <label>Status</label>
+              <select id="statusSelect">
+                <option${order.status === 'Processing' ? ' selected' : ''}>Processing</option>
+                <option${order.status === 'Pending' ? ' selected' : ''}>Pending</option>
+                <option${order.status === 'Completed' ? ' selected' : ''}>Completed</option>
+                <option${order.status === 'Unshipped' ? ' selected' : ''}>Unshipped</option>
+                <option${order.status === 'Shipped' ? ' selected' : ''}>Shipped</option>
+                <option${order.status === 'Delivered' ? ' selected' : ''}>Delivered</option>
+                <option${order.status === 'Cancelled' ? ' selected' : ''}>Cancelled</option>
+                <option${order.status === 'Refunded' ? ' selected' : ''}>Refunded</option>
+              </select>
+              <button class="button green" onclick="updateStatus('${order._id}')">Update Status</button>
+            </div>
+            <div class="half">
+              <h4>Billing Info</h4>
+              <p>Name: ${order.deliveryDetails?.fullName || '-'}</p>
+              <p>Address: ${order.deliveryDetails?.address || '-'}, ${order.deliveryDetails?.city || ''} ${order.deliveryDetails?.state || ''} ${order.deliveryDetails?.pincode || ''}</p>
+              <p>Email: <a href="mailto:${order.deliveryDetails?.email || order.userEmail || ''}" id="email-link">${order.deliveryDetails?.email || order.userEmail || '-'}</a></p>
+              <p>Phone: ${order.deliveryDetails?.mobile || '-'}</p>
+            </div>
+          </div>
+        </div>
+        <div class="section">
+          <h3>TrackFree - Delivery Tracker</h3>
+          <label>Courier Name</label>
+          <select id="courierSelect">
+            <option${order.courier === 'India Post' ? ' selected' : ''}>India Post</option>
+            <option${order.courier === 'Delhivery' ? ' selected' : ''}>Delhivery</option>
+            <option${order.courier === 'Blue Dart' ? ' selected' : ''}>Blue Dart</option>
+          </select>
+          <label>Tracking Number</label>
+          <input type="text" id="trackingInput" value="${order.trackingId || ''}" />
+          <button class="button" onclick="updateTracking('${order._id}')">Update Tracking</button>
+        </div>
+        <div class="section">
+          <h3>Items</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Cost</th>
+                <th>Qty</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.books.map(book => `
+                <tr>
+                  <td>${book.title}</td>
+                  <td>₹${book.price}</td>
+                  <td>${book.quantity}</td>
+                  <td>₹${book.price * book.quantity}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <table class="summary-table">
+            <tr>
+              <td>Subtotal</td>
+              <td class="right-align">₹${subtotal}</td>
+            </tr>
+            <tr>
+              <td>Discount</td>
+              <td class="right-align">₹${discount}</td>
+            </tr>
+            <tr class="total-row">
+              <td>Total</td>
+              <td class="right-align">₹${total}</td>
+            </tr>
+          </table>
+          <div style="clear:both"></div>
+          <div class="refund-box">
+            <button class="button red" onclick="refundOrder('${order._id}')" ${order.status === 'Refunded' ? 'disabled' : ''}>Refund</button>
+            <p class="note">This order is no longer editable after refund.</p>
+          </div>
+          
+          <div class="pdf-buttons">
+            <button class="button blue" onclick="downloadInvoicePDF()">PDF Invoice</button>
+            <button class="button orange" onclick="downloadPackingSlipPDF()">PDF Packing Slip</button>
+          </div>
+          <a href="admin-all-ordersWithUpdate.html" class="back-btn">
+            &larr; Back to All Orders
+          </a>
+        </div>
+      `;
+    }
+
+    async function updateStatus(orderId) {
+      const status = document.getElementById('statusSelect').value;
+      try {
+        const res = await fetch(`/admin/order/${orderId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status })
+        });
+        if (!res.ok) throw new Error("Failed to update status");
+        Swal.fire({
+          icon: 'success',
+          title: 'Order Status Updated',
+          text: 'Order status updated successfully.'
+        });
+        loadOrder();
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message || "Could not update status."
+        });
+      }
+    }
+
+    async function updateTracking(orderId) {
+      const trackingId = document.getElementById('trackingInput').value;
+      const courier = document.getElementById('courierSelect').value;
+      const email = currentOrder?.userEmail || (currentOrder?.deliveryDetails && currentOrder.deliveryDetails.email);
+      if (!email) {
+        Swal.fire({
+          icon: "error",
+          title: "No Email",
+          text: "No email found for this order.",
+        });
+        return;
+      }
+      try {
+        const res = await fetch(`/order/${orderId}/tracking`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ trackingId, email, courier }),
+        });
+        const text = await res.text();
+        if (!res.ok) throw new Error("Failed to update tracking ID");
+        Swal.fire({
+          icon: "success",
+          title: "Tracking ID Updated",
+          text: "Tracking ID has been updated and email sent successfully.",
+        });
+        loadOrder();
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error updating Tracking ID",
+          text: error.message || "Please try again later.",
+        });
+      }
+    }
+
+    async function refundOrder(orderId) {
+      try {
+        const confirm = await Swal.fire({
+          title: 'Are you sure?',
+          text: "This will mark the order as refunded.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, refund it!',
+          cancelButtonText: 'Cancel'
+        });
+        if (!confirm.isConfirmed) return;
+
+        const res = await fetch(`/admin/order/${orderId}/refund`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+        if (!res.ok) throw new Error("Failed to refund order");
+        Swal.fire({
+          icon: 'success',
+          title: 'Order Refunded',
+          text: 'Order has been marked as refunded.'
+        });
+        loadOrder();
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Refund Error",
+          text: error.message || "Could not refund order."
+        });
+      }
+    }
+
+    // PDF Invoice Download
+    function downloadInvoicePDF() {
+      if (!currentOrder) return;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.text("Order Invoice", 10, 15);
+      doc.setFontSize(12);
+      doc.text(`Order ID: ${currentOrder._id}`, 10, 25);
+      doc.text(`Date: ${formatDate(currentOrder.createdAt)}`, 10, 32);
+      doc.text(`Customer: ${currentOrder.deliveryDetails?.fullName || '-'}`, 10, 39);
+      doc.text(`Phone: ${currentOrder.deliveryDetails?.mobile || '-'}`, 10, 46);
+      doc.text(`Email: ${currentOrder.deliveryDetails?.email || currentOrder.userEmail || '-'}`, 10, 53);
+      doc.text(`Address: ${currentOrder.deliveryDetails?.address || '-'}, ${currentOrder.deliveryDetails?.city || ''} ${currentOrder.deliveryDetails?.state || ''} ${currentOrder.deliveryDetails?.pincode || ''}`, 10, 60);
+
+      let y = 70;
+      doc.text("Items:", 10, y);
+      y += 7;
+      currentOrder.books.forEach(book => {
+        doc.text(`- ${book.title} (Qty: ${book.quantity}) - ₹${book.price} = ₹${book.price * book.quantity}`, 12, y);
+        y += 7;
+      });
+
+      y += 5;
+      doc.text(`Subtotal: ₹${currentOrder.books.reduce((sum, b) => sum + b.price * b.quantity, 0)}`, 10, y);
+      y += 7;
+      doc.text(`Discount: ₹${currentOrder.discount || 0}`, 10, y);
+      y += 7;
+      doc.text(`Total: ₹${(currentOrder.books.reduce((sum, b) => sum + b.price * b.quantity, 0)) - (currentOrder.discount || 0)}`, 10, y);
+
+      y += 10;
+      doc.text(`Status: ${currentOrder.status}`, 10, y);
+
+      doc.save(`Order_Invoice_${currentOrder._id}.pdf`);
+    }
+
+    // PDF Packing Slip Download
+    function downloadPackingSlipPDF() {
+      if (!currentOrder) return;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.text("Packing Slip", 10, 15);
+      doc.setFontSize(12);
+      doc.text(`Order ID: ${currentOrder._id}`, 10, 25);
+      doc.text(`Date: ${formatDate(currentOrder.createdAt)}`, 10, 32);
+      doc.text(`Customer: ${currentOrder.deliveryDetails?.fullName || '-'}`, 10, 39);
+      doc.text(`Phone: ${currentOrder.deliveryDetails?.mobile || '-'}`, 10, 46);
+      doc.text(`Address: ${currentOrder.deliveryDetails?.address || '-'}, ${currentOrder.deliveryDetails?.city || ''} ${currentOrder.deliveryDetails?.state || ''} ${currentOrder.deliveryDetails?.pincode || ''}`, 10, 53);
+
+      let y = 65;
+      doc.text("Items:", 10, y);
+      y += 7;
+      currentOrder.books.forEach(book => {
+        doc.text(`- ${book.title} (Qty: ${book.quantity})`, 12, y);
+        y += 7;
+      });
+
+      y += 10;
+      doc.text(`Courier: ${currentOrder.courier || '-'}`, 10, y);
+      y += 7;
+      doc.text(`Tracking ID: ${currentOrder.trackingId || '-'}`, 10, y);
+
+      doc.save(`Order_PackingSlip_${currentOrder._id}.pdf`);
+    }
+
+    loadOrder();
+  </script>
+  </body>
+  </html>

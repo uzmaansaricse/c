@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Order</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px #ccc;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    .section {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 20px;
+      background: #fafafa;
+    }
+
+    .section h3 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 6px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .flex {
+      display: flex;
+      gap: 20px;
+    }
+
+    .half {
+      flex: 1;
+    }
+
+    .button {
+      background-color: #0073aa;
+      color: #fff;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .button.green {
+      background-color: green;
+    }
+
+    .button.gray {
+      background-color: gray;
+    }
+
+    .button.red {
+      background-color: red;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    th {
+      background: #eee;
+    }
+
+    .note {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 10px;
+    }
+
+    .right-align {
+      text-align: right;
+    }
+
+    .coupon-box, .refund-box {
+      margin-top: 10px;
+    }
+
+    .pdf-buttons {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Edit Order #572</h2>
+    <p>Paid on October 20, 2019 @ 2:22 PM | Customer IP: 103.75.42.177</p>
+
+    <!-- Order Details -->
+    <div class="section">
+      <h3>Order Details</h3>
+      <div class="flex">
+        <div class="half">
+          <label>Date Created</label>
+          <input type="date" value="2019-10-20" />
+          <label>Time</label>
+          <input type="time" value="14:22" />
+          <label>Status</label>
+          <select>
+            <option>Processing</option>
+            <option>Pending</option>
+            <option>Completed</option>
+          </select>
+        </div>
+
+        <div class="half">
+          <h4>Billing Info</h4>
+          <p>Name: Nil Kumar</p>
+          <p>Address: HP 655656, Assam</p>
+          <p>Email: <a href="mailto:contact.ronitshill@yahoo.com">contact.ronitshill@yahoo.com</a></p>
+          <p>Phone: 5656565656</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Actions -->
+    <div class="section">
+      <h3>Order Actions</h3>
+      <select>
+        <option>Choose an action...</option>
+        <option>Email invoice / order details to customer</option>
+        <option>Resend new order notification</option>
+        <option>Regenerate download permissions</option>
+        <option>Recalculate order cashback</option>
+      </select>
+      <br />
+      <button class="button green">Update</button>
+    </div>
+
+    <!-- Send Email -->
+    <div class="section">
+      <h3>Send Order Email</h3>
+      <select>
+        <option>Select email template...</option>
+        <option>Invoice email</option>
+      </select>
+      <br />
+      <button class="button">Save order & send email</button>
+    </div>
+
+    <!-- Delivery Tracker -->
+    <div class="section">
+      <h3>TrackFree - Delivery Tracker</h3>
+      <label>Courier Name</label>
+      <select>
+        <option>India Post</option>
+        <option>Delhivery</option>
+        <option>Blue Dart</option>
+      </select>
+
+      <label>Tracking Number</label>
+      <input type="text" placeholder="Enter tracking number" />
+      <button class="button">Add new tracking</button>
+    </div>
+
+    <!-- Items Section -->
+    <div class="section">
+      <h3>Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Cost</th>
+            <th>Qty</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>It <em>(product name blurred)</em></td>
+            <td>₹0.00</td>
+            <td>1</td>
+            <td>₹0.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="coupon-box">
+        <strong>Coupon(s):</strong> diwali
+      </div>
+
+      <div class="refund-box">
+        <button class="button red">Refund</button>
+      </div>
+
+      <div class="right-align">
+        <p><strong>Discount:</strong> ₹175.00</p>
+        <p><strong>Total:</strong> ₹0.00</p>
+      </div>
+
+      <p class="note">This order is no longer editable.</p>
+
+      <div class="pdf-buttons">
+        <button class="button gray">PDF Invoice</button>
+        <button class="button gray">PDF Packing Slip</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
