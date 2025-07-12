@@ -1482,7 +1482,7 @@ const getUserOrders = async (req, res) => {
     }
 };
 
-
+/*
 // ✅ Get orders pending for more than 7 days
 const getPendingOrders = async (req, res) => {
     try {
@@ -1537,7 +1537,66 @@ const pendingUpdateAutoDelete = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to update status." });
     }
 };
+*/
+const getPendingOrders = async (req, res) => {
+    try {
+        const oneDayAgo = new Date();
+        oneDayAgo.setTime(oneDayAgo.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
 
+        console.log("24 Hours Ago:", oneDayAgo);
+
+        const pendingOrders = await Order.find({
+            status: "Pending",
+            pendingSince: { $lte: oneDayAgo }, // Ensure this is a Date field
+        }).select("_id status pendingSince deliveryDetails");
+
+        console.log("Orders Found:", pendingOrders);
+        res.json(pendingOrders);
+    } catch (error) {
+        res.status(500).json({ error: "Server error" });
+    }
+};
+
+// ✅ Manually delete an order
+// Example Cron Logic
+const deleteOrderPending = async () => {
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  const result = await Order.deleteMany({
+    status: "Pending",
+    pendingSince: { $lte: cutoff }
+  });
+
+  console.log(`Auto-deleted ${result.deletedCount} pending orders.`);
+  return result;
+};
+
+// ✅ Auto-delete orders when status is updated
+const pendingUpdateAutoDelete = async (req, res) => {
+    try {
+        const { orderId, status } = req.body;
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        // ✅ Agar order 24 ghante se pending tha aur status update ho gaya, to delete kar do
+        if (
+            order.status === "Pending" &&
+            new Date(order.pendingSince) <= new Date(Date.now() - 24 * 60 * 60 * 1000)
+        ) {
+            await Order.findByIdAndDelete(orderId);
+            return res.json({ success: true, message: "Order auto-deleted as status updated." });
+        }
+
+        order.status = status;
+        await order.save();
+        res.json({ success: true, message: "Order status updated." });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Failed to update status." });
+    }
+};
 
 
 export { getOrderAnalytics, updateOrderStatus, trackOrder, getUserOrders, getPendingOrders, getAllOrders, deleteOrderPending, pendingUpdateAutoDelete };
@@ -1742,6 +1801,64 @@ const getAllPendingOrders = async (req, res) => {
 };
 
 export { getAllPendingOrders };
+
+// Delete a single pending order by ID (only if status is 'Pending')
+export const deleteOrderById = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findOne({ _id: orderId, status: 'Pending' });
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found or not pending.' });
+    }
+    await Order.findByIdAndDelete(orderId);
+    res.json({ success: true, message: 'Pending order deleted.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to delete order.' });
+  }
+};
+
+// Mark order as Incomplete with failureReason
+const markOrderIncomplete = async (orderId, reason = 'Payment failed or not completed') => {
+    try {
+        await Order.findByIdAndUpdate(orderId, {
+            status: 'Incomplete',
+            failureReason: reason,
+            $push: { statusHistory: { status: 'Incomplete' } }
+        });
+        console.log(`Order ${orderId} marked as Incomplete. Reason: ${reason}`);
+    } catch (err) {
+        console.error('Error marking order as Incomplete:', err);
+    }
+};
+
+// Cron job: Delete all Incomplete orders older than 24 hours
+const deleteOldIncompleteOrders = async () => {
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    try {
+        const result = await Order.deleteMany({
+            status: 'Incomplete',
+            createdAt: { $lte: cutoff }
+        });
+        if (result.deletedCount > 0) {
+            console.log(`Auto-deleted ${result.deletedCount} incomplete orders (older than 24h).`);
+        }
+        return result;
+    } catch (err) {
+        console.error('Error auto-deleting incomplete orders:', err);
+    }
+};
+
+// API endpoint to get all incomplete orders
+const getIncompleteOrders = async (req, res) => {
+    try {
+        const incompleteOrders = await Order.find({ status: 'Incomplete' }).sort({ createdAt: -1 });
+        res.json({ success: true, orders: incompleteOrders });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch incomplete orders' });
+    }
+};
+
+export { markOrderIncomplete, deleteOldIncompleteOrders, getIncompleteOrders };
 
 
 

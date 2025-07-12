@@ -1,5 +1,5 @@
 import express from "express";
-import { updateTrackingId } from "../controllers/authController.js";
+import { updateTrackingId, getIncompleteOrders } from "../controllers/authController.js";
 import { Order } from "../models/Order Model.js"; // Correct import for named export from the actual file
 
 const router = express.Router();
@@ -17,6 +17,9 @@ router.get("/admin/order/:id", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+// Get all incomplete orders for admin
+router.get("/admin/incomplete-orders", getIncompleteOrders);
 
 export default router;
 

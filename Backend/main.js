@@ -9,6 +9,7 @@ import { upload } from "./utility/cloudinary.js";
 import { uploadBook } from "./utility/bookAddCloudinary.js";
 import orderRoutes from "./routes/orderRoute.js";
 import trackingRoutes from "./routes/trackingRoutes.js";
+import cron from "node-cron";
 
 
 
@@ -31,6 +32,7 @@ import {
     uploadCSV, uploadImage, usergetOrders, validateQR, getUserProfile, deleteAccount,
     verifyUser,
     getAllPendingOrders,
+    deleteOrderById,
 } from "./controllers/authController.js";
 
 
@@ -168,14 +170,23 @@ app.put("/admin/order/:orderId", updateOrderStatus); //Admin Order Update (Order
 app.get("/track/:orderId", trackOrder); // Order Tracking (User Order ID se order check kare)
 app.get("/user-orders/:mobile", getUserOrders);//User Order History (Mobile number se orders check kare)
 
-//  7+ din se pending orders lene ke liye
-app.get("/api/admin/pending-orders", getPendingOrders);//7 Days se Pending Orders (Admin Alert Page)
+// 
 
-// ✅ All pending orders (not just 7+ days)
+
+
 app.get("/api/admin/all-pending-orders", getAllPendingOrders);// Admin Alert Page (All Pending Orders)
-
-//  Admin manually delete kare
-app.delete("/api/admin-delete-order/:orderId", deleteOrderPending);
+app.get("/api/admin/pending-orders", getPendingOrders);//7 Days se Pending Orders (Admin Alert Page)
+//  Admin manually delete kare (single pending order)
+app.delete("/api/admin-delete-order/:orderId", deleteOrderById);
+//  Delete ALL pending orders older than 24 hours
+app.delete("/api/admin/delete-old-pending-orders", async (req, res) => {
+  try {
+    const result = await deleteOrderPending();
+    res.json({ deletedCount: result.deletedCount });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete pending orders." });
+  }
+});
 //  Agar status update ho jaye to order auto-delete ho
 app.post("/api/update-order-status", pendingUpdateAutoDelete);
 
@@ -226,7 +237,18 @@ app.listen(PORT, async () => {
 
 
 
+cron.schedule("0 0 * * *", async () => {
+  console.log("⏰ Running auto-delete for 24hr+ pending orders...");
+  await deleteOrderPending();
+});
 
+// Cron job for auto-deleting incomplete orders after 24 hours
+import { deleteOldIncompleteOrders } from './controllers/authController.js';
+// Schedule: runs every hour
+cron.schedule('0 * * * *', async () => {
+  await deleteOldIncompleteOrders();
+  // You can log or handle errors as needed
+});
 
 
 
