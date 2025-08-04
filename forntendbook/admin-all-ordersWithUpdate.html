@@ -193,15 +193,17 @@
         <ul>
          <li><a href="video and imag showAdmin.html"><i class="fa-solid fa-box"></i> News Box</a></li>
         <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Banner</a></li>
-        <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
+        <li><a href="manageusers.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
         <li><a href="AdminPendingOrdersSavenday.html"><i class="fa-solid fa-clock"></i> Pending Orders</a></li>
         <li><a href="admin-all-ordersWithUpdate.html"><i class="fa-solid fa-globe"></i> Manage Orders</a></li>
         <li><a href="orderAdmin-analytics.html"><i class="fa-solid fa-chart-line"></i> Order Analytics</a></li>
-        <li><a href="Admin order summery.html"><i class="fa-solid fa-list"></i> Order Summary</a></li>
+        <!-- <li><a href="Admin order summery.html"><i class="fa-solid fa-list"></i> Order Summary</a></li> -->
         <li><a href="book-upload.html"><i class="fa-solid fa-upload"></i> Book Upload</a></li>
         <li><a href="BookUpdate Admin.html"><i class="fa-solid fa-pen-to-square"></i> Book Update/Delete</a></li>
         <li><a href="uploadcsv.html"><i class="fa-solid fa-cloud-arrow-up"></i> Upload CSV</a></li>
         <li><a href="tech-support.html"><i class="fa-solid fa-headset"></i> Tech Support</a></li>
+          <li><a href="index.html"><i class="fa-solid fa-headset"></i>Back to Webstite</a></li>
+        <li><a href="Logout.html"><i class="fa-solid fa-headset"></i> Logout</a></li>
         </ul>
     </div>
 
@@ -209,13 +211,13 @@
         <h1>Admin Orders & Summary</h1>
         <div class="filter-section">
             <label for="searchInput">Search:</label>
-            <input type="text" id="searchInput" placeholder="Order ID / Tracking ID" oninput="fetchOrders()">
+            <input type="text" id="searchInput" placeholder="Order ID" oninput="fetchOrders()">
 
             <label for="statusFilter">Order Status:</label>
             <select id="statusFilter" onchange="fetchOrders()">
                 <option value="">All</option>
                 <option value="Pending">Pending</option>
-                <option value="Unshipped">Unshipped</option>
+            //    <option value="Unshipped">Unshipped</option>
                 <option value="Shipped">Shipped</option>
                 <option value="Delivered">Delivered</option>
                 <option value="Cancelled">Cancelled</option>
@@ -229,7 +231,7 @@
                 <option value="7" selected>Last 7 Days</option>
                 <option value="14">Last 14 Days</option>
                 <option value="30">Last 30 Days</option>
-                <option value="all">All</option>
+                <!-- <option value="all">All</option> -->
             </select>
 
             <label for="sortDate">Sort:</label>
@@ -242,19 +244,19 @@
             <table>
                 <thead>
                     <tr>
+                        <th>Details</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Action</th>
                         <th>Order Date 📅</th>
                         <th>Order ID</th>
                         <th>Book Title</th>
                         <th>Quantity</th>
                         <th>Book Price</th>
                         <th>Total Price</th>
-                        <th>Status</th>
-                        <th>Customer</th>
                         <th>Phone Number</th>
                         <th>Address</th>
-                        <th>Action</th>
                         <th>Tracking ID</th>
-                        <th>Details</th>
                     </tr>
                 </thead>
                 <tbody id="orderTable">
@@ -286,9 +288,16 @@
                 );
             }
 
-            // Filter by status
+            // Filter by status (case-insensitive, trimmed)
             if (status) {
-                filtered = filtered.filter(order => order.status === status);
+                filtered = filtered.filter(order => {
+                    const orderStatus = (order.status || '').toString().trim().toLowerCase();
+                    const filterStatus = status.toString().trim().toLowerCase();
+                    console.log('Comparing:', orderStatus, 'vs', filterStatus);
+                    return orderStatus === filterStatus;
+                });
+                console.log('Filtered orders:', filtered);
+                console.log('All order statuses:', filtered.map(o => o.status));
             }
 
             // Filter by date range
@@ -296,8 +305,16 @@
                 const days = parseInt(dateRange, 10);
                 const now = new Date();
                 filtered = filtered.filter(order => {
-                    const orderDate = new Date(order.createdAt);
-                    return (now - orderDate) / (1000 * 60 * 60 * 24) <= days;
+                    // Use pendingSince for pending orders if exists and is valid date, else createdAt
+                    let orderDate;
+                    if (order.status && order.status.toLowerCase() === "pending" && order.pendingSince && !isNaN(new Date(order.pendingSince).getTime())) {
+                        orderDate = new Date(order.pendingSince);
+                    } else {
+                        orderDate = new Date(order.createdAt);
+                    }
+                    const diffDays = (now - orderDate) / (1000 * 60 * 60 * 24);
+                    console.log('Order ID:', order._id, 'Status:', order.status, 'Order Date:', orderDate, 'Diff Days:', diffDays, 'Days Filter:', days);
+                    return diffDays <= days;
                 });
             }
 
@@ -314,74 +331,71 @@
         }
 
         async function fetchOrders() {
-            try {
-                // Always get all orders, filter on frontend
-                const res = await fetch(`/admin/orders`);
-                let orders = await res.json();
+            const status = document.getElementById("statusFilter").value;
+            let orders = [];
 
-                // Flatten books for table display
-                let flatOrders = [];
-                orders.forEach(order => {
-                    order.books.forEach(book => {
-                        flatOrders.push({
-                            ...order,
-                            bookTitle: book.title,
-                            bookQuantity: book.quantity,
-                            bookPrice: book.price,
-                            bookTotal: book.price * book.quantity
-                        });
+            // Always fetch all orders and filter on frontend for all statuses including pending
+            const res = await fetch(`/admin/orders`);
+            orders = await res.json();
+
+            // Flatten books for table display (same as before)
+            let flatOrders = [];
+            orders.forEach(order => {
+                order.books.forEach(book => {
+                    flatOrders.push({
+                        ...order,
+                        pendingSince: order.pendingSince,  // Add pendingSince here
+                        bookTitle: book.title,
+                        bookQuantity: book.quantity,
+                        bookPrice: book.price,
+                        bookTotal: book.price * book.quantity
                     });
                 });
+            });
 
-                // Filter and sort
-                flatOrders = filterOrders(flatOrders);
+            // Apply frontend filter for all statuses including pending
+            flatOrders = filterOrders(flatOrders);
 
-                const table = document.getElementById("orderTable");
-                table.innerHTML = '';
+            // Render table as before...
+            const table = document.getElementById("orderTable");
+            table.innerHTML = '';
 
                 flatOrders.forEach(order => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${formatDate(order.createdAt)}</td>
-                        <td>${order._id}</td>
-                        <td>${order.bookTitle}</td>
-                        <td>${order.bookQuantity}</td>
-                        <td>₹${order.bookPrice}</td>
-                        <td>₹${order.bookTotal}</td>
-                        <td>
-                            <select id="status-${order._id}" style="min-width:100px">
-                                <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
-                                <option value="Unshipped" ${order.status === "Unshipped" ? "selected" : ""}>Unshipped</option>
-                                <option value="Shipped" ${order.status === "Shipped" ? "selected" : ""}>Shipped</option>
-                                <option value="Delivered" ${order.status === "Delivered" ? "selected" : ""}>Delivered</option>
-                                <option value="Cancelled" ${order.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
-                                <option value="Refunded" ${order.status === "Refunded" ? "selected" : ""}>Refunded</option>
-                            </select>
-                        </td>
-                        <td>${order.deliveryDetails.fullName} (${order.deliveryDetails.mobile})</td>
-                        <td>${order.deliveryDetails.mobile}</td>
-                        <td>${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state} - ${order.deliveryDetails.pincode}</td>
-                        <td>
-                            <button class="action-btn" onclick="updateOrder('${order._id}')">Update</button>
-                            <div><small>${order.userEmail ? order.userEmail : (order.deliveryDetails && order.deliveryDetails.email ? order.deliveryDetails.email : 'No Email')}</small></div>
-                        </td>
-                        <td>
-                            <input type="text" id="tracking-${order._id}" placeholder="Enter message" value="${order.trackingId || ''}" style="width:90px"/>
-                            <button class="action-btn" onclick="saveTrackingId('${order._id}')">Send</button>
-                        </td>
-                        <td>
-                            <button class="action-btn" onclick="window.open('order-details.html?id=${order._id}','_blank')">View</button>
-                        </td>
-                    `;
-                    table.appendChild(row);
-                });
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error fetching orders',
-                    text: 'There was an issue fetching the orders. Please try again later.',
-                });
-            }
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>
+                        <button class="action-btn" onclick="window.open('order-details.html?id=${order._id}','_blank')">View</button>
+                    </td>
+                    <td>${order.deliveryDetails.fullName}</td>
+                    <td>
+                        <select id="status-${order._id}" style="min-width:100px">
+                            <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
+                            <option value="Unshipped" ${order.status === "Unshipped" ? "selected" : ""}>Unshipped</option>
+                            <option value="Shipped" ${order.status === "Shipped" ? "selected" : ""}>Shipped</option>
+                            <option value="Delivered" ${order.status === "Delivered" ? "selected" : ""}>Delivered</option>
+                            <option value="Cancelled" ${order.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+                            <option value="Refunded" ${order.status === "Refunded" ? "selected" : ""}>Refunded</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="action-btn" onclick="updateOrder('${order._id}')">Update</button>
+                        <div><small>${order.userEmail ? order.userEmail : (order.deliveryDetails && order.deliveryDetails.email ? order.deliveryDetails.email : 'No Email')}</small></div>
+                    </td>
+                    <td>${formatDate(order.createdAt)}</td>
+                    <td>${order._id}</td>
+                    <td>${order.bookTitle}</td>
+                    <td>${order.bookQuantity}</td>
+                    <td>₹${order.bookPrice}</td>
+                    <td>₹${order.bookTotal}</td>
+                    <td>${order.deliveryDetails.mobile}</td>
+                    <td>${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state} - ${order.deliveryDetails.pincode}</td>
+                    <td>
+                        <input type="text" id="tracking-${order._id}" placeholder="Enter message" value="${order.trackingId || ''}" style="width:90px"/>
+                        <button class="action-btn" onclick="saveTrackingId('${order._id}')">Send</button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
         }
 
         async function updateOrder(orderId) {

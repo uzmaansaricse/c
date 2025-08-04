@@ -139,7 +139,7 @@
 <!-- ✅ JS SCRIPT -->
 <script>
   window.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("token"); // Use the same key as in signup-login.html
 
 
     const signupSection = document.getElementById("signup-section");
@@ -156,7 +156,7 @@
   });
 
   function logoutUser() {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("token");
     location.reload();
   }
 </script>

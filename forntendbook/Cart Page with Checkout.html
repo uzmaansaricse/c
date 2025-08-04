@@ -363,7 +363,9 @@ th {
 
   <div class="col-sm-6 nav-items">
     <ul>
-         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+        
+      
+       <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
       <li class="nav-item">
         <i class="fa-solid fa-book-open"></i> Books
         <ul class="dropdown">
@@ -416,14 +418,18 @@ th {
       </button>
     </a>
 
-    
+    <!-- <a href="Search book.html">
+      <button class="Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </a> -->
   </div>
 </div>
 
 <!-- ✅ JS SCRIPT -->
 <script>
   window.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("token"); // Use the same key as in signup-login.html
 
 
     const signupSection = document.getElementById("signup-section");
@@ -440,7 +446,7 @@ th {
   });
 
   function logoutUser() {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("token");
     location.reload();
   }
 </script>
@@ -637,11 +643,12 @@ th {
     }
 
    function autoRedirectToDelivery() {
-    const user = JSON.parse(localStorage.getItem("user"));
+    // Change: Get token from localStorage
+    const token = localStorage.getItem("token");
     const redirect = localStorage.getItem("redirectAfterLogin");
 
-    if (user && redirect === "./Cart Page with Checkout.html") {
-        verifyUserSession(() => {
+    if (token && redirect === "./Cart Page with Checkout.html") {
+        verifyUserSession(token, () => {
             Swal.fire({
                 icon: "success",
                 title: "✅ Welcome back!",
@@ -653,18 +660,12 @@ th {
     }
 }
 
-function showDeliveryForm() {
-    document.getElementById("delivery-form").style.display = "block";
-    window.scrollTo(0, document.getElementById("delivery-form").offsetTop);
-}
-
-function verifyUserSession(callback) {
-    const user = JSON.parse(localStorage.getItem("user"));
+function verifyUserSession(token, callback) {
     fetch(`${API_BASE}/verifyUser`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user?.token}`
+            'Authorization': `Bearer ${token}`
         }
     })
         .then(res => res.json())
@@ -677,7 +678,7 @@ function verifyUserSession(callback) {
                     title: "❌ Session expired",
                     text: "Please login again."
                 });
-                localStorage.removeItem("user");
+                localStorage.removeItem("token");
                 localStorage.setItem("redirectAfterLogin", "Cart Page with Checkout.html");
 
                 window.location.href = "signup-login.html";
@@ -686,8 +687,8 @@ function verifyUserSession(callback) {
 }
 
 document.getElementById("checkout").addEventListener("click", function () {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user.token) {
+    const token = localStorage.getItem("token");
+    if (!token) {
         Swal.fire({
             icon: "warning",
             title: "⚠️ User not logged in",
@@ -698,16 +699,14 @@ document.getElementById("checkout").addEventListener("click", function () {
             window.location.href = "signup-login.html";
         });
     } else {
-        verifyUserSession(() => {
-            Swal.fire({
-                icon: "success",
-                title: "✅ Verified",
-                text: "User verified & already logged in.",
-                timer: 2000,
-                showConfirmButton: false
-            });
-            showDeliveryForm();
+        Swal.fire({
+            icon: "success",
+            title: "✅ Verified",
+            text: "User verified & already logged in.",
+            timer: 2000,
+            showConfirmButton: false
         });
+        showDeliveryForm();
     }
 });
 
@@ -735,6 +734,7 @@ document.getElementById("checkout").addEventListener("click", function () {
     let deliveryDetails = getDeliveryDetails();
 
     try {
+        // Step 1: Create order in DB with Pending status
         let response = await fetch(`${API_BASE}/api/create-order`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -743,6 +743,9 @@ document.getElementById("checkout").addEventListener("click", function () {
         let data = await response.json();
         let key = await getRazorpayKey();
 
+        // Step 2: Get database orderId for later use
+        let dbOrderId = data.dbOrderId; // <-- backend should return this
+
         if (data.orderId) {
             let rzp = new Razorpay({
                 key: key,
@@ -750,37 +753,27 @@ document.getElementById("checkout").addEventListener("click", function () {
                 currency: "INR",
                 order_id: data.orderId,
                 handler: function (response) {
-                    saveOrder(response.razorpay_payment_id, deliveryDetails, cart, totalAmount);
+                    // Payment success: update order status to Paid
+                    saveOrder(response.razorpay_payment_id, deliveryDetails, cart, totalAmount, dbOrderId);
                 },
                 modal: {
                     ondismiss: function () {
-                        Swal.fire({
-                            icon: "info",
-                            title: "Payment popup closed!",
-                            text: "You can try again anytime."
-                        });
+                        // Payment failed: update order status to Incomplete
+                        handlePaymentFailure(dbOrderId);
                     }
                 }
             });
             rzp.open();
         } else {
-            Swal.fire({
-                icon: "error",
-                title: "Payment initiation failed",
-                text: "Unable to generate order. Please try again."
-            });
+            Swal.fire({ icon: "error", title: "Payment initiation failed", text: "Unable to generate order. Please try again." });
         }
     } catch (err) {
         console.error("Payment Error:", err);
-        Swal.fire({
-            icon: "error",
-            title: "Something went wrong!",
-            text: "Please check your connection and try again."
-        });
+        Swal.fire({ icon: "error", title: "Something went wrong!", text: "Please check your connection and try again." });
     }
 });
 
-  async function saveOrder(paymentId, deliveryDetails, cart, totalAmount) {
+  async function saveOrder(paymentId, deliveryDetails, cart, totalAmount, dbOrderId) {
     let response = await fetch(`${API_BASE}/api/save-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -801,6 +794,36 @@ document.getElementById("checkout").addEventListener("click", function () {
             timer: 1500,
             showConfirmButton: false
         });
+
+        // Send order confirmation email
+        fetch(`${API_BASE}/order/send-confirmation-email`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: deliveryDetails.email,
+                fullName: deliveryDetails.fullName,
+                orderId: orderId,
+                items: cart.map(item => ({
+                    title: item.title,
+                    quantity: item.quantity,
+                    netPrice: item.price
+                })),
+                shippingCharges: 0,
+                totalAmount: totalAmount,
+                shippingInfo: {
+                    fullName: deliveryDetails.fullName,
+                    address: deliveryDetails.address + ", " + deliveryDetails.city + ", " + deliveryDetails.state + " - " + deliveryDetails.pincode,
+                    mobile: deliveryDetails.mobile
+                }
+            })
+        }).then(res => res.json())
+          .then(data => {
+              if (!data.success) {
+                  console.error("Failed to send order confirmation email:", data.message);
+              }
+          }).catch(err => {
+              console.error("Error sending order confirmation email:", err);
+          });
 
         setTimeout(() => {
             window.location.href = `rating-review.html?orderId=${orderId}&bookIds=${bookIds}`;
@@ -885,6 +908,30 @@ document.getElementById("checkout").addEventListener("click", function () {
             localStorage.setItem("cart", JSON.stringify(cart));
             loadCart();
         }
+
+        function showDeliveryForm() {
+    // Show the delivery form
+    document.getElementById("delivery-form").style.display = "block";
+    // Optionally hide the cart container
+    document.querySelector(".cart-container").style.display = "none";
+}
+
+// Razorpay payment failure handler
+function handlePaymentFailure(orderId) {
+    fetch(`/api/admin/mark-incomplete/${orderId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "Payment failed or not completed" })
+    })
+    .then(res => res.json())
+    .then(data => {
+        Swal.fire({
+            icon: "error",
+            title: "Payment Failed",
+            text: "Your order was not completed. Please try again."
+        });
+    });
+}
 </script>
 
    <script src="script.js"></script>

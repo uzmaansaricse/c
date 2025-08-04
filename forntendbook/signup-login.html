@@ -1,344 +1,311 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Authentication</title>
-  <link rel="stylesheet" href="singup.css"/>
+  <meta charset="UTF-8">
+  <title>Login | Aravali Publication</title>
   <style>
     body {
-      background: linear-gradient(120deg, #025005 0%, #22a559 100%);
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f9d58 0%, #1e5631 100%);
       min-height: 100vh;
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .container {
+      max-width: 400px;
+      margin: 48px auto;
+      background: #fff;
+      padding: 36px 32px 32px 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .logo {
+      width: 150px;
+      height: 150px;
+      margin-bottom: -10px;
+      margin-top: -40px;
+    }
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 2rem;
+      color: #1e5631;
+    }
+    .subtitle {
+      color: #444;
+      margin-bottom: 18px;
+      font-size: 1.1rem;
+    }
+    input, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background: linear-gradient(90deg, #ff7043 0%, #ffd600 100%);
+      color: #222;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #ffd600 0%, #ff7043 100%);
+    }
+    .social-btn {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #f5f5f5;
+      font-size: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    .auth-container {
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-      padding: 36px 32px 28px 32px;
-      max-width: 370px;
-      width: 100%;
-      margin: 30px auto;
-      position: relative;
-      animation: fadeIn 0.7s;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .auth-container img {
-      display: block;
-      margin: 0 auto 10px auto;
-      max-width: 70px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    .auth-container h2 {
-      text-align: center;
-      color: #ff4e50;
-      margin-bottom: 10px;
-      font-size: 1.7rem;
-      letter-spacing: 1px;
-    }
-    .auth-container .welcome {
-      text-align: center;
-      color: #222;
-      font-size: 1.1rem;
-      margin-bottom: 18px;
-      font-weight: 500;
-    }
-    .auth-container form input {
-      width: 100%;
-      padding: 11px 12px;
-      margin: 8px 0 14px 0;
-      border: 1px solid #e0e0e0;
-      border-radius: 7px;
-      font-size: 1rem;
-      background: #f9f9f9;
-      transition: border 0.2s;
-    }
-    .auth-container form input:focus {
-      border: 1.5px solid #ff4e50;
-      outline: none;
-      background: #fffbe7;
-    }
-    .auth-container form button {
-      width: 100%;
-      padding: 12px 0;
-      background: linear-gradient(90deg, #ff4e50 0%, #f9d423 100%);
-      color: #fff;
-      border: none;
-      border-radius: 7px;
-      font-size: 1.1rem;
-      font-weight: 600;
+      gap: 10px;
       cursor: pointer;
-      margin-top: 6px;
-      margin-bottom: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s;
     }
-    .auth-container form button:hover {
-      background: linear-gradient(90deg, #f9d423 0%, #ff4e50 100%);
-      transform: translateY(-2px) scale(1.03);
+    .social-btn img {
+      width: 22px;
+      height: 22px;
     }
-    .auth-container p, .auth-container a {
+    .hidden { display: none; }
+    .or-divider {
+      margin: 18px 0 10px 0;
+      display: flex;
+      align-items: center;
       text-align: center;
-      color: #444;
-      font-size: 1rem;
-      margin: 0;
-      text-decoration: none;
+      color: #888;
     }
-    .auth-container a {
-      color: #ff4e50;
-      font-weight: 500;
-      margin: 0 4px;
-      transition: color 0.2s;
+    .or-divider span {
+      flex: 1;
+      height: 1px;
+      background: #eee;
+      margin: 0 8px;
     }
-    .auth-container a:hover {
-      color: #f9d423;
-      text-decoration: underline;
-    }
-    @media (max-width: 500px) {
-      .auth-container {
-        padding: 18px 6vw 18px 6vw;
-        max-width: 98vw;
-      }
-    }
+    #msg, #otp-msg { color: #c62828; margin-top: 8px; min-height: 20px; }
   </style>
 </head>
 <body>
-  <div class="auth-container" id="login-section">
-    <img src="img/Aravli-final-logo.jpg" alt="Aravali Publication Logo">
+  <div class="container">
+    <img src="img/aravali_publication-removebg-preview.png" alt="Aravali Logo" class="logo" />
     <h2>Login</h2>
-    <div class="welcome">Welcome to Aravali Publication</div>
-    <form id="login-form">
-      <input type="text" id="login-mobile" placeholder="Mobile Number"><br>
-      <input type="password" id="login-password" placeholder="Password" autocomplete="current-password"><br>
-      <button type="submit">Login</button>
-    </form>
-    <p>
-      <a href="#" onclick="showSection('signup-section')">Signup</a> |
-      <a href="#" onclick="showSection('forgot-password-section')">Forgot Password?</a>
-    </p>
+    <div class="subtitle">Welcome to Aravali Publication</div>
+    <div id="step1">
+      <input type="text" id="identifier" placeholder="Enter Mobile Number or Email" />
+      <button onclick="checkUserType()">Continue</button>
+    </div>
+    <div id="step2-otp" class="hidden">
+      <p>Enter OTP sent to your phone/email</p>
+      <input type="text" id="otp" maxlength="6" placeholder="Enter OTP" />
+      <button onclick="verifyOtp()">Verify</button>
+      <button onclick="resendOtp()">Resend OTP</button>
+      <div id="otp-msg"></div>
+    </div>
+    <div class="or-divider"><span></span>or<span></span></div>
+    <div id="g_id_onload"
+     data-client_id="502694400131-c91lrq2ohh5m1tj7c50uto2mimtktp9p.apps.googleusercontent.com"
+     data-context="signin"
+     data-ux_mode="popup"
+     data-login_uri="http://localhost:9000/api/auth/social-login"
+     data-auto_prompt="false">
+</div>
+
+  <button class="social-btn" id="google-login-btn" type="button">
+  <img
+    src="images/google-icon-1.png"
+    alt="Google Logo"
+    width="20"
+    height="20"
+    style="vertical-align: middle; margin-right: 8px;"
+  />
+  Continue with Google
+</button>
+
+<button class="social-btn" id="fb-login-btn" type="button" title="Facebook login requires HTTPS and will not work on HTTP">
+  <img
+    src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
+    alt="Facebook Logo"
+    width="20"
+    height="20"
+    style="vertical-align: middle; margin-right: 8px;"
+  />
+  Continue with Facebook
+</button>
+
+    <div id="msg"></div>
   </div>
 
-  <div class="auth-container" id="signup-section" style="display: none;">
-    <img src="img/Aravli-final-logo.jpg" alt="Aravali Publication Logo">
-    <h2>Signup</h2>
-    <div class="welcome">Welcome to Aravali Publication</div>
-    <form id="signup-form">
-      <input type="text" id="signup-name" placeholder="Full Name"><br>
-      <input type="email" id="signup-email" placeholder="Email"><br>
-      <input type="text" id="signup-mobile" placeholder="Mobile Number"><br>
-      <button type="button" onclick="sendOtp()">Send OTP</button><br>
-      <input type="password" id="signup-password" placeholder="Password" autocomplete="current-password"><br>
-      <input type="text" id="signup-otp" placeholder="OTP"><br>
-      <button type="submit">Signup</button>
-    </form>
-    <p><a href="#" onclick="showSection('login-section')">Login</a></p>
-  </div>
+  <!-- Google & Facebook SDKs -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+  <script>
+    let userRole = null;
+    let identifierValue = "";
 
-  <div class="auth-container" id="forgot-password-section" style="display: none;">
-    <img src="img/Aravli-final-logo.jpg" alt="Aravali Publication Logo">
-    <h2>Forgot Password</h2>
-    <form id="forgot-form">
-      <input type="text" id="forgot-mobile" placeholder="Mobile Number"><br>
-      <button type="button" onclick="forgotPassword()">Send OTP</button><br>
-      <input type="text" id="forgot-otp" placeholder="Enter OTP" style="display: none;"><br>
-      <input type="password" id="new-password" placeholder="New Password" style="display: none;" autocomplete="current-password"><br>
-      <button type="button" onclick="resetPassword()" style="display: none;" id="reset-btn">Reset Password</button>
-    </form>
-    <p><a href="#" onclick="showSection('login-section')">Back to Login</a></p>
-  </div>
+    function showStep(step) {
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2-otp').classList.add('hidden');
+      if (step === 'step1') document.getElementById('step1').classList.remove('hidden');
+      if (step === 'step2-otp') document.getElementById('step2-otp').classList.remove('hidden');
+    }
 
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-  function showSection(section) {
-    document.getElementById('login-section').style.display = 'none';
-    document.getElementById('signup-section').style.display = 'none';
-    document.getElementById('forgot-password-section').style.display = 'none';
-    document.getElementById(section).style.display = 'block';
-  }
-
-  async function login() {
-    debugger
-    const mobile = document.getElementById('login-mobile').value;
-    const password = document.getElementById('login-password').value;
-    debugger
-    const response = await fetch('/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mobile, password })
-    });
-debugger
-    const result = await response.json();
-debugger
-    if (response.status === 200) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Login successful!',
-        toast: true,
-        position: 'top-end',
-        timer: 2000,
-        showConfirmButton: false,
-        timerProgressBar: true
-      });
-
-      localStorage.setItem('user', JSON.stringify(result));
-
-      if (result.token) {
-        localStorage.setItem('authToken', result.token);
-        console.log('✅ Token saved:', result.token);
-      } else {
-        console.warn('⚠ No token found in response');
+    async function checkUserType() {
+      identifierValue = document.getElementById('identifier').value.trim();
+      if (!identifierValue) {
+        document.getElementById('msg').innerText = "Please enter mobile number or email.";
+        return;0
       }
+      document.getElementById('msg').innerText = "Checking...";
+      const res = await fetch('/api/auth/check-user-type', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: identifierValue })
+      });
+      const data = await res.json();
+      userRole = data.role;
+      if (userRole === "admin" || userRole === "user" || userRole === "not_found") {
+        await sendOtp();
+        showStep('step2-otp');
+      } else {
+        document.getElementById('msg').innerText = "Unknown error.";
+      }
+    }
 
-      // Direct admin to Admin Panel
-      if (result.role === 'admin') {
-        window.location.href = "11Admin-panel.html";
+    async function sendOtp() {
+      document.getElementById('otp-msg').innerText = "Sending OTP...";
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: identifierValue })
+      });
+      const data = await res.json();
+      document.getElementById('otp-msg').innerText = data.message || '';
+    }
+
+    async function verifyOtp() {
+      const otp = document.getElementById('otp').value.trim();
+      if (!otp) {
+        document.getElementById('otp-msg').innerText = "Please enter OTP.";
         return;
-      } else if (result.role === 'user') {
-        // User redirect logic (if any)
-        const redirectURL = localStorage.getItem('redirectAfterLogin');
-        if (redirectURL) {
-          localStorage.removeItem('redirectAfterLogin');
-          window.location.href = redirectURL;
+      }
+      document.getElementById('otp-msg').innerText = "Verifying...";
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: identifierValue, otp })
+      });
+      const data = await res.json();
+      if (data.token) {
+        document.getElementById('otp-msg').innerText = "Login successful!";
+        // Save token, role, and sessionToken as user object
+        localStorage.setItem('token', data.token);
+        if (data.sessionToken) {
+          localStorage.setItem('sessionToken', data.sessionToken);
+        }
+        // Redirect based on role
+        if (data.role === 'admin') {
+          window.location.href = '/11Admin-panel.html';
         } else {
-          window.location.href = "index.html";
+          window.location.href = '/index.html';
         }
       } else {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Unknown role: ' + result.role,
-          toast: true,
-          position: 'top-end',
-          timer: 2000,
-          showConfirmButton: false,
-          timerProgressBar: true
-        });
+        document.getElementById('otp-msg').innerText = data.message || "Invalid OTP.";
       }
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Invalid login credentials',
-        toast: true,
-        position: 'top-end',
-        timer: 2000,
-        showConfirmButton: false,
-        timerProgressBar: true
+    }
+
+    async function resendOtp() {
+      await sendOtp();
+    }
+
+    // Google Sign-In
+    window.onload = function() {
+      google.accounts.id.initialize({
+        client_id: '502694400131-c91lrq2ohh5m1tj7c50uto2mimtktp9p.apps.googleusercontent.com',
+        callback: handleGoogleCredentialResponse
+      });
+      document.getElementById('google-login-btn').onclick = function() {
+        google.accounts.id.prompt();
+      };
+    };
+    function handleGoogleCredentialResponse(response) {
+      // response.credential is the id_token
+      fetch('/api/auth/social-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'google', socialToken: response.credential })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          if (data.sessionToken) {
+            localStorage.setItem('sessionToken', data.sessionToken);
+          }
+          const redirectTarget = (data.role === 'admin') ? '/11Admin-panel.html' : '/index.html';
+          window.location.href = redirectTarget;
+        } else {
+          document.getElementById('msg').innerText = data.message || "Google login failed.";
+        }
       });
     }
-  }
 
-  async function sendOtp() {
-    const mobile = document.getElementById('signup-mobile').value;
-    const response = await fetch('/send-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mobile })
-    });
-    const data = await response.json();
-    Swal.fire({
-      icon: 'info',
-      title: data.message,
-      toast: true,
-      position: 'top-end',
-      timer: 2000,
-      showConfirmButton: false,
-      timerProgressBar: true
-    });
-  }
+    // Facebook SDK init and login
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '2008218099974422', // <-- Replace with your Facebook App ID
+        cookie     : true,
+        xfbml      : true,
+        version    : 'v19.0'
+      });
+    };
+    document.getElementById('fb-login-btn').onclick = function() {
+      FB.login(function(response) {
+        if (response.authResponse) {
+          const accessToken = response.authResponse.accessToken;
+          fetch('/api/auth/social-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ provider: 'facebook', socialToken: accessToken })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.token) {
+              localStorage.setItem('token', data.token);
+              if (data.sessionToken) {
+                localStorage.setItem('sessionToken', data.sessionToken);
+              }
+              document.getElementById('msg').innerText = "Facebook login successful!";
+              const redirectTarget = (data.role === 'admin') ? '/11Admin-panel.html' : '/index.html';
+              window.location.href = redirectTarget;
+            } else {
+              document.getElementById('msg').innerText = data.message || "Facebook login failed.";
+            }
+          });
+        } else {
+          document.getElementById('msg').innerText = "Facebook login cancelled.";
+        }
+      }, {scope: 'email'});
+    };
 
-  async function signup() {
-    const name = document.getElementById('signup-name').value;
-    const email = document.getElementById('signup-email').value;
-    const mobile = document.getElementById('signup-mobile').value;
-    const password = document.getElementById('signup-password').value;
-    const otp = document.getElementById('signup-otp').value;
-    const response = await fetch('/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, mobile, password, otp })
-    });
-    const data = await response.json();
-    Swal.fire({
-      icon: response.ok ? 'success' : 'error',
-      title: data.message,
-      toast: true,
-      position: 'top-end',
-      timer: 2000,
-      showConfirmButton: false,
-      timerProgressBar: true
-    });
-  }
-
-  async function forgotPassword() {
-    const mobile = document.getElementById('forgot-mobile').value;
-    const response = await fetch('/forgot-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mobile })
-    });
-    const data = await response.json();
-    Swal.fire({
-      icon: response.ok ? 'success' : 'error',
-      title: data.message,
-      toast: true,
-      position: 'top-end',
-      timer: 2000,
-      showConfirmButton: false,
-      timerProgressBar: true
-    });
-
-    if (response.ok) {
-      document.getElementById('forgot-otp').style.display = 'block';
-      document.getElementById('new-password').style.display = 'block';
-      document.getElementById('reset-btn').style.display = 'block';
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.token) {
+      // User is not logged in, show login form
+      document.getElementById('step1').classList.remove('hidden');
+    } else {
+      // User is already logged in, redirect based on role
+      if (user.role === 'admin') {
+        window.location.href = '/11Admin-panel.html';
+      } else {
+        window.location.href = '/index.html';
+      }
     }
-  }
-
-  async function resetPassword() {
-    const mobile = document.getElementById('forgot-mobile').value;
-    const otp = document.getElementById('forgot-otp').value;
-    const newPassword = document.getElementById('new-password').value;
-
-    const response = await fetch('/reset-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mobile, otp, newPassword })
-    });
-
-    const data = await response.json();
-    Swal.fire({
-      icon: response.ok ? 'success' : 'error',
-      title: data.message,
-      toast: true,
-      position: 'top-end',
-      timer: 2000,
-      showConfirmButton: false,
-      timerProgressBar: true
-    });
-
-    if (response.ok) {
-      showSection('login-section');
-    }
-  }
-
-  // Attach form submit handlers
-  document.getElementById('login-form').onsubmit = function(e) {
-    e.preventDefault();
-    login();
-  };
-  document.getElementById('signup-form').onsubmit = function(e) {
-    e.preventDefault();
-    signup();
-  };
-  // Forgot password form uses button onclicks for steps
-</script>
-
+  </script>
+  <script src="script.js"></script>
 </body>
 </html>

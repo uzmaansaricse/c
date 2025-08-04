@@ -182,6 +182,10 @@ function renderBooks(books) {
           const result = await response.json();
           if (result.success && result.banners.length > 0) {
               const container = document.getElementById("bannerContainer");
+              if (!container) {
+                  console.warn("bannerContainer element not found");
+                  return;
+              }
               container.innerHTML = ""; // Purane banners remove karein
               
               result.banners.forEach(img => {
@@ -259,7 +263,7 @@ function renderBooks(books) {
   // 📌  new book & New Arrivals
   async function fetchNewBooks() {
     try {
-      const response = await fetch('/getNewBooks');  
+      const response = await fetch('/api/getNewBooks');  
       const data = await response.json();
       console.log("Fetched Books:", data);
 
@@ -369,10 +373,41 @@ function renderBooks(books) {
     cartBadge.style.display = totalQuantity === 0 ? "none" : "inline-block";
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
     fetchNewBooks();
     updateCartNotification();
   });
+
+// Add function to load user profile with conditional display based on login method
+async function loadProfile() {
+  const API_BASE = window.location.origin;
+  const token = localStorage.getItem('token');
+  try {
+    const res = await fetch(`${API_BASE}/user/profile`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+
+    if (data.hasOwnProperty('mobile') && !data.hasOwnProperty('name') && !data.hasOwnProperty('email')) {
+      // Phone OTP login case
+      document.getElementById('userName').textContent = '--';
+      document.getElementById('userMobile').textContent = data.mobile;
+    } else {
+      // Email OTP or Google/Facebook login case
+      document.getElementById('userName').textContent = data.name || '--';
+      document.getElementById('userMobile').textContent = data.email || '--';
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire('Error', err.message, 'error');
+  }
+}
+
+// Call loadProfile on page load if on My profile page
+if (window.location.pathname.endsWith('My profile.html')) {
+  document.addEventListener('DOMContentLoaded', loadProfile);
+}
 
 
   

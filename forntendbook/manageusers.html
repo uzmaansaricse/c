@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Order Summary</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+       body { 
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #2c6e31;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    margin: 10px 0;
+}
+
+.sidebar ul li a {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+}
+
+.sidebar ul li a:hover {
+    background-color: #3f8744;
+}
+
+.main-content {
+    margin-left: 270px;
+    padding: 30px;
+    flex: 1;
+    min-height: 100vh;
+}
+
+.container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+    border: 2px solid #2c6e31;
+    max-width: 1100px;
+    margin: auto;
+    transition: transform 0.3s ease;
+}
+
+.container:hover {
+    transform: scale(1.01);
+}
+
+h2 {
+    text-align: center;
+    color: #2c6e31;
+    font-size: 32px;
+    margin-bottom: 30px;
+}
+
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        box-shadow: none;
+        padding: 15px 0;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 15px 20px;
+    }
+    .container {
+        padding: 20px;
+    }
+  
+    h2 {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 480px) {
+    table {
+        font-size: 12px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <ul>
+       <li><a href="video and imag showAdmin.html"><i class="fa-solid fa-box"></i> News Box</a></li>
+        <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Banner</a></li>
+        <li><a href="manageusers.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
+        <li><a href="AdminPendingOrdersSavenday.html"><i class="fa-solid fa-clock"></i> Pending Orders</a></li>
+        <li><a href="admin-all-ordersWithUpdate.html"><i class="fa-solid fa-globe"></i> Manage Orders</a></li>
+        <li><a href="orderAdmin-analytics.html"><i class="fa-solid fa-chart-line"></i> Order Analytics</a></li>
+        <!-- <li><a href="Admin order summery.html"><i class="fa-solid fa-list"></i> Order Summary</a></li> -->
+        <li><a href="book-upload.html"><i class="fa-solid fa-upload"></i> Book Upload</a></li>
+        <li><a href="BookUpdate Admin.html"><i class="fa-solid fa-pen-to-square"></i> Book Update/Delete</a></li>
+        <li><a href="uploadcsv.html"><i class="fa-solid fa-cloud-arrow-up"></i> Upload CSV</a></li>
+        <li><a href="tech-support.html"><i class="fa-solid fa-headset"></i> Tech Support</a></li>
+          <li><a href="index.html"><i class="fa-solid fa-headset"></i>Back to Webstite</a></li>
+        <li><a href="Logout.html"><i class="fa-solid fa-headset"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+          
+
+            <div id="filter-container">
+                <h2>Manage Users</h2>
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="searchName" placeholder="Search by Name" style="width: 20%; padding: 10px; margin-right: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;" />
+                    <input type="text" id="searchEmail" placeholder="Search by Email" style="width: 20%; padding: 10px; margin-right: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;" />
+                    <input type="text" id="searchMobile" placeholder="Search by Mobile" style="width: 20%; padding: 10px; margin-right: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;" />
+                    <input type="text" id="searchOrderId" placeholder="Search by Order ID" style="width: 20%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;" />
+                </div>
+                <div id="userList" style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 5px; background: #fafafa;"></div>
+                <div id="userDetail" style="margin-top: 20px; padding: 15px; border: 1px solid #2c6e31; border-radius: 5px; background: #e6f2e6;"></div>
+            </div>
+
+         
+        </div>
+    </div>
+
+
+<script src="script.js"></script>
+<script src="manageusers.js"></script>
+</body>
+</html>

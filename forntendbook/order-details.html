@@ -42,6 +42,9 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+
 </head>
 <body>
   <div class="sidebar">
@@ -114,10 +117,12 @@
               <select id="statusSelect">
                 <option${order.status === 'Processing' ? ' selected' : ''}>Processing</option>
                 <option${order.status === 'Pending' ? ' selected' : ''}>Pending</option>
-                <option${order.status === 'Completed' ? ' selected' : ''}>Completed</option>
                 <option${order.status === 'Unshipped' ? ' selected' : ''}>Unshipped</option>
                 <option${order.status === 'Shipped' ? ' selected' : ''}>Shipped</option>
+                   <option${order.status === 'Dispatched' ? ' selected' : ''}>Dispatched</option>
+                    <option${order.status === 'Delivering' ? ' selected' : ''}>Delivering</option>
                 <option${order.status === 'Delivered' ? ' selected' : ''}>Delivered</option>
+                   <option${order.status === 'Completed' ? ' selected' : ''}>Completed</option>
                 <option${order.status === 'Cancelled' ? ' selected' : ''}>Cancelled</option>
                 <option${order.status === 'Refunded' ? ' selected' : ''}>Refunded</option>
               </select>
@@ -136,9 +141,9 @@
           <h3>TrackFree - Delivery Tracker</h3>
           <label>Courier Name</label>
           <select id="courierSelect">
-            <option${order.courier === 'India Post' ? ' selected' : ''}>India Post</option>
-            <option${order.courier === 'Delhivery' ? ' selected' : ''}>Delhivery</option>
-            <option${order.courier === 'Blue Dart' ? ' selected' : ''}>Blue Dart</option>
+            <option value="India Post" ${order.courier === 'India Post' ? ' selected' : ''}>India Post</option>
+            <option value="Delhivery" ${order.courier === 'Delhivery' ? ' selected' : ''}>Delhivery</option>
+            <option value="Blue Dart" ${order.courier === 'Blue Dart' ? ' selected' : ''}>Blue Dart</option>
           </select>
           <label>Tracking Number</label>
           <input type="text" id="trackingInput" value="${order.trackingId || ''}" />
@@ -218,44 +223,73 @@
           title: 'Error',
           text: error.message || "Could not update status."
         });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       }
     }
 
     async function updateTracking(orderId) {
+      let courier = document.getElementById('courierSelect').value;
       const trackingId = document.getElementById('trackingInput').value;
-      const courier = document.getElementById('courierSelect').value;
-      const email = currentOrder?.userEmail || (currentOrder?.deliveryDetails && currentOrder.deliveryDetails.email);
+      const deliveryName = currentOrder.deliveryDetails?.fullName || "Customer";
+      const email = currentOrder.deliveryDetails?.email || currentOrder.userEmail;
       if (!email) {
-        Swal.fire({
-          icon: "error",
-          title: "No Email",
-          text: "No email found for this order.",
-        });
+        Swal.fire("Error", "No email found for this order.", "error");
         return;
       }
+
+      if (!courier || courier.trim() === "") {
+        courier = "India Post"; // default courier if none selected
+      }
+
+      const subject = `Dispatched! Your Aravali Publication order has been dispatched`;
+      const message = JSON.stringify({
+        courier,
+        trackingId
+      });
+
       try {
         const res = await fetch(`/order/${orderId}/tracking`, {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({ trackingId, email, courier }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ trackingId, courier, email, subject, message })
         });
-        const text = await res.text();
-        if (!res.ok) throw new Error("Failed to update tracking ID");
-        Swal.fire({
-          icon: "success",
-          title: "Tracking ID Updated",
-          text: "Tracking ID has been updated and email sent successfully.",
-        });
+        if (!res.ok) throw new Error("Failed to update tracking");
+        Swal.fire("Tracking ID Updated", "Email sent successfully.", "success");
         loadOrder();
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Error updating Tracking ID",
-          text: error.message || "Please try again later.",
-        });
+      } catch (err) {
+        Swal.fire("Error updating Tracking ID", err.message, "error");
       }
     }
 
@@ -293,70 +327,82 @@
 
     // PDF Invoice Download
     function downloadInvoicePDF() {
-      if (!currentOrder) return;
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const doc = new jsPDF('p', 'mm', 'a4');
+      doc.setFontSize(16);
+      doc.text("Aravali Publication", 105, 15, { align: "center" });
 
-      doc.setFontSize(18);
-      doc.text("Order Invoice", 10, 15);
-      doc.setFontSize(12);
-      doc.text(`Order ID: ${currentOrder._id}`, 10, 25);
-      doc.text(`Date: ${formatDate(currentOrder.createdAt)}`, 10, 32);
-      doc.text(`Customer: ${currentOrder.deliveryDetails?.fullName || '-'}`, 10, 39);
-      doc.text(`Phone: ${currentOrder.deliveryDetails?.mobile || '-'}`, 10, 46);
-      doc.text(`Email: ${currentOrder.deliveryDetails?.email || currentOrder.userEmail || '-'}`, 10, 53);
-      doc.text(`Address: ${currentOrder.deliveryDetails?.address || '-'}, ${currentOrder.deliveryDetails?.city || ''} ${currentOrder.deliveryDetails?.state || ''} ${currentOrder.deliveryDetails?.pincode || ''}`, 10, 60);
+      doc.setFontSize(11);
+      doc.text("Sold By:", 14, 25);
+      doc.text("Aravali Publication, 1 Rajiv Nagar, VDN, Jaipur, Rajasthan, 302039 IN", 14, 30);
+      doc.text("Shipping Address:", 140, 25);
+      doc.text(currentOrder.deliveryDetails.fullName || "-", 140, 30);
+      doc.text(`${currentOrder.deliveryDetails.address}, ${currentOrder.deliveryDetails.city}, ${currentOrder.deliveryDetails.state}, ${currentOrder.deliveryDetails.pincode}`, 140, 35);
 
-      let y = 70;
-      doc.text("Items:", 10, y);
-      y += 7;
-      currentOrder.books.forEach(book => {
-        doc.text(`- ${book.title} (Qty: ${book.quantity}) - ₹${book.price} = ₹${book.price * book.quantity}`, 12, y);
-        y += 7;
+      doc.text(`Order ID: ${currentOrder._id}`, 14, 45);
+      doc.text(`Order Date: ${formatDate(currentOrder.createdAt)}`, 14, 50);
+
+      const rows = currentOrder.books.map((b,i) => [
+        i+1,
+        b.title,
+        b.price.toFixed(2),
+        (b.discount||0).toFixed(2),
+        b.quantity,
+        (b.tax||0).toFixed(2),
+        ((b.price * b.quantity) - (b.discount||0) + (b.tax||0)).toFixed(2),
+      ]);
+      rows.push([
+        "",
+        "Shipping Charges",
+        (currentOrder.shippingCharge||0).toFixed(2),
+        "0.00",
+        "",
+        "0.00",
+        (currentOrder.shippingCharge||0).toFixed(2)
+      ]);
+
+      doc.autoTable({
+        startY: 60,
+        head: [["S. No.", "Product Description", "Unit Price", "Discount", "Qty", "Tax", "Total Amount"]],
+        body: rows,
+        theme: 'grid',
+        headStyles: { fillColor: [220,220,220] }
       });
 
-      y += 5;
-      doc.text(`Subtotal: ₹${currentOrder.books.reduce((sum, b) => sum + b.price * b.quantity, 0)}`, 10, y);
-      y += 7;
-      doc.text(`Discount: ₹${currentOrder.discount || 0}`, 10, y);
-      y += 7;
-      doc.text(`Total: ₹${(currentOrder.books.reduce((sum, b) => sum + b.price * b.quantity, 0)) - (currentOrder.discount || 0)}`, 10, y);
+      const finalY = doc.lastAutoTable.finalY || 100;
+      const total = rows.reduce((sum,r) => sum + parseFloat(r[6]||0), 0).toFixed(2);
+      doc.text(`Total: ₹${total}`, 150, finalY + 10);
 
-      y += 10;
-      doc.text(`Status: ${currentOrder.status}`, 10, y);
+      doc.setLineWidth(0.2);
+      doc.line(14, finalY + 20, 80, finalY + 20);
+      doc.text("Receiver’s Sign:", 14, finalY + 25);
+      doc.text("Authorized Signatory", 140, finalY + 25);
 
-      doc.save(`Order_Invoice_${currentOrder._id}.pdf`);
+      doc.save(`Invoice_${currentOrder._id}.pdf`);
     }
 
     // PDF Packing Slip Download
     function downloadPackingSlipPDF() {
-      if (!currentOrder) return;
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const doc = new jsPDF('p', 'mm', 'a4');
+      doc.setFontSize(16);
+      doc.text("Aravali Publication", 105, 15, { align: "center" });
 
-      doc.setFontSize(18);
-      doc.text("Packing Slip", 10, 15);
-      doc.setFontSize(12);
-      doc.text(`Order ID: ${currentOrder._id}`, 10, 25);
-      doc.text(`Date: ${formatDate(currentOrder.createdAt)}`, 10, 32);
-      doc.text(`Customer: ${currentOrder.deliveryDetails?.fullName || '-'}`, 10, 39);
-      doc.text(`Phone: ${currentOrder.deliveryDetails?.mobile || '-'}`, 10, 46);
-      doc.text(`Address: ${currentOrder.deliveryDetails?.address || '-'}, ${currentOrder.deliveryDetails?.city || ''} ${currentOrder.deliveryDetails?.state || ''} ${currentOrder.deliveryDetails?.pincode || ''}`, 10, 53);
+      doc.setFontSize(11);
+      doc.rect(14, 25, 182, 60);
+      doc.text("Ship to:", 16, 33);
+      doc.text(currentOrder.deliveryDetails.fullName || "-", 16, 38);
+      doc.text(`${currentOrder.deliveryDetails.address}, ${currentOrder.deliveryDetails.city}, ${currentOrder.deliveryDetails.state}, ${currentOrder.deliveryDetails.pincode}`, 16, 43);
+      doc.text(`Mobile: ${currentOrder.deliveryDetails.mobile || "-"}`, 16, 48);
 
-      let y = 65;
-      doc.text("Items:", 10, y);
-      y += 7;
-      currentOrder.books.forEach(book => {
-        doc.text(`- ${book.title} (Qty: ${book.quantity})`, 12, y);
-        y += 7;
-      });
+      doc.text("Shipped from:", 16, 58);
+      doc.text("Aravali Publication, 1 Rajiv Nagar, VDN, Jaipur, Rajasthan, 302039 IN", 16, 63);
+      doc.text("Phone: 8146785679", 16, 68);
 
-      y += 10;
-      doc.text(`Courier: ${currentOrder.courier || '-'}`, 10, y);
-      y += 7;
-      doc.text(`Tracking ID: ${currentOrder.trackingId || '-'}`, 10, y);
+      doc.text("Product Description: Aravali Publication Books", 16, 78);
+      doc.text("If undelivered, return to the “Shipped from” address", 16, 84);
 
-      doc.save(`Order_PackingSlip_${currentOrder._id}.pdf`);
+      doc.save(`PackingSlip_${currentOrder._id}.pdf`);
     }
 
     loadOrder();

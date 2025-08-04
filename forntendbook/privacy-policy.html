@@ -120,7 +120,9 @@
 
   <div class="col-sm-6 nav-items">
     <ul>
-         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+        
+      
+       <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
       <li class="nav-item">
         <i class="fa-solid fa-book-open"></i> Books
         <ul class="dropdown">
@@ -184,7 +186,7 @@
 <!-- ✅ JS SCRIPT -->
 <script>
   window.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("token"); // Use the same key as in signup-login.html
 
 
     const signupSection = document.getElementById("signup-section");
@@ -201,19 +203,29 @@
   });
 
   function logoutUser() {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("token");
     location.reload();
   }
 </script>
      
 
-    <div class="container">
-        <h1>Privacy Policy</h1>
-        <p>Your privacy is important to us. We are committed to protecting your personal information and ensuring its confidentiality.</p>
-        <p>We collect necessary data to improve our services. Your information will never be shared without your consent.</p>
-        <p>For more details on our data usage policies, please reach out to us:</p>
-        <a href="mailto:support@aravalipublication.com" class="contact-link">Email: support@aravalipublication.com</a>
-    </div>
+ <div class="container">
+  <h1>Privacy Policy</h1>
+  <p>Your privacy is important to us. We are committed to protecting your personal information and ensuring its confidentiality.</p>
+  <p>We collect necessary data to improve our services. Your information will never be shared without your consent.</p>
+
+  <h1>Data Deletion Instructions</h1>
+  <p>If you wish to remove your personal data provided during Facebook login (for example: name, email), you can do so anytime:</p>
+  <ol>
+    <li>Go to your Facebook account → Settings & Privacy → Settings.</li>
+    <li>Click on <strong>Apps and Websites</strong>.</li>
+    <li>Find our app (<em>bookstoreSystemLogin</em>) and click <strong>Remove</strong>.</li>
+  </ol>
+  <p>You can also contact us at <a href="mailto:support@aravalipublication.com">support@aravalipublication.com</a> to request deletion of any stored data on our side.</p>
+
+  <h1>Contact Us</h1>
+  <p>For any questions or concerns, reach out at: <a href="mailto:support@aravalipublication.com">support@aravalipublication.com</a></p>
+</div>
 
     
     <footer class="footer">
@@ -363,5 +375,6 @@
         });
 
     </script>
+    <script src="script.js"></script>
 </body>
 </html>

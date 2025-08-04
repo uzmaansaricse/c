@@ -233,11 +233,23 @@
 
     <!-- Main Content -->
     <div class="container">
-      <h1>Your Orders</h1>
-      <div class="table-container">
-        <table id="ordersTable">
+      <h1>Your Order Details</h1>
+      <div class="order-details-container" style="max-width: 90%; margin: 20px auto; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 2px solid #2c6e31;">
+        <h2>Order ID: <span id="orderId"></span></h2>
+        <p><strong>Status:</strong> <span id="orderStatus"></span></p>
+        <p><strong>Created At:</strong> <span id="orderCreatedAt"></span></p>
+        <p><strong>Updated At:</strong> <span id="orderUpdatedAt"></span></p>
+        <p><strong>Delivery Name:</strong> <span id="deliveryName"></span></p>
+        <p><strong>Delivery Mobile:</strong> <span id="deliveryMobile"></span></p>
+        <p><strong>Delivery Email:</strong> <span id="deliveryEmail"></span></p>
+        <p><strong>Delivery Address:</strong> <span id="deliveryAddress"></span></p>
+        <p><strong>Delivery City:</strong> <span id="deliveryCity"></span></p>
+        <p><strong>Delivery State:</strong> <span id="deliveryState"></span></p>
+        <p><strong>Delivery Pincode:</strong> <span id="deliveryPincode"></span></p>
+        <h3>Books in this Order:</h3>
+        <table id="orderBooksTable" style="width: 100%; border-collapse: collapse; text-align: center;">
           <thead>
-            <tr>
+            <tr style="background-color: #f4f4f4;">
               <th>Book Image</th>
               <th>Book Name</th>
               <th>Quantity</th>
@@ -247,88 +259,108 @@
             </tr>
           </thead>
           <tbody>
-            <!-- Orders will be populated here -->
+            <!-- Book items will be populated here -->
           </tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <script>
-    // Toggle sidebar for mobile
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('active');
+
+<script>
+  // Toggle sidebar for mobile
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('active');
+  }
+
+  // Fetch order details by orderId from query param
+  async function fetchOrderDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+    if (!orderId) {
+      alert('Order ID not specified.');
+      return;
     }
 
-    // Fetch user orders from backend API
-    async function fetchUserOrders() {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          alert('You must be logged in to view your orders.');
-          window.location.href = 'signup-login.html';
-          return;
-        }
-
-        const sessionToken = localStorage.getItem('sessionToken');
-        const url = sessionToken ? `/user-orders?sessionToken=${sessionToken}` : '/user-orders';
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': 'Bearer ' + token
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch orders: ' + response.statusText);
-        }
-
-        const orders = await response.json();
-        populateOrdersTable(orders);
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-        alert('Error fetching orders. Please try again later.');
-      }
-    }
-
-    // Populate orders table with data
-    function populateOrdersTable(orders) {
-      const tbody = document.querySelector('#ordersTable tbody');
-      tbody.innerHTML = '';
-
-      if (!orders || orders.length === 0) {
-        const tr = document.createElement('tr');
-        const td = document.createElement('td');
-        td.colSpan = 6;
-        td.textContent = 'No orders found.';
-        tr.appendChild(td);
-        tbody.appendChild(tr);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('You must be logged in to view order details.');
+        window.location.href = 'signup-login.html';
         return;
       }
 
-      orders.forEach(order => {
-        // Flatten order by books
+      // Fix: Use correct API endpoint for order details
+      const response = await fetch(`/admin/order/${orderId}`, {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch order details: ' + response.statusText);
+      }
+
+      const order = await response.json();
+
+      // Populate order details
+      document.getElementById('orderId').textContent = order._id || 'N/A';
+      document.getElementById('orderStatus').textContent = order.status || 'N/A';
+      document.getElementById('orderCreatedAt').textContent = new Date(order.createdAt).toLocaleString() || 'N/A';
+      document.getElementById('orderUpdatedAt').textContent = new Date(order.updatedAt).toLocaleString() || 'N/A';
+      document.getElementById('deliveryName').textContent = order.deliveryDetails?.fullName || 'N/A';
+      document.getElementById('deliveryMobile').textContent = order.deliveryDetails?.mobile || 'N/A';
+      document.getElementById('deliveryEmail').textContent = order.deliveryDetails?.email || 'N/A';
+      document.getElementById('deliveryAddress').textContent = order.deliveryDetails?.address || 'N/A';
+      document.getElementById('deliveryCity').textContent = order.deliveryDetails?.city || 'N/A';
+      document.getElementById('deliveryState').textContent = order.deliveryDetails?.state || 'N/A';
+      document.getElementById('deliveryPincode').textContent = order.deliveryDetails?.pincode || 'N/A';
+
+      // Populate books table
+      const tbody = document.querySelector('#orderBooksTable tbody');
+      tbody.innerHTML = '';
+      if (!order.books || order.books.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 6;
+        td.textContent = 'No books found in this order.';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      } else {
         order.books.forEach(bookItem => {
           const tr = document.createElement('tr');
 
           // Book Image with click handler to open newbookDetelies.html with book id
           const bookImageTd = document.createElement('td');
           const img = document.createElement('img');
-          img.src = bookItem.bookImage || '';
-          img.alt = bookItem.bookName || 'Book Image';
+          // Use bookItem.bookId for image and title
+          let imgSrc = '';
+          if (bookItem.bookId && bookItem.bookId.bookImages && bookItem.bookId.bookImages.length > 0) {
+            imgSrc = bookItem.bookId.bookImages[bookItem.bookId.mainImageIndex || 0];
+          }
+          img.src = imgSrc;
+          img.alt = bookItem.bookId?.title || 'Book Image';
           img.style.width = '50px';
           img.style.height = 'auto';
           img.style.cursor = 'pointer';
           img.addEventListener('click', (e) => {
             e.stopPropagation();
-            window.open(`newbookDetelies.html?id=${bookItem.bookId}`, '_blank');
+            // Open newbookDetelies.html with book id
+            let bookId = bookItem.bookId;
+            if (bookId && typeof bookId === 'object' && bookId._id) {
+              bookId = bookId._id;
+            }
+            if (bookId) {
+              window.location.href = `newbookDetelies.html?id=${bookId}`;
+            }
           });
           bookImageTd.appendChild(img);
           tr.appendChild(bookImageTd);
 
           // Book Name
           const bookNameTd = document.createElement('td');
-          bookNameTd.textContent = bookItem.bookName || 'N/A';
+          bookNameTd.textContent = bookItem.bookId?.title || 'N/A';
           tr.appendChild(bookNameTd);
 
           // Quantity
@@ -336,37 +368,34 @@
           quantityTd.textContent = bookItem.quantity || 'N/A';
           tr.appendChild(quantityTd);
 
-          // Total Price (for this book item)
+          // Total Price (quantity * price)
           const totalPriceTd = document.createElement('td');
-          const price = bookItem.price || 0;
-          const quantity = bookItem.quantity || 0;
-          totalPriceTd.textContent = (price * quantity).toFixed(2);
+          const totalPrice = (bookItem.price || 0) * (bookItem.quantity || 0);
+          totalPriceTd.textContent = totalPrice.toFixed(2);
           tr.appendChild(totalPriceTd);
 
-          // Status
+          // Status (from order)
           const statusTd = document.createElement('td');
           statusTd.textContent = order.status || 'N/A';
           tr.appendChild(statusTd);
 
-          // Created At
+          // Created At (from order)
           const createdAtTd = document.createElement('td');
           createdAtTd.textContent = new Date(order.createdAt).toLocaleString() || 'N/A';
           tr.appendChild(createdAtTd);
 
-          // Add click handler on row to open b.html with order id as query param
-          tr.addEventListener('click', () => {
-            window.location.href = `b.html?orderId=${order._id}`;
-          });
-
           tbody.appendChild(tr);
         });
-      });
+      }
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+      alert('Error fetching order details. Please try again later.');
     }
+  }
 
-    // On page load, fetch and display user orders
-    window.addEventListener('DOMContentLoaded', () => {
-      fetchUserOrders();
-    });
-  </script>
+  window.addEventListener('DOMContentLoaded', () => {
+    fetchOrderDetails();
+  });
+</script>
 </body>
 </html>

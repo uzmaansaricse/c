@@ -73,7 +73,9 @@
 
   <div class="col-sm-6 nav-items">
     <ul>
-         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+        
+      
+       <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
       <li class="nav-item">
         <i class="fa-solid fa-book-open"></i> Books
         <ul class="dropdown">
@@ -137,7 +139,7 @@
 <!-- ✅ JS SCRIPT -->
 <script>
   window.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("token"); // Use the same key as in signup-login.html
 
 
     const signupSection = document.getElementById("signup-section");
@@ -154,7 +156,7 @@
   });
 
   function logoutUser() {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("token");
     location.reload();
   }
 </script>

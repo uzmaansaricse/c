@@ -199,15 +199,17 @@
         <ul>
             <li><a href="video and imag showAdmin.html"><i class="fa-solid fa-box"></i> News Box</a></li>
             <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Banner</a></li>
-            <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
+            <li><a href="manageusers.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
             <li><a href="AdminPendingOrdersSavenday.html"><i class="fa-solid fa-clock"></i> Pending Orders</a></li>
             <li><a href="admin-all-ordersWithUpdate.html"><i class="fa-solid fa-globe"></i> Manage Orders</a></li>
             <li><a href="orderAdmin-analytics.html"><i class="fa-solid fa-chart-line"></i> Order Analytics</a></li>
-            <li><a href="Admin order summery.html"><i class="fa-solid fa-list"></i> Order Summary</a></li>
+            <!-- <li><a href="Admin order summery.html"><i class="fa-solid fa-list"></i> Order Summary</a></li> -->
             <li><a href="book-upload.html"><i class="fa-solid fa-upload"></i> Book Upload</a></li>
             <li><a href="BookUpdate Admin.html"><i class="fa-solid fa-pen-to-square"></i> Book Update/Delete</a></li>
             <li><a href="uploadcsv.html"><i class="fa-solid fa-cloud-arrow-up"></i> Upload CSV</a></li>
             <li><a href="tech-support.html"><i class="fa-solid fa-headset"></i> Tech Support</a></li>
+              <li><a href="index.html"><i class="fa-solid fa-headset"></i>Back to Webstite</a></li>
+            <li><a href="Logout.html"><i class="fa-solid fa-headset"></i> Logout</a></li>
         </ul>
     </div>
 
@@ -219,6 +221,12 @@
             <thead>
                 <tr>
                     <th>Order ID</th>
+                    <th>Book Title</th>
+                    <th>Quantity</th>
+                    <th>Book Price</th>
+                    <th>Total Price</th>
+                    <th>Phone Number</th>
+                    <th>Address</th>
                     <th>User Email</th>
                     <th>Reason</th>
                     <th>Created At</th>
@@ -230,32 +238,36 @@
 
     <script>
     async function fetchIncompleteOrders() {
-        try {
-            const res = await fetch('api/admin/incomplete-orders');
-            const data = await res.json();
-            console.log('Incomplete Orders:', data);
+        const res = await fetch('api/admin/incomplete-orders');
+        const data = await res.json();
+        console.log('Incomplete Orders:', data);
 
-            const tableBody = document.getElementById('incompleteOrderBody');
-            tableBody.innerHTML = '';
+        const tableBody = document.getElementById('incompleteOrderBody');
+        tableBody.innerHTML = '';
 
-            if (!data.orders || data.orders.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4">No incomplete/failed orders.</td></tr>';
-                return;
-            }
+        if (!data.orders || data.orders.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="10">No incomplete/failed orders.</td></tr>';
+            return;
+        }
 
-            data.orders.forEach(order => {
+        data.orders.forEach(order => {
+            order.books.forEach(book => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${order._id}</td>
+                    <td>${book.title || 'N/A'}</td>
+                    <td>${book.quantity || 'N/A'}</td>
+                    <td>₹${book.price || 'N/A'}</td>
+                    <td>₹${book.totalPrice || 'N/A'}</td>
+                    <td>${order.phoneNumber || 'N/A'}</td>
+                    <td>${order.address || 'N/A'}</td>
                     <td>${order.userEmail || 'N/A'}</td>
                     <td>${order.failureReason || 'N/A'}</td>
                     <td>${new Date(order.createdAt).toLocaleString()}</td>
                 `;
                 tableBody.appendChild(row);
             });
-        } catch (error) {
-            console.error('Error fetching incomplete orders:', error);
-        }
+        });
     }
 
     // Page load par sirf yeh call karo:

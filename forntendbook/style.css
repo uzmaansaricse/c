@@ -5,6 +5,12 @@ body {
 
 }
 
+.original-price {
+    text-decoration: line-through !important;
+    color: #222 !important;
+    display: inline-block;
+}
+
 /* topbar */
 .top-header {
     position: relative;
@@ -718,11 +724,18 @@ video {
     font-style: italic;
   }
   
-  .book-price {
+.book-price {
+    
     font-size: 18px;
     font-weight: 700;
     color: #222;
-  }
+}
+
+.original-price {
+    text-decoration: line-through !important;
+    color: #222 !important;
+    display: inline-block;
+}
   
   .offer-price {
     font-size: 15px;

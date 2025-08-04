@@ -30,6 +30,8 @@
 
   <div class="col-sm-6 nav-items">
     <ul>
+        
+      
        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
       <li class="nav-item">
         <i class="fa-solid fa-book-open"></i> Books
@@ -86,15 +88,15 @@
     <!-- <a href="Search book.html">
       <button class="Search">
         <i class="fa-solid fa-magnifying-glass"></i>
-      </button> -->
-    </a>
+      </button>
+    </a> -->
   </div>
 </div>
 
 <!-- ✅ JS SCRIPT -->
 <script>
   window.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("token"); // Use the same key as in signup-login.html
 
 
     const signupSection = document.getElementById("signup-section");
@@ -111,7 +113,7 @@
   });
 
   function logoutUser() {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("token");
     location.reload();
   }
 </script>
@@ -262,126 +264,113 @@
     </footer>
 
   <script>
-    
-  // 📌  new book & New Arrivals
-  async function fetchNewBooks() {
-    try {
-      const response = await fetch('/getNewBooks');  
-      const data = await response.json();
-      console.log("Fetched Books:", data);
+    async function fetchNewBooks() {
+      try {
+        const response = await fetch('/api/getNewBooks');
+        const data = await response.json();
+        console.log("Fetched Books:", data);
 
-      const newBooksContainer = document.getElementById("newBooksContainer");
-      newBooksContainer.innerHTML = "";
+        const container = document.getElementById("newBooksContainer");
+        container.innerHTML = "";
 
-      data.books.forEach(book => {
-        if (!book || !book._id || !book.title) {
-          console.warn("Skipping invalid book:", book);
-          return;
-        }
+        data.books.forEach(book => {
+          if (!book || !book._id || !book.title) return;
 
-        const bookCard = document.createElement("div");
-        bookCard.classList.add("book-card");
+          console.log("Book price:", book.price, "Type:", typeof book.price);
+          console.log("Book offerPrice:", book.offerPrice, "Type:", typeof book.offerPrice);
 
-        bookCard.innerHTML = `
-          <img class="book-image" src="${book.bookImage || 'default.jpg'}" alt="${book.title}">
-          <div class="rating-overlay">
-            ${generateStars(book.averageRating)}
-            <span class="avg-text">(${book.averageRating || 0} ⭐)</span>
-          </div>
-          <div class="book-title">${book.title}</div>
-          <div class="book-author">by ${book.author || 'Unknown'}</div>
-          <div class="book-price">
-            ₹${book.price || 0} <span class="offer-price">₹${book.offerPrice || book.price || 0}</span>
-          </div>
-          <button class="add-cart">Add to Cart</button>
-          <button class="go-cart" style="display: none;">Go to Cart</button>
-        `;
+          const card = document.createElement("div");
+          card.classList.add("book-card");
 
-        bookCard.querySelector(".book-image").addEventListener("click", () => {
-          window.location.href = `/newbookDetelies.html?id=${book._id}`;
-        });
+          card.innerHTML = `
+            <img class="book-image" src="${book.bookImage || 'default.jpg'}" alt="${book.title}">
+            <div class="rating-overlay">
+              ${generateStars(book.averageRating)}
+              <span class="avg-text">(${book.averageRating || 0} ⭐)</span>
+            </div>
+            <div class="book-title">${book.title}</div>
+            <div class="book-author">by ${book.author || 'Unknown'}</div>
+            <div class="book-price">
+              ${
+                (book.offerPrice && book.offerPrice < book.price)
+                  ? `<span class="original-price" style="text-decoration: line-through;">₹${book.price}</span> <span class="offer-price">₹${book.offerPrice}</span>`
+                  : `<span class="original-price">₹${book.price || 0}</span>`
+              }
+            </div>
+            <button class="add-cart">Add to Cart</button>
+            <button class="go-cart" style="display: none;">Go to Cart</button>
+          `;
 
-        const addCartBtn = bookCard.querySelector(".add-cart");
-        const goCartBtn = bookCard.querySelector(".go-cart");
-
-        addCartBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          addToCart(book._id, book.title, book.bookImage, book.offerPrice || book.price);
-
-          // ✅ SweetAlert2 Notification
-          Swal.fire({
-            icon: 'success',
-            title: 'Book Added!',
-            text: `"${book.title}" has been added to your cart.`,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true
+          card.querySelector(".book-image").addEventListener("click", () => {
+            window.location.href = `/newbookDetelies.html?id=${book._id}`;
           });
 
-          addCartBtn.style.display = "none";
-          goCartBtn.style.display = "inline-block";
+          const addBtn = card.querySelector(".add-cart");
+          const goBtn = card.querySelector(".go-cart");
+
+          addBtn.addEventListener("click", e => {
+            e.stopPropagation();
+            addToCart(book._id, book.title, book.bookImage, book.offerPrice || book.price);
+            Swal.fire({
+              icon: 'success',
+              title: 'Book Added!',
+              text: `"${book.title}" has been added to your cart.`,
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            addBtn.style.display = "none";
+            goBtn.style.display = "inline-block";
+          });
+
+          goBtn.addEventListener("click", e => {
+            e.stopPropagation();
+            window.location.href = "Cart Page with Checkout.html";
+          });
+
+          container.appendChild(card);
         });
 
-        goCartBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          window.location.href = "Cart Page with Checkout.html";
-        });
-
-        newBooksContainer.appendChild(bookCard);
-      });
-
-    } catch (err) {
-      console.error("Error fetching books:", err);
-      
-    }
-  }
-
-  function generateStars(rating) {
-    rating = parseFloat(rating) || 0;
-    let stars = '';
-    for (let i = 1; i <= 5; i++) {
-      if (i <= rating) {
-        stars += `<i class="fas fa-star" style="color: gold;"></i>`;
-      } else if (i - rating < 1) {
-        stars += `<i class="fas fa-star-half-alt" style="color: gold;"></i>`;
-      } else {
-        stars += `<i class="far fa-star" style="color: gold;"></i>`;
+      } catch (err) {
+        console.error("Error fetching books:", err);
       }
     }
-    return stars;
-  }
 
-  function addToCart(id, title, image, price) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    let existingItem = cart.find(item => item.id === id);
-
-    if (existingItem) {
-      existingItem.quantity += 1;
-    } else {
-      cart.push({ id, title, image, price, quantity: 1 });
+    function generateStars(rating) {
+      rating = parseFloat(rating) || 0;
+      let stars = '';
+      for (let i = 1; i <= 5; i++) {
+        if (i <= rating) stars += `<i class="fas fa-star" style="color: gold;"></i>`;
+        else if (i - rating < 1) stars += `<i class="fas fa-star-half-alt" style="color: gold;"></i>`;
+        else stars += `<i class="far fa-star" style="color: gold;"></i>`;
+      }
+      return stars;
     }
 
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartNotification();
-  }
+    function addToCart(id, title, image, price) {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const existing = cart.find(item => item.id === id);
+      if (existing) existing.quantity += 1;
+      else cart.push({ id, title, image, price, quantity: 1 });
+      localStorage.setItem("cart", JSON.stringify(cart));
+      updateCartNotification();
+    }
 
-  function updateCartNotification() {
-    const cartBadge = document.querySelector("sup#cart-count");
-    if (!cartBadge) return;
-    let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-    const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    cartBadge.textContent = totalQuantity;
-    cartBadge.style.display = totalQuantity === 0 ? "none" : "inline-block";
-  }
+    function updateCartNotification() {
+      const badge = document.getElementById("cart-count");
+      if (!badge) return;
+      const items = JSON.parse(localStorage.getItem("cart")) || [];
+      const total = items.reduce((sum, itm) => sum + itm.quantity, 0);
+      badge.textContent = total;
+      badge.style.display = total === 0 ? "none" : "inline-block";
+    }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    fetchNewBooks();
-    updateCartNotification();
-  });
-
-
+    window.addEventListener("DOMContentLoaded", () => {
+      fetchNewBooks();
+      updateCartNotification();
+    });
   </script>
   <script src="script.js"></script>
 </body>

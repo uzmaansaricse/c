@@ -192,7 +192,7 @@ tr:hover td {
         <ul>
        <li><a href="video and imag showAdmin.html"><i class="fa-solid fa-box"></i> News Box</a></li>
         <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Banner</a></li>
-        <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
+        <li><a href="manageusers.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
         <li><a href="AdminPendingOrdersSavenday.html"><i class="fa-solid fa-clock"></i> Pending Orders</a></li>
         <li><a href="admin-all-ordersWithUpdate.html"><i class="fa-solid fa-globe"></i> Manage Orders</a></li>
         <li><a href="orderAdmin-analytics.html"><i class="fa-solid fa-chart-line"></i> Order Analytics</a></li>
@@ -239,7 +239,7 @@ tr:hover td {
     async function fetchOrders() {
         let response = await fetch("/api/get");
         let data = await response.json();
-         console.log("Fetched Orders:", data); 
+        console.log("Fetched Orders:", data); 
 
         if (data.success) {
             ordersData = data.orders;
