@@ -65,7 +65,7 @@ export async function sendTrackingEmail(email, name, trackingId, message, courie
 
   This is an update regarding your recent order at Aravali Publication. We’ve dispatched your order with courier service ${courierDisplay} and your tracking id is ${tracking}
 
-  Tracking #${tracking}
+  Tracking  ID #${tracking}
 
   You will receive your order soon
 
