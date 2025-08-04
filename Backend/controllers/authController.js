@@ -11,10 +11,13 @@ import csvParser from 'csv-parser';
 
 import { uploadToCloudinary, deleteFromCloudinary } from "../utility/cloudinary.js";
 
-import { UserLogin } from "../models/User Model & OTP Model.js";
+// import { UserLogin } from "../models/User Model & OTP Model.js";
 // import { authMiddleware } from "../utility/middleware.js";
 
 import { Imageadmin } from "../models/imageModel.js";
+
+import axios from "axios";  // Added axios import
+
 
 // book add withqur code 
 
@@ -44,10 +47,68 @@ import { Review } from "../models/Review Rating model.js";
 import { Content } from "../models/video And image and text Model.js";
 import { uploadFile ,deleteFile } from "../utility/video and image.js";
 
+import { OAuth2Client } from "google-auth-library";
+const googleClient = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
 
+// export const socialLogin = async (req, res) => {
+//   try {
+//     const { provider, socialToken } = req.body;
+//     let email;
+
+//     if (provider === 'google') {
+//       const ticket = await googleClient.verifyIdToken({
+//         idToken: socialToken,
+//         audience: process.env.GOOGLE_CLIENT_ID
+//       });
+//       email = ticket.getPayload().email;
+//     }
+
+//     // (Optional) Verify Facebook token with FB Graph API here
+
+//     if (!email) return res.status(400).json({ message: "Social login failed." });
+
+//     // Find or create user
+//     let user = await UserLogin.findOne({ email });
+//     if (!user) {
+//       user = await UserLogin.create({ name: "Google User", email });
+//     }
+
+//     // Create JWT
+//     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+//     res.json({ token, email });
+//   } catch (err) {
+//     console.error("Social login error:", err);
+//     res.status(500).json({ message: "Server error during social login" });
+//   }
+// };
+import dotenv from "dotenv";
+dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
+
+// ...other imports...
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_MOBILE = process.env.ADMIN_MOBILE;
+const TWILIO_PHONE_NUMBER_USER = process.env.TWILIO_PHONE_NUMBER_USER;
+const TWILIO_PHONE_NUMBER_ADMIN = process.env.TWILIO_PHONE_NUMBER_ADMIN;
+
+// Two separate Twilio clients for user and admin
+const twilioClientUser = twilio(process.env.TWILIO_ACCOUNT_SID_USER, process.env.TWILIO_AUTH_TOKEN_USER);
+const twilioClientAdmin = twilio(process.env.TWILIO_ACCOUNT_SID_ADMIN, process.env.TWILIO_AUTH_TOKEN_ADMIN);
+
+// Nodemailer setup
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 // silder image and video
 
-
+// const ADMIN_EMAIL = "uzmaasr54@gmail.com";      // Your admin email
+// const ADMIN_MOBILE = "8107142344";             // Your admin phone
 
 
 
@@ -55,77 +116,87 @@ import { uploadFile ,deleteFile } from "../utility/video and image.js";
 
 //  auth.................
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const ADMIN_MOBILE = "8107142344";
-const ADMIN_PASSWORD = "123";
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+// const JWT_SECRET = process.env.JWT_SECRET;
+// const ADMIN_MOBILE = "8107142344";
+// const ADMIN_PASSWORD = "123";
+// const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+// const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-const sendOtp = async (req, res) => {
-    try {
-        const { mobile } = req.body;
-        if (!mobile) return res.status(400).json({ message: "Mobile number is required." });
+// const sendOtp = async (req, res) => {
+//     try {
+//         const { mobile } = req.body;
+//         if (!mobile) return res.status(400).json({ message: "Mobile number is required." });
+//
+//         const formattedMobile = mobile.startsWith("+") ? mobile : `+91${mobile}`;
+//         const otp = generateOTP();
+//         const otpExpiresAt = new Date(Date.now() + 5 * 60000);
+//
+//         let user = await UserLogin.findOne({ mobile });
+//         if (user) {
+//             user.otp = otp;
+//             user.otpExpiresAt = otpExpiresAt;
+//         } else {
+//             user = new UserLogin({ name: "Unknown", mobile, password: "defaultpassword", otp, otpExpiresAt });
+//         }
+//         await user.save();
+//
+//         await client.messages.create({
+//             body: `Your OTP is: ${otp}`,
+//             from: process.env.TWILIO_PHONE_NUMBER,
+//             to: formattedMobile
+//         });
+//
+//         res.status(200).json({ message: "OTP sent successfully." });
+//     } catch (error) {
+//         console.error("Twilio Error:", error);
+//         res.status(500).json({ message: "Failed to send OTP. Try again later." });
+//     }
+// };
 
-        const formattedMobile = mobile.startsWith("+") ? mobile : `+91${mobile}`;
-        const otp = generateOTP();
-        const otpExpiresAt = new Date(Date.now() + 5 * 60000);
-
-        let user = await UserLogin.findOne({ mobile });
-        if (user) {
-            user.otp = otp;
-            user.otpExpiresAt = otpExpiresAt;
-        } else {
-            user = new UserLogin({ name: "Unknown", mobile, password: "defaultpassword", otp, otpExpiresAt });
-        }
-        await user.save();
-
-        await client.messages.create({
-            body: `Your OTP is: ${otp}`,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: formattedMobile
-        });
-
-        res.status(200).json({ message: "OTP sent successfully." });
-    } catch (error) {
-        console.error("Twilio Error:", error);
-        res.status(500).json({ message: "Failed to send OTP. Try again later." });
-    }
-};
-
-
-const signup = async (req, res) => {
-    try {
-        const { name, mobile, email, password, otp } = req.body; // changes isha
-        const user = await UserLogin.findOne({ mobile });
-        if (!user || user.otp !== otp || user.otpExpiresAt < new Date()) {
-            return res.status(400).json({ message: "Invalid OTP." });
-        }
-        user.name = name;
-        user.password = await bcrypt.hash(password, 10);
-        user.otp = null;
-        user.otpExpiresAt = null;
-        if (email) user.email = email;
-        await user.save();
-        res.status(201).json({ message: "Signup successful." });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
+// const signup = async (req, res) => {
+//     try {
+//         const { name, mobile, email, password, otp } = req.body; // changes isha
+//         const user = await UserLogin.findOne({ mobile });
+//         if (!user || user.otp !== otp || user.otpExpiresAt < new Date()) {
+//             return res.status(400).json({ message: "Invalid OTP." });
+//         }
+//         user.name = name;
+//         user.password = await bcrypt.hash(password, 10);
+//         user.otp = null;
+//         user.otpExpiresAt = null;
+//         if (email) user.email = email;
+//         await user.save();
+//         res.status(201).json({ message: "Signup successful." });
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
 
 
+
+
+import { UserLogin } from "../models/User Model & OTP Model.js";
+import { sendOrderConfirmationEmail } from "./orderController.js";
 
 // Get user profile (only name and mobile)
 export const getUserProfile = async (req, res) => {
   try {
-    // use the same key you signed with
-    const userId = req.user.userId;   
-
-    const user = await UserLogin.findById(userId).select('name mobile');
+    const userId = req.user.userId;
+    const user = await UserLogin.findById(userId).select('loginMethod name mobile email');
     if (!user) return res.status(404).json({ message: 'User not found login again!!' });
 
-    res.status(200).json(user);
+    const responseData = {};
+    if (user.loginMethod === 'phone') {
+      responseData.mobile = user.mobile;
+      responseData.name = "--";
+    } else {
+      responseData.name = user.name;
+      responseData.mobile = user.mobile || user.email || "--";
+      responseData.email = user.email;
+    }
+
+    res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -135,14 +206,11 @@ export const getUserProfile = async (req, res) => {
 
 export const deleteAccount = async (req, res) => {
   try {
-    // pull the userId out of req.user (set by authMiddleware)
     const userId = req.user.userId;
-
     const deleted = await UserLogin.findByIdAndDelete(userId);
     if (!deleted) {
       return res.status(404).json({ message: "User not found or already deleted." });
     }
-
     return res.status(200).json({ message: "Account deleted successfully." });
   } catch (err) {
     console.error("Delete account error:", err);
@@ -150,164 +218,88 @@ export const deleteAccount = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
-    try {
-        const { mobile, password } = req.body;
+// New logout endpoint for JWT-based auth (frontend removes token)
+// export const logout = (req, res) => {
+//   res.status(200).json({ message: "Logout successful." });
+// };
 
-        if (mobile === ADMIN_MOBILE) {
-            if (password !== ADMIN_PASSWORD) {
-                return res.status(401).json({ message: "Invalid admin credentials." });
-            }
-            let admin = await UserLogin.findOne({ mobile: ADMIN_MOBILE });
-            if (!admin) {
-                admin = new UserLogin({
-                    name: "Admin",
-                    mobile: ADMIN_MOBILE,
-                    password: await bcrypt.hash(ADMIN_PASSWORD, 10),
-                    role: "admin"
-                });
-                await admin.save();
-            }
-            const token = jwt.sign({ role: "admin" }, JWT_SECRET, { expiresIn: "7d" });
-            return res.status(200).json({ message: "Admin login successful.", token, role: "admin" });
-        }
-
-        const user = await UserLogin.findOne({ mobile });
-        if (!user) return res.status(400).json({ message: "User not found." });
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: "Invalid credentials." });
-
-        const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
-
-        res.status(200).json({ message: "Login successful.", token, role: user.role });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+export const logout = (req, res) => {
+  // Optionally, you can blacklist token or update user salt in DB for invalidating JWTs
+  return res.status(200).json({ message: "Logout successful." });
 };
 
 
-
-// const login = async (req, res) => {
+// const forgotPassword = async (req, res) => {
 //     try {
-//         const { mobile, password } = req.body;
-
-//         if (mobile === ADMIN_MOBILE) {
-//             if (password !== ADMIN_PASSWORD) {
-//                 return res.status(401).json({ message: "Invalid admin credentials." });
-//             }
-//             let admin = await UserLogin.findOne({ mobile: ADMIN_MOBILE });
-//             if (!admin) {
-//                 admin = new UserLogin({
-//                     name: "Admin",
-//                     mobile: ADMIN_MOBILE,
-//                     password: await bcrypt.hash(ADMIN_PASSWORD, 10),
-//                     role: "admin"
-//                 });
-//                 await admin.save();
-//             }
-//             const token = jwt.sign({ role: "admin" }, JWT_SECRET, { expiresIn: "7d" });
-//             return res.status(200).json({ message: "Admin login successful.", token, role: "admin" });
-//         }
-
+//         let { mobile } = req.body;
 //         const user = await UserLogin.findOne({ mobile });
 //         if (!user) return res.status(400).json({ message: "User not found." });
-
-//         const isMatch = await bcrypt.compare(password, user.password);
-//         if (!isMatch) return res.status(400).json({ message: "Invalid credentials." });
-
-//         const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
-
-//         res.status(200).json({ message: "Login successful.", token, role: user.role });
+//
+//         const otp = generateOTP();
+//         user.otp = otp;
+//         user.otpExpiresAt = new Date(Date.now() + 5 * 60000);
+//         await user.save();
+//
+//         await client.messages.create({
+//             body: `Your password reset OTP is: ${otp}`,
+//             from: process.env.TWILIO_PHONE_NUMBER,
+//             to: mobile.startsWith("+") ? mobile : `+91${mobile}`
+//         });
+//
+//         res.status(200).json({ message: "OTP sent for password reset." });
 //     } catch (error) {
 //         res.status(500).json({ message: error.message });
 //     }
 // };
 
-const logout = async (req, res) => {
-    try {
-        // Token frontend se remove karwana hoga
-        res.status(200).json({ message: "Logout successful." });
-    } catch (error) {
-        res.status(500).json({ message: "Logout failed.", error: error.message });
-    }
-};
+// const resetPassword = async (req, res) => {
+//     try {
+//         const { mobile, otp, newPassword } = req.body;
+//
+//         if (mobile === ADMIN_MOBILE) {
+//             return res.status(403).json({ message: "Admin password cannot be reset." });
+//         }
+//
+//         const user = await UserLogin.findOne({ mobile });
+//
+//         if (!user || user.otp !== otp || user.otpExpiresAt < new Date()) {
+//             return res.status(400).json({ message: "Invalid or expired OTP" });
+//         }
+//
+//         user.password = await bcrypt.hash(newPassword, 10);
+//         user.otp = null;
+//         user.otpExpiresAt = null;
+//         await user.save();
+//
+//         res.json({ message: "Password reset successful. You can now log in." });
+//     } catch (error) {
+//         res.status(500).json({ message: "Server error", error: error.message });
+//     }
+// };
 
-export {  logout };
-
-
-
-const forgotPassword = async (req, res) => {
-    try {
-        let { mobile } = req.body;
-        const user = await UserLogin.findOne({ mobile });
-        if (!user) return res.status(400).json({ message: "User not found." });
-
-        const otp = generateOTP();
-        user.otp = otp;
-        user.otpExpiresAt = new Date(Date.now() + 5 * 60000);
-        await user.save();
-
-        await client.messages.create({
-            body: `Your password reset OTP is: ${otp}`,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: mobile.startsWith("+") ? mobile : `+91${mobile}`
-        });
-
-        res.status(200).json({ message: "OTP sent for password reset." });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-const resetPassword = async (req, res) => {
-    try {
-        const { mobile, otp, newPassword } = req.body;
-
-        if (mobile === ADMIN_MOBILE) {
-            return res.status(403).json({ message: "Admin password cannot be reset." });
-        }
-
-        const user = await UserLogin.findOne({ mobile });
-
-        if (!user || user.otp !== otp || user.otpExpiresAt < new Date()) {
-            return res.status(400).json({ message: "Invalid or expired OTP" });
-        }
-
-        user.password = await bcrypt.hash(newPassword, 10);
-        user.otp = null;
-        user.otpExpiresAt = null;
-        await user.save();
-
-        res.json({ message: "Password reset successful. You can now log in." });
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-};
-
-export { sendOtp, signup, login, forgotPassword, resetPassword };
+// export { sendOtp, signup, login, forgotPassword, resetPassword };
 
 
 // very /verify-user
-const verifyUser = async (req, res) => {
-    try {
-        const token = req.headers.authorization?.split(" ")[1];
-        if (!token) return res.status(401).json({ success: false, message: "No token provided" });
+// const verifyUser = async (req, res) => {
+//     try {
+//         const token = req.headers.authorization?.split(" ")[1];
+//         if (!token) return res.status(401).json({ success: false, message: "No token provided" });
+//
+//         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//         const user = await UserLogin.findById(decoded.userId);
+//
+//         if (!user) {
+//             return res.status(404).json({ success: false, message: "User not found" });
+//         }
+//
+//         return res.status(200).json({ success: true, user });
+//     } catch (err) {
+//         return res.status(400).json({ success: false, message: "Invalid token" });
+//     }
+// };
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await UserLogin.findById(decoded.userId);
-
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
-        }
-
-        return res.status(200).json({ success: true, user });
-    } catch (err) {
-        return res.status(400).json({ success: false, message: "Invalid token" });
-    }
-};
-
-export { verifyUser }
+// export { verifyUser }
 
 // banner  uplaod ......
 const uploadImage = async (req, res) => {
@@ -1098,7 +1090,7 @@ export { uploadCSV, validateQR };
 // 🔹 Razorpay Instance
 
 
-import mongoose from "mongoose";
+// import mongoose from "mongoose";
 
 
 //  Razorpay Configuration
@@ -1110,61 +1102,110 @@ const razorpay = new Razorpay({
 // **🔹 Order Create API**
 const createorder = async (req, res) => {
     try {
-        console.log("Received Data:", req.body); // Debugging ke liye
-
-        let { cart } = req.body;
+        let { cart, totalAmount, deliveryDetails } = req.body;
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
             return res.status(400).json({ error: "Cart is empty or invalid format" });
         }
 
-        // ✅ Total Amount Calculate karo
-        const totalAmount = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        // 1. Create order in DB with Pending status
+        const newOrder = new Order({
+            books: cart.map(book => ({
+                bookId: book.id,
+                title: book.title,
+                price: book.price,
+                quantity: book.quantity,
+            })),
+            totalPrice: totalAmount,
+            deliveryDetails,
+            status: "Pending",
+            userEmail: deliveryDetails.email,
+            pendingSince: Date.now()
+            // Do NOT set paymentId here!
+        });
 
-        // ✅ Razorpay Order Options
+        const savedOrder = await newOrder.save();
+
+        // 2. Create Razorpay order
         const options = {
-            amount: totalAmount * 100, // Convert to paise
+            amount: totalAmount * 100, // paise
             currency: "INR",
+            receipt: savedOrder._id.toString(),
         };
+        const razorpayOrder = await razorpay.orders.create(options);
 
-        // ✅ Razorpay Order Create
-        const order = await razorpay.orders.create(options);
-        res.json({ orderId: order.id, amount: options.amount });
-
+        // 3. Send both orderId (Razorpay) and dbOrderId (MongoDB) to frontend
+        res.json({
+            orderId: razorpayOrder.id,
+            amount: options.amount,
+            dbOrderId: savedOrder._id
+        });
     } catch (error) {
-        console.error("Payment Error:", error); // Debugging ke liye
+        console.error("Payment Error:", error);
         res.status(500).json({ error: "Payment error", details: error.message });
     }
 };
-
+                              
+import mongoose from 'mongoose';
 
 const saveorder = async (req, res) => {
     try {
         // Safely extract userId and user from req.user (if available)
         const userId = req.user?.userId;
         const user = req.user;
-        const { paymentId, deliveryDetails, cart, totalAmount } = req.body;
+        const { paymentId, deliveryDetails, cart, totalAmount, sessionToken } = req.body;
+
+        console.log("saveorder called with sessionToken:", sessionToken);
 
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
             return res.status(400).json({ success: false, message: "Cart data is invalid" });
         }
 
+        let loginMethodId = null;
+        if (sessionToken) {
+            const loginMethod = await LoginMethod.findOne({ sessionToken });
+            console.log("Found loginMethod for sessionToken:", loginMethod);
+            if (loginMethod) {
+                loginMethodId = loginMethod._id;
+            }
+        }
+
+        // Ensure deliveryDetails.email is saved in deliveryDetails
+        const deliveryDetailsWithEmail = {
+            ...deliveryDetails,
+            email: deliveryDetails.email || (user && user.email) || undefined
+        };
+
         const newOrder = new Order({
             userId: userId || undefined, // If you have userId from auth, otherwise undefined
             userEmail: (user && user.email) || (deliveryDetails && deliveryDetails.email) || undefined, // Prefer user email, fallback to delivery email
+            loginMethodId: loginMethodId || undefined,
             books: cart.map(book => ({
                 bookId: new mongoose.Types.ObjectId(book.id),
                 title: book.title,
                 price: book.price,
                 quantity: book.quantity,
-                
             })),
             totalPrice: totalAmount,
-            deliveryDetails,
+            deliveryDetails: deliveryDetailsWithEmail,
             paymentId,
             status: "Paid"
         });
 
         const savedOrder = await newOrder.save();
+
+        console.log("Order saved with ID:", savedOrder._id, "and loginMethodId:", loginMethodId);
+
+        // Send order confirmation email after saving order
+        try {
+            await sendOrderConfirmationEmail(
+                deliveryDetailsWithEmail.email || (user && user.email),
+                deliveryDetailsWithEmail.fullName,
+                savedOrder
+            );
+            console.log("Order confirmation email sent successfully.");
+        } catch (emailError) {
+            console.error("Failed to send order confirmation email:", emailError);
+        }
 
         // 🟢 Step 1: Book IDs Array nikaalo
         const bookIds = savedOrder.books.map(book => book.bookId);
@@ -1368,12 +1409,12 @@ const getAllOrders = async (req, res) => {
 
 export const updateTrackingId = async (req, res) => {
   const { id } = req.params;
-  const { trackingId, email } = req.body;
+  const { trackingId, email, courier } = req.body;
 
   try {
     const order = await Order.findByIdAndUpdate(
       id,
-      { trackingId },
+      { trackingId, courier },
       { new: true }
     );
 
@@ -1387,13 +1428,13 @@ export const updateTrackingId = async (req, res) => {
         // Import or require your email sending utility here
         const { sendTrackingEmail } = await import("../utils/sendEmail.js");
         const name = order.deliveryDetails.fullName;
-        await sendTrackingEmail(email, name, trackingId, trackingId); // message is trackingId for now
+        await sendTrackingEmail(email, name, trackingId, JSON.stringify({ courier, trackingId }), courier);
       } catch (err) {
         console.error("Email send error:", err);
       }
     }
 
-    res.json({ success: true, message: "Tracking ID updated successfully and email sent", order });
+    res.json({ success: true, message: "Tracking ID and courier updated successfully and email sent", order });
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
@@ -1467,17 +1508,147 @@ const trackOrder = async (req, res) => {
 // ✅ 4️⃣ User Order History (Mobile number se user apne orders dekhe)
 const getUserOrders = async (req, res) => {
     try {
-        const { mobile } = req.params;
+        const userId = req.user?.userId;
+        const userEmail = req.user?.email;
+        const { sessionToken } = req.query;
 
-        const orders = await Order.find({
-            "deliveryDetails.mobile": mobile
-        })
-            .select("status createdAt updatedAt books totalPrice")
-            .sort({ createdAt: -1 }); // 👈 Yeh line add karo
+        console.log("getUserOrders called with userId:", userId, "userEmail:", userEmail, "sessionToken:", sessionToken);
+
+        if (!userId && !userEmail) {
+            return res.status(400).json({ error: "User not authenticated" });
+        }
+
+        // Fetch user profile to get mobile number
+        const user = await UserLogin.findById(userId).select('mobile');
+        const userMobile = user?.mobile;
+
+        // Find all distinct delivery emails and mobiles for orders linked to userId
+        const distinctEmails = await Order.distinct("deliveryDetails.email", { userId: userId });
+        const distinctMobiles = await Order.distinct("deliveryDetails.mobile", { userId: userId });
+
+        // Build $or query with userId and all distinct delivery emails and mobiles
+        const orConditions = [
+            { userId: new mongoose.Types.ObjectId(userId) }
+        ];
+
+        if (userEmail) {
+            orConditions.push({ userEmail: userEmail });
+        }
+
+        // Instead of distinct emails, match any deliveryDetails.email (any email)
+        orConditions.push({ "deliveryDetails.email": { $exists: true, $ne: null } });
+
+        if (distinctMobiles && distinctMobiles.length > 0) {
+            orConditions.push({ "deliveryDetails.mobile": { $in: distinctMobiles } });
+        } else if (userMobile) {
+            orConditions.push({ "deliveryDetails.mobile": { $exists: true, $ne: null } });
+        }
+
+        if (orConditions.length === 0) {
+            return res.status(400).json({ error: "No valid user identifier found" });
+        }
+
+        const query = { $or: orConditions };
+
+        // If sessionToken filter is provided, add to query
+        // Disabled loginMethodId filter to fix empty orders issue
+        /*
+        if (sessionToken) {
+            const loginMethod = await LoginMethod.findOne({ sessionToken });
+            if (loginMethod) {
+                query.loginMethodId = loginMethod._id;
+            }
+        }
+        */
+
+        console.log("MongoDB query for orders:", query);
+
+        // Populate book details for each book in orders
+        const orders = await Order.find(query)
+            .select("status createdAt updatedAt books totalPrice deliveryDetails")
+            .populate({
+                path: "books.bookId",
+                select: "title bookImages mainImageIndex"
+            })
+            .sort({ createdAt: -1 });
+
+        console.log("Orders found:", orders.length);
+
+        // Format orders to include bookImage and bookName in books array
+        const formattedOrders = orders.map(order => {
+            const books = order.books.map(bookItem => {
+                const book = bookItem.bookId;
+                return {
+                    bookId: book?._id,
+                    bookName: book?.title || "N/A",
+                    bookImage: book?.bookImages && book?.bookImages.length > 0 ? book.bookImages[book.mainImageIndex || 0] : "",
+                    quantity: bookItem.quantity,
+                    price: bookItem.price,
+                    // Added title for fallback in frontend if needed
+                    title: book?.title || "N/A"
+                };
+            });
+            return {
+                _id: order._id,
+                status: order.status,
+                createdAt: order.createdAt,
+                updatedAt: order.updatedAt,
+                totalPrice: order.totalPrice,
+                deliveryDetails: {
+                    fullName: order.deliveryDetails?.fullName || "N/A",
+                    mobile: order.deliveryDetails?.mobile || "N/A",
+                    address: order.deliveryDetails?.address || "",
+                    city: order.deliveryDetails?.city || "",
+                    state: order.deliveryDetails?.state || "",
+                    pincode: order.deliveryDetails?.pincode || ""
+                },
+                books
+            };
+        });
+
+        res.json(formattedOrders);
+    } catch (error) {
+        console.error("Error fetching user orders:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+};
+
+// New API to get orders by mobile number (including deliveryDetails.mobile)
+const getOrdersByMobile = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        const userEmail = req.user?.email;
+        const mobileParam = req.params.mobile;
+
+        if (!userId && !userEmail) {
+            return res.status(400).json({ error: "User not authenticated" });
+        }
+
+        if (!mobileParam) {
+            return res.status(400).json({ error: "Mobile number parameter is required" });
+        }
+
+        const query = {
+            $or: []
+        };
+
+        if (userId) {
+            query.$or.push({ userId: mongoose.Types.ObjectId(userId) });
+        }
+        if (userEmail) {
+            query.$or.push({ userEmail: userEmail });
+        }
+
+        // Also include orders where deliveryDetails.mobile matches the mobileParam
+        query.$or.push({ "deliveryDetails.mobile": mobileParam });
+
+        const orders = await Order.find(query)
+            .select("status createdAt updatedAt books totalPrice deliveryDetails")
+            .sort({ createdAt: -1 });
 
         res.json(orders);
     } catch (error) {
-        console.error("Error fetching user orders:", error);
+        console.error("Error fetching orders by mobile:", error);
         res.status(500).json({ error: "Server error" });
     }
 };
@@ -1540,17 +1711,10 @@ const pendingUpdateAutoDelete = async (req, res) => {
 */
 const getPendingOrders = async (req, res) => {
     try {
-        const oneDayAgo = new Date();
-        oneDayAgo.setTime(oneDayAgo.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
-
-        console.log("24 Hours Ago:", oneDayAgo);
-
         const pendingOrders = await Order.find({
-            status: "Pending",
-            pendingSince: { $lte: oneDayAgo }, // Ensure this is a Date field
+            status: "Pending"
         }).select("_id status pendingSince deliveryDetails");
 
-        console.log("Orders Found:", pendingOrders);
         res.json(pendingOrders);
     } catch (error) {
         res.status(500).json({ error: "Server error" });
@@ -1599,7 +1763,7 @@ const pendingUpdateAutoDelete = async (req, res) => {
 };
 
 
-export { getOrderAnalytics, updateOrderStatus, trackOrder, getUserOrders, getPendingOrders, getAllOrders, deleteOrderPending, pendingUpdateAutoDelete };
+export { getOrderAnalytics, updateOrderStatus, trackOrder, getUserOrders, getPendingOrders, getAllOrders, deleteOrderPending, pendingUpdateAutoDelete, getOrdersByMobile };
 
 // Add Review Controller
 // Add Review Controller (Simplified version)
@@ -1657,10 +1821,6 @@ const getReviewsByBook = async (req, res) => {
 };
 
 export { getReviewsByBook };
-
-
-
-
 
 import cloudinary from "cloudinary";
 
@@ -1790,12 +1950,38 @@ const updateContent = async (req, res) => {
 };
 
 export { uploadContent, getAllContent, deleteContent, updateContent };
+
+
+
+
 // ✅ Get all pending orders (not just 7+ days)
 const getAllPendingOrders = async (req, res) => {
     try {
-        const pendingOrders = await Order.find({ status: "Pending" }).select("_id status pendingSince deliveryDetails");
+        const { date } = req.query;
+        console.log("getAllPendingOrders - date query param:", date);
+        let filter = { status: "Pending" };
+
+        if (date && date !== "all") {
+            const days = parseInt(date, 10);
+            console.log("Parsed days:", days);
+            if (!isNaN(days)) {
+                const now = new Date();
+                const pastDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+                console.log("Filtering orders from", pastDate, "to", now);
+                // Use pendingSince for filtering pending orders by date
+                filter.pendingSince = { $gte: pastDate, $lte: now };
+            }
+        }
+
+        const pendingOrders = await Order.find(filter).sort({ createdAt: -1 }).lean();
+        console.log("Found pending orders count:", pendingOrders.length);
+        pendingOrders.forEach(order => {
+            console.log(`Order ID: ${order._id}, pendingSince: ${order.pendingSince}, createdAt: ${order.createdAt}`);
+        });
+
         res.json(pendingOrders);
     } catch (error) {
+        console.error("Error in getAllPendingOrders:", error);
         res.status(500).json({ error: "Server error" });
     }
 };
@@ -1851,14 +2037,306 @@ const deleteOldIncompleteOrders = async () => {
 // API endpoint to get all incomplete orders
 const getIncompleteOrders = async (req, res) => {
     try {
-        const incompleteOrders = await Order.find({ status: 'Incomplete' }).sort({ createdAt: -1 });
-        res.json({ success: true, orders: incompleteOrders });
+        // Populate books with title, quantity, price and deliveryDetails fully
+        const incompleteOrders = await Order.find({ status: 'Incomplete' })
+            .select('_id userEmail failureReason createdAt books deliveryDetails')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        // Map books to include only required fields
+        const orders = incompleteOrders.map(order => {
+            const books = order.books.map(book => ({
+                title: book.title,
+                quantity: book.quantity,
+                price: book.price,
+                totalPrice: book.price * book.quantity
+            }));
+            return {
+                ...order,
+                books,
+                phoneNumber: order.deliveryDetails?.mobile || 'N/A',
+                address: order.deliveryDetails
+                    ? `${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state} - ${order.deliveryDetails.pincode}`
+                    : 'N/A'
+            };
+        });
+
+        res.json({ success: true, orders });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch incomplete orders' });
     }
 };
 
 export { markOrderIncomplete, deleteOldIncompleteOrders, getIncompleteOrders };
+
+// --- NEW AUTHENTICATION FLOW ---
+// (Do NOT re-import jwt or UserLogin here, they are already imported at the top)
+
+// POST /api/auth/check-user-type
+export const checkUserType = async (req, res) => {
+  const { identifier } = req.body; // phone or email
+  if (!identifier) return res.status(400).json({ message: "Phone or email required" });
+
+  const user = await UserLogin.findOne({
+    $or: [{ mobile: identifier }, { email: identifier }]
+  });
+
+  if (!user) return res.json({ role: "not_found" });
+
+  // Normalize for comparison
+  const normId = identifier.includes('@') ? normalizeEmail(identifier) : normalizeMobile(identifier);
+  const normAdminEmail = normalizeEmail(ADMIN_EMAIL);
+  const normAdminMobile = normalizeMobile(ADMIN_MOBILE);
+
+  // Only allow admin role for fixed admin email/phone, else downgrade to user
+  if (
+    user.role === "admin" &&
+    normId !== normAdminEmail &&
+    normId !== normAdminMobile
+  ) {
+    // Downgrade to user
+    return res.json({ role: "user" });
+  }
+
+  return res.json({ role: user.role });
+};
+
+// Helper to generate OTP
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+// Helper: Normalize email (lowercase, trim)
+function normalizeEmail(email) {
+  return (email || '').trim().toLowerCase();
+}
+// Helper: Normalize mobile (remove spaces, ensure +91 if Indian, trim)
+function normalizeMobile(mobile) {
+  let m = (mobile || '').replace(/\s+/g, '').trim();
+  if (m.startsWith('+91')) return m;
+  if (m.length === 10 && /^\d{10}$/.test(m)) return '+91' + m;
+  return m;
+}
+
+// POST /api/auth/send-otp
+export const sendOtp = async (req, res) => {
+  const { identifier } = req.body; // phone or email
+  if (!identifier) return res.status(400).json({ message: "Phone or email required" });
+
+  let user = await UserLogin.findOne({
+    $or: [{ mobile: identifier }, { email: identifier }]
+  });
+
+  // If user not found, create a new user with the identifier
+  if (!user) {
+    // Check if identifier is an email or mobile
+    const isEmail = identifier.includes('@');
+    user = new UserLogin({
+      name: "New User",
+      email: isEmail ? identifier : undefined,
+      mobile: !isEmail ? identifier : undefined,
+      loginMethod: isEmail ? 'email' : 'phone',
+      password: "otp",
+      otp: null,
+      otpExpiresAt: null
+    });
+  }
+
+  // Normalize for comparison
+  const normId = identifier.includes('@') ? normalizeEmail(identifier) : normalizeMobile(identifier);
+  const normAdminEmail = normalizeEmail(ADMIN_EMAIL);
+  const normAdminMobile = normalizeMobile(ADMIN_MOBILE);
+
+  // Only allow admin OTP for fixed admin email/phone, else downgrade to user
+  if (
+    user.role === "admin" &&
+    normId !== normAdminEmail &&
+    normId !== normAdminMobile
+  ) {
+    user.role = "user";
+  }
+
+  const otp = generateOTP();
+  user.otp = otp;
+  user.otpExpiresAt = new Date(Date.now() + 5 * 60000);
+  await user.save();
+
+  // Send OTP via SMS if mobile is present
+  if (user.mobile) {
+    try {
+      // Use admin client/number for admin, user client/number for others
+      const isAdmin = (normId === normAdminEmail || normId === normAdminMobile);
+      const twilioClientToUse = isAdmin ? twilioClientAdmin : twilioClientUser;
+      const fromNumber = isAdmin ? TWILIO_PHONE_NUMBER_ADMIN : TWILIO_PHONE_NUMBER_USER;
+      await twilioClientToUse.messages.create({
+        body: `Your OTP is: ${otp}`,
+        from: fromNumber,
+        to: user.mobile.startsWith("+") ? user.mobile : `+91${user.mobile}`,
+      });
+    } catch (err) {
+      console.error("Twilio SMS error:", err);
+    }
+  }
+
+  // Send OTP via email if email is present
+  if (user.email) {
+    try {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: "Your OTP Code",
+        text: `Your OTP is: ${otp}`,
+      });
+    } catch (err) {
+      console.error("Nodemailer error:", err);
+    }
+  }
+
+  return res.json({ message: "OTP sent" });
+};
+
+// POST /api/auth/verify-otp
+import { v4 as uuidv4 } from 'uuid';
+import { LoginMethod } from '../models/LoginMethod.js';
+
+export const verifyOtp = async (req, res) => {
+  const { identifier, otp } = req.body;
+  if (!identifier || !otp) return res.status(400).json({ message: "All fields required" });
+
+  // Normalize for comparison
+  const normId = identifier.includes('@') ? normalizeEmail(identifier) : normalizeMobile(identifier);
+  const normAdminEmail = normalizeEmail(ADMIN_EMAIL);
+  const normAdminMobile = normalizeMobile(ADMIN_MOBILE);
+
+  // --- ADMIN OTP LOGIN WITHOUT DB ---
+  if (normId === normAdminEmail || normId === normAdminMobile) {
+    // For demo: Accept any OTP (or you can check a fixed OTP, or store OTP in-memory)
+    // In production, you should store OTP in-memory or use a secure method
+    // For now, just allow any OTP for admin for demonstration
+    const payload = { userId: 'admin', role: 'admin' };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+    return res.json({ token, role: 'admin' });
+  }
+
+  // --- NORMAL USER FLOW (DB) ---
+  const user = await UserLogin.findOne({
+    $or: [{ mobile: identifier }, { email: identifier }]
+  });
+
+  let roleToReturn = user?.role;
+  if (
+    user &&
+    user.role === "admin" &&
+    normId !== normAdminEmail &&
+    normId !== normAdminMobile
+  ) {
+    roleToReturn = "user";
+  }
+
+  if (!user || user.otp !== otp || user.otpExpiresAt < new Date()) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  user.otp = null;
+  user.otpExpiresAt = null;
+  if (roleToReturn === "user" && user.role === "admin" && normId !== normAdminEmail && normId !== normAdminMobile) {
+    user.role = "user";
+  }
+  await user.save();
+
+  // Create login method record
+  const sessionToken = uuidv4();
+
+  // Map user.loginMethod to valid enum values
+  let methodType = 'mobile_otp';
+  if (user.loginMethod === 'email_otp' || user.loginMethod === 'email') {
+    methodType = 'email_otp';
+  } else if (user.loginMethod === 'mobile_otp' || user.loginMethod === 'phone') {
+    methodType = 'mobile_otp';
+  } else if (user.loginMethod === 'google') {
+    methodType = 'google';
+  } else if (user.loginMethod === 'facebook') {
+    methodType = 'facebook';
+  } else {
+    methodType = 'mobile_otp'; // default fallback
+  }
+
+  const loginMethod = new LoginMethod({
+    userId: user._id,
+    methodType,
+    loginAt: new Date(),
+    sessionToken
+  });
+  await loginMethod.save();
+
+  const payload = { userId: user._id, email: user.email, role: roleToReturn };
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+
+  return res.json({ token, role: roleToReturn, sessionToken });
+};
+
+// POST /api/auth/social-login
+export const socialLogin = async (req, res) => {
+  const { provider, socialToken } = req.body;
+  let email, name;
+
+  try {
+    if (provider === "google") {
+      // Google token verification
+      const ticket = await googleClient.verifyIdToken({
+        idToken: socialToken,
+        audience: process.env.VITE_GOOGLE_CLIENT_ID,  // Fixed usage to match client ID
+      });
+      const payload = ticket.getPayload();
+      email = payload.email;
+      name = payload.name;
+    } else if (provider === "facebook") {
+      // Facebook token verification
+      // Get user info from Facebook Graph API
+      const fbRes = await axios.get(
+        `https://graph.facebook.com/me?fields=id,name,email&access_token=${socialToken}`
+      );
+      email = fbRes.data.email;
+      name = fbRes.data.name;
+    } else {
+      return res.status(400).json({ message: "Unsupported provider" });
+    }
+
+    if (!email) {
+      return res.status(400).json({ message: "Email not found from provider" });
+    }
+
+    // Find or create user
+    let user = await UserLogin.findOne({ email });
+    if (!user) {
+      user = new UserLogin({ name, email, role: "user", password: "social", mobile: null });
+      await user.save();
+    }
+
+    const jwtPayload = { userId: user._id, email: user.email, role: user.role };
+    const token = jwt.sign(jwtPayload, JWT_SECRET, { expiresIn: "7d" });
+
+    // Create login method record for social login
+    let methodType = '';
+    if (provider === 'google') {
+      methodType = 'google';
+    } else if (provider === 'facebook') {
+      methodType = 'facebook';
+    }
+
+    const sessionToken = uuidv4();
+    const loginMethod = new LoginMethod({
+      userId: user._id,
+      methodType,
+      loginAt: new Date(),
+      sessionToken
+    });
+    await loginMethod.save();
+
+    return res.json({ token, role: user.role, sessionToken });
+  } catch (err) {
+    console.error("Social login error:", err);
+    return res.status(401).json({ message: "Invalid social token" });
+  }
+};
 
 
 

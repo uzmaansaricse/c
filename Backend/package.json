@@ -11,6 +11,9 @@
     "dev": "nodemon main.js"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.12.2",
+    "apple-signin-auth": "^2.0.0",
+    "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
     "cloudinary": "^1.41.3",
@@ -20,6 +23,7 @@
     "express": "^4.21.2",
     "express-fileupload": "^1.5.1",
     "extract-zip": "^2.0.1",
+    "google-auth-library": "^10.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.5",
@@ -28,7 +32,8 @@
     "node-cron": "^3.0.2",
     "nodemailer": "^6.10.1",
     "razorpay": "^2.9.5",
-    "twilio": "^5.4.3",
+    "react-facebook-login": "^4.1.1",
+    "twilio": "^5.7.3",
     "useragent": "^2.3.0"
   }
 }

@@ -17,25 +17,21 @@ import cron from "node-cron";
 import { authMiddleware } from './middleware/authMiddleware.js';
 
 
-import fs, { appendFile } from 'fs';
+// import fs, { appendFile } from 'fs';
 
 
 import {
-    addBook, addReview, createorder, deleteBookById, deleteContent, deleteImage, deleteOrderPending, forgotPassword, getAllBooks, getAllContent, getAllOrders, getBanners, getBookDetails, getBooks, getBooksAllCategory, getImages, getNewBooks, getOldBooksAdd, getOrderAnalytics,
-
-
-
-    getPendingOrders, getRazorpayKey, getReviewsByBook, getUserOrders, login, logout, pendingUpdateAutoDelete, resetPassword, saveorder, SearchgetAllBooks, sendOtp, signup, singlegetbook, toggleBanner, trackOrder, updateBook, updateContent, updateOrderStatus,
-
+    addBook, addReview,  deleteBookById, deleteContent, deleteImage, deleteOrderPending, getAllBooks, getAllContent, getAllOrders, getBanners, getBookDetails, getBooks, getBooksAllCategory, getImages, getNewBooks, getOldBooksAdd, getOrderAnalytics,
+    getPendingOrders, getRazorpayKey, getReviewsByBook, getUserOrders, logout, pendingUpdateAutoDelete, saveorder, SearchgetAllBooks, singlegetbook, toggleBanner, trackOrder, updateBook, updateContent, updateOrderStatus,
     uploadContent,
-
     uploadCSV, uploadImage, usergetOrders, validateQR, getUserProfile, deleteAccount,
-    verifyUser,
     getAllPendingOrders,
     deleteOrderById,
 } from "./controllers/authController.js";
+// import { getLoggedInUserOrders } from "./controllers/authController.js";
 
-
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 
  
@@ -50,8 +46,65 @@ const __dirname = path.dirname(__filename);
 // Middleware
 // Middl
 app.use(express.json());  // To parse JSON data
-app.use(cors()); // To allow cross-origin requests
+//app.use(cors()); // To allow cross-origin requests
 // app.use(express.urlencoded({ extended: true }));
+import fs from "fs";
+
+// const allowedOrigins = [
+//   'https://localhost:9000',
+//   'http://localhost:9000',
+//   'http://127.0.0.1:9000',
+//   'https://www.aravalipublication.com'
+// ];
+
+// // const allowedOrigins = [
+// //   'http://localhost:9000', // dev
+// //   'https://www.aravalipublication.com' // prod
+// // ];
+
+// app.use(cors({
+//   origin: function(origin, callback){
+//     // allow requests with no origin (like mobile apps, curl, etc.)
+//     if(!origin) return callback(null, true);
+//     if(allowedOrigins.indexOf(origin) === -1){
+//       var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+//       return callback(new Error(msg), false);
+//     }
+//     return callback(null, true);
+//   },
+//   credentials: true
+// }));
+
+const allowedOrigins = [
+  'http://localhost',
+  'http://localhost:9000',
+  'https://aravalipublication.com',
+  'https://www.aravalipublication.com',
+  'http://localhost:3000',  // Added common frontend dev port
+  'http://127.0.0.1:3000',  // Added localhost with IP
+  'http://localhost:5500',  // Added live server port
+  'http://localhost:8000'   // Added another common dev port
+];
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin) return callback(null, true);                   // Allow curl, mobile apps, etc.
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    console.warn(`Blocked by CORS: ${origin}`);
+    return callback(new Error('Not allowed by CORS'), false);
+  },
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  res.setHeader('Vary', 'Origin');  // Tell caches responses vary based on Origin
+  next();
+});
 
 app.use(express.static(path.join(__dirname, "../forntendbook")));
 app.get("/", (req, res) => {
@@ -62,24 +115,34 @@ app.get("/", (req, res) => {
 // regester user with otp ..........
 //
 // ✅ Send OTP
-app.post("/send-otp", sendOtp);
+// app.post("/send-otp", sendOtp);
 
 // ✅ User Signup
-app.post("/signup", signup);
+// app.post("/signup", signup);
 
 app.get('/user/profile', authMiddleware, getUserProfile);
-app.delete('/user/delete-account', authMiddleware, deleteAccount);
+ app.delete('/user/delete-account', authMiddleware, deleteAccount);
 
 // ✅ User/Admin Login (Both handled here)
-app.post("/login", login);
+// app.post("/login", login);
 
-app.post("/forgot-password", forgotPassword);
+// app.post("/forgot-password", forgotPassword);
 
-app.post("/reset-password", resetPassword);
+// app.post("/reset-password", resetPassword);
 app.use("/api/tracking", trackingRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+
+// Move userRoutes mounted at root "/" below all specific routes to avoid route conflicts
+// This ensures /content and other static routes are matched before userRoutes
+app.get("/content", getAllContent);
+app.delete("/content/:id", deleteContent);
+app.put("/content/:id", updateContent);
+
+app.use("/", userRoutes);
 
 // app.get("/admin", authMiddleware)
-app.post("/verifyUser", verifyUser)
+// app.post("/verifyUser", verifyUser)
 
 // baner show...
 app.post("/api/upload-imagepanel", upload.single("image"), uploadImage);
@@ -115,7 +178,7 @@ app.delete("/api/delete-book/:id", deleteBookById);
 
 // all books show and addcart rating and review ke
 app.get("/api/all-book-Show", getAllBooks);
-app.get("/getNewBooks", getNewBooks);
+app.get("/api/getNewBooks", getNewBooks);
 app.get("/api/old-book", getOldBooksAdd);
 
 //  sbi api newbookdetals page beja is api se
@@ -151,6 +214,7 @@ app.get("/api/validate/:qrCode", validateQR);
 
 // // order....
 
+import { createorder } from "./controllers/authController.js";
 app.post("/api/create-order", createorder);
 
 app.post("/api/save-order", saveorder);
@@ -168,7 +232,7 @@ app.get("/admin/analytics", getOrderAnalytics); // Admin Order Analytics (Graph 
 app.get("/admin/orders", getAllOrders);
 app.put("/admin/order/:orderId", updateOrderStatus); //Admin Order Update (Order status update kare)
 app.get("/track/:orderId", trackOrder); // Order Tracking (User Order ID se order check kare)
-app.get("/user-orders/:mobile", getUserOrders);//User Order History (Mobile number se orders check kare)
+app.get("/user-orders", authMiddleware, getUserOrders);//User Order History for logged-in user
 
 // 
 
@@ -209,6 +273,7 @@ app.delete("/content/:id", deleteContent);
 app.put("/content/:id", updateContent);
 
 
+// app.get("/api/user/orders", authMiddleware, getLoggedInUserOrders);
 app.get("/logout", logout);
 // const router = express.Router();
 
@@ -220,14 +285,14 @@ app.get("/logout", logout);
 const connectionMongoDb = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI);
-        console.log("MongoDB se connected successfully");
+        console.log("MongoDB connected successfully");
     } catch (error) {
         console.error("MongoDB connection error:", error);
         process.exit(1); // Fatal error, exit process
     }
 };
 
-// Server start
+
 const PORT = 9000; // Port number
 app.listen(PORT, async () => {
     console.log(`App is running on http://localhost:${PORT}`);
@@ -250,8 +315,12 @@ cron.schedule('0 * * * *', async () => {
   // You can log or handle errors as needed
 });
 
-
-
-
-
-
+import { markOrderIncomplete } from "./controllers/authController.js";
+app.post("/api/admin/mark-incomplete/:orderId", async (req, res) => {
+    try {
+        await markOrderIncomplete(req.params.orderId, req.body.reason);
+        res.json({ success: true, message: "Order marked as incomplete" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Failed to mark order incomplete" });
+    }
+});

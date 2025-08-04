@@ -7,13 +7,19 @@ const userSchema = new mongoose.Schema({
   },
   mobile: {
     type: String,
-    required: true,
-    unique: true
+    required:false,
+    unique: false
   },
   email: {      //changes isha
     type: String,
     required: false,
     unique: false
+  },
+  loginMethod: {
+    type: String,
+    enum: ['phone', 'email', 'google', 'facebook'],
+    required: true,
+    default: 'email'
   },
   password: {
     type: String,
