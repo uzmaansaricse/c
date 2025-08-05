@@ -267,7 +267,7 @@
               <th>Quantity</th>
               <th>Total Price</th>
               <th>Status</th>
-              <th>Created At</th>
+              <th>Order placed Date</th>
             </tr>
           </thead>
           <tbody>
@@ -369,12 +369,26 @@
 
           // Status
           const statusTd = document.createElement('td');
-          statusTd.textContent = order.status || 'N/A';
-          tr.appendChild(statusTd);
+          const statusDescriptions = {
+            "Processing": "Processing your order.",
+           "Pending": "Order is not yet confirmed/placed.",
+            "Unshipped": "Order is confirmed/placed. It will be shipped and dispatched soon.",
+            "Shipped": "Order is processed, ready to be handed over to courier service.",
+            "Dispatched": "Order is dispatched to courier.",
+            "Delivering": "Order is midway of delivery.",
+            "Delivered": "Order has been delivered.",
+            "Completed": "Order has been completed.",
+            "Cancelled": "Order has been cancelled.",
+            "Refunded": "Order has been refunded.",
+            "Paid": "Order payment has been received.",
+            "Incomplete": "Order payment is incomplete."
+          };
+          statusTd.textContent = statusDescriptions[order.status] || 'Unknown Status';
+          tr.appendChild(statusTd);     
 
           // Created At
           const createdAtTd = document.createElement('td');
-          createdAtTd.textContent = new Date(order.createdAt).toLocaleString() || 'N/A';
+          createdAtTd.textContent = new Date(order.createdAt).toLocaleDateString() || 'N/A';
           tr.appendChild(createdAtTd);
 
           // Add click handler on row to open b.html with order id as query param

@@ -237,7 +237,7 @@
       <div class="order-details-container" style="max-width: 90%; margin: 20px auto; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 2px solid #2c6e31;">
         <h2>Order ID: <span id="orderId"></span></h2>
         <p><strong>Status:</strong> <span id="orderStatus"></span></p>
-        <p><strong>Order placed on:</strong> <span id="orderCreatedAt"></span></p>
+        <p><strong>Order placed Date:</strong> <span id="orderCreatedAt"></span></p>
         <!-- <p><strong>Updated At:</strong> <span id="orderUpdatedAt"></span></p> -->
         <p><strong>Delivery Name:</strong> <span id="deliveryName"></span></p>
         <p><strong>Delivery Mobile:</strong> <span id="deliveryMobile"></span></p>
@@ -255,7 +255,7 @@
               <th>Quantity</th>
               <th>Total Price</th>
               <th>Status</th>
-              <th>Created At</th>
+              <th>Order placed Date</th>
             </tr>
           </thead>
           <tbody>
@@ -306,7 +306,21 @@
 
       // Populate order details
       document.getElementById('orderId').textContent = order._id || 'N/A';
-      document.getElementById('orderStatus').textContent = order.status || 'N/A';
+      const statusDescriptions = {
+        "Processing": "Processing your order.",
+        "Pending": "Order is not yet confirmed/placed.",
+        "Unshipped": "Order is confirmed/placed. It will be shipped and dispatched soon.",
+        "Shipped": "Order is processed, ready to be handed over to courier service.",
+        "Dispatched": "Order is dispatched to courier.",
+        "Delivering": "Order is midway of delivery.",
+        "Delivered": "Order has been delivered.",
+        "Completed": "Order has been completed.",
+        "Cancelled": "Order has been cancelled.",
+        "Refunded": "Order has been refunded.",
+        "Paid": "Order payment has been received.",
+        "Incomplete": "Order payment is incomplete."
+      };
+      document.getElementById('orderStatus').textContent = statusDescriptions[order.status] || 'Unknown Status';
       document.getElementById('orderCreatedAt').textContent = new Date(order.createdAt).toLocaleDateString() || 'N/A';
       // document.getElementById('orderUpdatedAt').textContent = new Date(order.updatedAt).toLocaleString() || 'N/A';
       document.getElementById('deliveryName').textContent = order.deliveryDetails?.fullName || 'N/A';
@@ -376,12 +390,26 @@
 
           // Status (from order)
           const statusTd = document.createElement('td');
-          statusTd.textContent = order.status || 'N/A';
+          const statusDescriptions = {
+            "Processing": "Processing your order.",
+            "Pending": "Order is not yet confirmed/placed.",
+            "Unshipped": "Order is confirmed/placed. It will be shipped and dispatched soon.",
+            "Shipped": "Order is processed, ready to be handed over to courier service.",
+            "Dispatched": "Order is dispatched to courier.",
+            "Delivering": "Order is midway of delivery.",
+            "Delivered": "Order has been delivered.",
+            "Completed": "Order has been completed.",
+            "Cancelled": "Order has been cancelled.",
+            "Refunded": "Order has been refunded.",
+            "Paid": "Order payment has been received.",
+            "Incomplete": "Order payment is incomplete."
+          };
+          statusTd.textContent = statusDescriptions[order.status] || 'Unknown Status';
           tr.appendChild(statusTd);
 
           // Created At (from order)
           const createdAtTd = document.createElement('td');
-          createdAtTd.textContent = new Date(order.createdAt).toLocaleString() || 'N/A';
+          createdAtTd.textContent = new Date(order.createdAt).toLocaleDateString() || 'N/A';
           tr.appendChild(createdAtTd);
 
           tbody.appendChild(tr);
