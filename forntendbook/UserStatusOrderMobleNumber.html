@@ -140,6 +140,30 @@
     th:hover {
       background-color: #ddd;
     }
+    
+    /* Hover effects for order rows */
+    #ordersTable tbody tr {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    #ordersTable tbody tr:hover {
+      background-color: #e8f5e8;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(44, 110, 49, 0.15);
+    }
+    
+    #ordersTable tbody tr:hover td {
+      color: #2c6e31;
+      font-weight: 500;
+    }
+    
+    /* Hover effect for book images */
+    #ordersTable tbody tr img:hover {
+      transform: scale(1.1);
+      transition: transform 0.2s ease;
+    }
+    
     .highlight {
       background-color: #fffae6;
     }
