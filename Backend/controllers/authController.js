@@ -4480,6 +4480,9 @@ function normalizeMobile(mobile) {
   return m;
 }
 
+let adminOtp = null;
+let adminOtpExpiresAt = null;
+
 // POST /api/auth/send-otp
 export const sendOtp = async (req, res) => {
   const { identifier } = req.body; // phone or email
@@ -4488,6 +4491,47 @@ export const sendOtp = async (req, res) => {
   let user = await UserLogin.findOne({
     $or: [{ mobile: identifier }, { email: identifier }]
   });
+
+  // Normalize for comparison
+  const normId = identifier.includes('@') ? normalizeEmail(identifier) : normalizeMobile(identifier);
+  const normAdminEmail = normalizeEmail(ADMIN_EMAIL);
+  const normAdminMobile = normalizeMobile(ADMIN_MOBILE);
+
+  // Handle admin OTP generation and storage in memory
+  if (normId === normAdminEmail || normId === normAdminMobile) {
+    // Generate OTP for admin and store in memory
+    adminOtp = generateOTP();
+    adminOtpExpiresAt = new Date(Date.now() + 5 * 60000);
+
+    // Send OTP via SMS using admin Twilio client if admin mobile exists
+    if (normAdminMobile) {
+      try {
+        await twilioClientAdmin.messages.create({
+          body: `Your Admin OTP is: ${adminOtp}`,
+          from: TWILIO_PHONE_NUMBER_ADMIN,
+          to: normAdminMobile.startsWith("+") ? normAdminMobile : `+91${normAdminMobile}`,
+        });
+      } catch (err) {
+        console.error("Twilio SMS error (admin):", err);
+      }
+    }
+
+    // Send OTP via email using nodemailer if admin email exists
+    if (normAdminEmail) {
+      try {
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: normAdminEmail,
+          subject: "Your Admin OTP Code",
+          text: `Your Admin OTP is: ${adminOtp}`,
+        });
+      } catch (err) {
+        console.error("Nodemailer error (admin):", err);
+      }
+    }
+
+    return res.json({ message: "Admin OTP sent" });
+  }
 
   // If user not found, create a new user with the identifier
   if (!user) {
@@ -4503,11 +4547,6 @@ export const sendOtp = async (req, res) => {
       otpExpiresAt: null
     });
   }
-
-  // Normalize for comparison
-  const normId = identifier.includes('@') ? normalizeEmail(identifier) : normalizeMobile(identifier);
-  const normAdminEmail = normalizeEmail(ADMIN_EMAIL);
-  const normAdminMobile = normalizeMobile(ADMIN_MOBILE);
 
   // Only allow admin OTP for fixed admin email/phone, else downgrade to user
   if (
@@ -4570,11 +4609,16 @@ export const verifyOtp = async (req, res) => {
   const normAdminEmail = normalizeEmail(ADMIN_EMAIL);
   const normAdminMobile = normalizeMobile(ADMIN_MOBILE);
 
-  // --- ADMIN OTP LOGIN WITHOUT DB ---
+  // --- ADMIN OTP LOGIN WITH VALIDATION ---
   if (normId === normAdminEmail || normId === normAdminMobile) {
-    // For demo: Accept any OTP (or you can check a fixed OTP, or store OTP in-memory)
-    // In production, you should store OTP in-memory or use a secure method
-    // For now, just allow any OTP for admin for demonstration
+    // Validate OTP against stored adminOtp and expiry
+    if (otp !== adminOtp || !adminOtpExpiresAt || adminOtpExpiresAt < new Date()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+    // Clear admin OTP after successful login
+    adminOtp = null;
+    adminOtpExpiresAt = null;
+
     const payload = { userId: 'admin', role: 'admin' };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
     return res.json({ token, role: 'admin' });
