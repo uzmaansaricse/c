@@ -3865,30 +3865,34 @@ const getUserOrders = async (req, res) => {
             return res.status(400).json({ error: "User not authenticated" });
         }
 
-        // Fetch user profile to get mobile number
-        const user = await UserLogin.findById(userId).select('mobile');
+        // Fetch user profile to get mobile number and email
+        const user = await UserLogin.findById(userId).select('mobile email');
         const userMobile = user?.mobile;
+        const userEmails = [userEmail, user?.email].filter(Boolean);
 
-        // Find all distinct delivery emails and mobiles for orders linked to userId
-        const distinctEmails = await Order.distinct("deliveryDetails.email", { userId: userId });
-        const distinctMobiles = await Order.distinct("deliveryDetails.mobile", { userId: userId });
-
-        // Build $or query with userId and all distinct delivery emails and mobiles
+        // Build $or query with userId, userEmail, deliveryDetails.email, deliveryDetails.mobile
         const orConditions = [
             { userId: new mongoose.Types.ObjectId(userId) }
         ];
 
-        if (userEmail) {
+        if (userEmails.length > 0) {
+            orConditions.push({ userEmail: { $in: userEmails } });
+            orConditions.push({ "deliveryDetails.email": { $in: userEmails } });
+        } else if (userEmail) {
             orConditions.push({ userEmail: userEmail });
+            orConditions.push({ "deliveryDetails.email": userEmail });
         }
 
-        // Instead of distinct emails, match any deliveryDetails.email (any email)
-        orConditions.push({ "deliveryDetails.email": { $exists: true, $ne: null } });
+        if (userMobile) {
+            orConditions.push({ "deliveryDetails.mobile": userMobile });
+        }
 
-        if (distinctMobiles && distinctMobiles.length > 0) {
-            orConditions.push({ "deliveryDetails.mobile": { $in: distinctMobiles } });
-        } else if (userMobile) {
-            orConditions.push({ "deliveryDetails.mobile": { $exists: true, $ne: null } });
+        // If sessionToken is provided, find loginMethodId and add to query
+        if (sessionToken) {
+            const loginMethod = await LoginMethod.findOne({ sessionToken });
+            if (loginMethod) {
+                orConditions.push({ loginMethodId: loginMethod._id });
+            }
         }
 
         if (orConditions.length === 0) {
@@ -3896,17 +3900,6 @@ const getUserOrders = async (req, res) => {
         }
 
         const query = { $or: orConditions };
-
-        // If sessionToken filter is provided, add to query
-        // Disabled loginMethodId filter to fix empty orders issue
-        /*
-        if (sessionToken) {
-            const loginMethod = await LoginMethod.findOne({ sessionToken });
-            if (loginMethod) {
-                query.loginMethodId = loginMethod._id;
-            }
-        }
-        */
 
         console.log("MongoDB query for orders:", query);
 
