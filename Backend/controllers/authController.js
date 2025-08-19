@@ -3494,75 +3494,148 @@ const createorder = async (req, res) => {
                               
 import mongoose from 'mongoose';
 
+// const saveorder = async (req, res) => {
+//     try {
+//         // Safely extract userId and user from req.user (if available)
+//         const userId = req.user?.userId;
+//         const user = req.user;
+//         const { paymentId, deliveryDetails, cart, totalAmount, sessionToken } = req.body;
+
+//         console.log("saveorder called with sessionToken:", sessionToken);
+
+//         if (!cart || !Array.isArray(cart) || cart.length === 0) {
+//             return res.status(400).json({ success: false, message: "Cart data is invalid" });
+//         }
+
+//         let loginMethodId = null;
+//         if (sessionToken) {
+//             const loginMethod = await LoginMethod.findOne({ sessionToken });
+//             console.log("Found loginMethod for sessionToken:", loginMethod);
+//             if (loginMethod) {
+//                 loginMethodId = loginMethod._id;
+//             }
+//         }
+
+//         // Ensure deliveryDetails.email is saved in deliveryDetails
+//         const deliveryDetailsWithEmail = {
+//             ...deliveryDetails,
+//             email: deliveryDetails.email || (user && user.email) || undefined
+//         };
+
+//         const newOrder = new Order({
+//             userId: userId || undefined, // If you have userId from auth, otherwise undefined
+//             userEmail: (user && user.email) || (deliveryDetails && deliveryDetails.email) || undefined, // Prefer user email, fallback to delivery email
+//             loginMethodId: loginMethodId || undefined,
+//             books: cart.map(book => ({
+//                 bookId: new mongoose.Types.ObjectId(book.id),
+//                 title: book.title,
+//                 price: book.price,
+//                 quantity: book.quantity,
+//             })),
+//             totalPrice: totalAmount,
+//             deliveryDetails: deliveryDetailsWithEmail,
+//             paymentId,
+//             status: "Paid"
+//         });
+
+//         const savedOrder = await newOrder.save();
+
+//         console.log("Order saved with ID:", savedOrder._id, "and loginMethodId:", loginMethodId);
+
+//         // Send order confirmation email after saving order
+//         try {
+//             await sendOrderConfirmationEmail(
+//                 deliveryDetailsWithEmail.email || (user && user.email),
+//                 deliveryDetailsWithEmail.fullName,
+//                 savedOrder
+//             );
+//             console.log("Order confirmation email sent successfully.");
+//         } catch (emailError) {
+//             console.error("Failed to send order confirmation email:", emailError);
+//         }
+
+//         // 🟢 Step 1: Book IDs Array nikaalo
+//         const bookIds = savedOrder.books.map(book => book.bookId);
+
+//         // 🟢 Step 2: Frontend ko response bhej do with orderId & bookIds[]
+//         res.json({
+//             success: true,
+//             message: "Order saved successfully",
+//             orderId: savedOrder._id,
+//             bookIds: bookIds
+//         });
+
+//     } catch (error) {
+//         console.error("Order Save Error:", error);
+//         res.status(500).json({ success: false, message: "Failed to save order" });
+//     }
+// };
+
 const saveorder = async (req, res) => {
     try {
-        // Safely extract userId and user from req.user (if available)
         const userId = req.user?.userId;
         const user = req.user;
-        const { paymentId, deliveryDetails, cart, totalAmount, sessionToken } = req.body;
+        const { paymentId, deliveryDetails, cart, totalAmount, sessionToken, dbOrderId } = req.body;
 
-        console.log("saveorder called with sessionToken:", sessionToken);
+        console.log("saveorder called for dbOrderId:", dbOrderId, req.body);
 
-        if (!cart || !Array.isArray(cart) || cart.length === 0) {
-            return res.status(400).json({ success: false, message: "Cart data is invalid" });
+        if (!dbOrderId) {
+            return res.status(400).json({ success: false, message: "dbOrderId is required" });
+        }
+
+        // 🔹 Find and update the existing order
+        const existingOrder = await Order.findById(dbOrderId);
+        if (!existingOrder) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        // Optional: Validate cart and price match (to prevent tampering)
+        if (existingOrder.totalPrice !== totalAmount) {
+            return res.status(400).json({ success: false, message: "Amount mismatch" });
         }
 
         let loginMethodId = null;
         if (sessionToken) {
             const loginMethod = await LoginMethod.findOne({ sessionToken });
-            console.log("Found loginMethod for sessionToken:", loginMethod);
             if (loginMethod) {
                 loginMethodId = loginMethod._id;
             }
         }
 
-        // Ensure deliveryDetails.email is saved in deliveryDetails
-        const deliveryDetailsWithEmail = {
-            ...deliveryDetails,
-            email: deliveryDetails.email || (user && user.email) || undefined
+        // Update order details
+        existingOrder.userId = userId || existingOrder.userId;
+        existingOrder.userEmail = (user && user.email) || deliveryDetails.email || existingOrder.userEmail;
+        existingOrder.loginMethodId = loginMethodId || existingOrder.loginMethodId;
+        existingOrder.paymentId = paymentId;
+        existingOrder.status = "Paid";
+        existingOrder.deliveryDetails = {
+            ...existingOrder.deliveryDetails,
+            ...deliveryDetails
         };
 
-        const newOrder = new Order({
-            userId: userId || undefined, // If you have userId from auth, otherwise undefined
-            userEmail: (user && user.email) || (deliveryDetails && deliveryDetails.email) || undefined, // Prefer user email, fallback to delivery email
-            loginMethodId: loginMethodId || undefined,
-            books: cart.map(book => ({
-                bookId: new mongoose.Types.ObjectId(book.id),
-                title: book.title,
-                price: book.price,
-                quantity: book.quantity,
-            })),
-            totalPrice: totalAmount,
-            deliveryDetails: deliveryDetailsWithEmail,
-            paymentId,
-            status: "Paid"
-        });
+        await existingOrder.save();
 
-        const savedOrder = await newOrder.save();
-
-        console.log("Order saved with ID:", savedOrder._id, "and loginMethodId:", loginMethodId);
-
-        // Send order confirmation email after saving order
+        // Send confirmation email
         try {
             await sendOrderConfirmationEmail(
-                deliveryDetailsWithEmail.email || (user && user.email),
-                deliveryDetailsWithEmail.fullName,
-                savedOrder
+                existingOrder.userEmail,
+                deliveryDetails.fullName,
+                existingOrder
             );
             console.log("Order confirmation email sent successfully.");
         } catch (emailError) {
             console.error("Failed to send order confirmation email:", emailError);
         }
 
-        // 🟢 Step 1: Book IDs Array nikaalo
-        const bookIds = savedOrder.books.map(book => book.bookId);
+        // 🟢 Step 1: Book IDs Array
+        const bookIds = existingOrder.books.map(book => book.bookId);
 
-        // 🟢 Step 2: Frontend ko response bhej do with orderId & bookIds[]
+        // 🟢 Step 2: Send response
         res.json({
             success: true,
-            message: "Order saved successfully",
-            orderId: savedOrder._id,
-            bookIds: bookIds
+            message: "Order updated successfully",
+            orderId: existingOrder._id,
+            bookIds
         });
 
     } catch (error) {
@@ -3570,8 +3643,6 @@ const saveorder = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to save order" });
     }
 };
-
-
 export { createorder, saveorder };
 // getRazorpaykey...
 const getRazorpayKey = (req, res) => {

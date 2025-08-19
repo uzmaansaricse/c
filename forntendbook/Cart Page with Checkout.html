@@ -637,6 +637,9 @@ th {
     };
 
     async function getRazorpayKey() {
+
+        
+
         let response = await fetch(`${API_BASE}/api/get-razorpay-key`);
         let data = await response.json();
         return data.key;
@@ -733,11 +736,15 @@ document.getElementById("checkout").addEventListener("click", function () {
     let totalAmount = parseInt(document.getElementById("cart-total").innerText) || 0;
     let deliveryDetails = getDeliveryDetails();
 
+    const token = localStorage.getItem('token')
+
     try {
         // Step 1: Create order in DB with Pending status
         let response = await fetch(`${API_BASE}/api/create-order`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                'Authorization': 'Bearer ' + token,
+                "Content-Type": "application/json" },
             body: JSON.stringify({ cart, totalAmount, deliveryDetails })
         });
         let data = await response.json();
@@ -774,10 +781,13 @@ document.getElementById("checkout").addEventListener("click", function () {
 });
 
   async function saveOrder(paymentId, deliveryDetails, cart, totalAmount, dbOrderId) {
+
+    const token = localStorage.getItem('token')
+
     let response = await fetch(`${API_BASE}/api/save-order`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentId, deliveryDetails, cart, totalAmount })
+        headers: { 'Authorization': 'Bearer ' + token , "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId, deliveryDetails, cart, totalAmount,dbOrderId })
     });
 
     let data = await response.json();
