@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 const orderSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "UserLogin", required: false },
+    orderId: { type: String, unique: true, required: true},
     userEmail: { type: String }, // Added email field
     books: [
       {

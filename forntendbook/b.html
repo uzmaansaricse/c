@@ -304,8 +304,10 @@
 
       const order = await response.json();
 
+      console.log("order is : ",order)
+
       // Populate order details
-      document.getElementById('orderId').textContent = order._id || 'N/A';
+      document.getElementById('orderId').textContent = order.orderId || order._id || 'N/A';
       const statusDescriptions = {
         "Processing": "Processing your order.",
         "Pending": "Order is not yet confirmed/placed.",

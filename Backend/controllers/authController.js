@@ -3447,20 +3447,79 @@ const razorpay = new Razorpay({
 });
 
 // **🔹 Order Create API**
+// const createorder = async (req, res) => {
+//     try {
+//         let { cart, totalAmount, deliveryDetails } = req.body;
+//         if (!cart || !Array.isArray(cart) || cart.length === 0) {
+//             return res.status(400).json({ error: "Cart is empty or invalid format" });
+//         }
+
+//         // 1. Create order in DB with Pending status
+//         const newOrder = new Order({
+//             books: cart.map(book => ({
+//                 bookId: book.id,
+//                 title: book.title,
+//                 price: book.price,
+//                 quantity: book.quantity,
+//             })),
+//             totalPrice: totalAmount,
+//             deliveryDetails,
+//             status: "Pending",
+//             userEmail: deliveryDetails.email,
+//             pendingSince: Date.now()
+//             // Do NOT set paymentId here!
+//         });
+
+//         const savedOrder = await newOrder.save();
+
+//         // 2. Create Razorpay order
+//         const options = {
+//             amount: totalAmount * 100, // paise
+//             currency: "INR",
+//             receipt: savedOrder._id.toString(),
+//         };
+//         const razorpayOrder = await razorpay.orders.create(options);
+
+//         // 3. Send both orderId (Razorpay) and dbOrderId (MongoDB) to frontend
+//         res.json({
+//             orderId: razorpayOrder.id,
+//             amount: options.amount,
+//             dbOrderId: savedOrder._id
+//         });
+//     } catch (error) {
+//         console.error("Payment Error:", error);
+//         res.status(500).json({ error: "Payment error", details: error.message });
+//     }
+// };
+
 const createorder = async (req, res) => {
     try {
-        let { cart, totalAmount, deliveryDetails } = req.body;
+        const { cart, totalAmount, deliveryDetails } = req.body;
+
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
             return res.status(400).json({ error: "Cart is empty or invalid format" });
         }
 
-        // 1. Create order in DB with Pending status
+        // ✅ Corrected orderId generation using template literal
+        const orderId = `AP-${new Date().getFullYear()}${(Date.now() % 1000000).toString().padStart(6, '0')}`;
+
+        // Check if orderId already exists
+        const existingOrder = await Order.findOne({ orderId });
+        if (existingOrder) {
+            return res.status(400).json({
+                success: false,
+                message: "Order ID already exists, please try again"
+            });
+        }
+
+        // Create order in DB with Pending status
         const newOrder = new Order({
+            orderId,
             books: cart.map(book => ({
                 bookId: book.id,
                 title: book.title,
                 price: book.price,
-                quantity: book.quantity,
+                quantity: book.quantity
             })),
             totalPrice: totalAmount,
             deliveryDetails,
@@ -3471,16 +3530,20 @@ const createorder = async (req, res) => {
         });
 
         const savedOrder = await newOrder.save();
+        console.log("Order saved:", savedOrder);
 
-        // 2. Create Razorpay order
+        // Create Razorpay order
         const options = {
             amount: totalAmount * 100, // paise
             currency: "INR",
-            receipt: savedOrder._id.toString(),
+            receipt: savedOrder._id.toString()
         };
-        const razorpayOrder = await razorpay.orders.create(options);
 
-        // 3. Send both orderId (Razorpay) and dbOrderId (MongoDB) to frontend
+        console.log("Razorpay Order Options:", options);
+        const razorpayOrder = await razorpay.orders.create(options);
+        console.log("Razorpay Order Created:", razorpayOrder);
+
+        // Send both orderId (Razorpay) and dbOrderId (MongoDB) to frontend
         res.json({
             orderId: razorpayOrder.id,
             amount: options.amount,
@@ -3491,6 +3554,7 @@ const createorder = async (req, res) => {
         res.status(500).json({ error: "Payment error", details: error.message });
     }
 };
+
                               
 import mongoose from 'mongoose';
 
