@@ -262,7 +262,7 @@ tr:hover td {
             order.books.forEach(book => {
                 let row = `<tr>
                     <td>${orderDate}</td>
-                    <td>${order._id}</td>
+                    <td>${order.orderId || order._id}</td>
                     <td>${book.title}</td>
                     <td>${book.quantity}</td>
                     <td>₹${book.price}</td> <!-- ✅ Individual book price -->

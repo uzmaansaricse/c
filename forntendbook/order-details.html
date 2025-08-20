@@ -103,7 +103,7 @@
       if (total < 0) total = 0;
 
       document.getElementById('order-container').innerHTML = `
-        <h2>Edit Order #${order._id}</h2>
+        <h2>Edit Order #${order.orderId || order._id}</h2>
         <p>Paid on ${formatDate(order.createdAt)} @ ${formatTime(order.createdAt)} | Customer IP: ${order.customerIP || '-'}</p>
         <div class="section">
           <h3>Order Details</h3>
@@ -334,7 +334,7 @@
   // Order Details
   const orderY = soldByY + 30;
   doc.setFont(undefined, 'normal');
-  doc.text(`Order ID: ${currentOrder._id}`, marginLeft, orderY);
+  doc.text(`Order ID: ${currentOrder.orderId || currentOrder._id}`, marginLeft, orderY);
   doc.text(`Order Date: ${formatDate(currentOrder.createdAt)}`, marginLeft, orderY + 5);
   
   // Table Section - exactly matching PDF structure
@@ -452,7 +452,7 @@
   doc.text("Authorised Signatory", rightX, signatureY + 6);
   
   // Save the PDF
-  doc.save(`Invoice_${currentOrder._id}.pdf`);
+  doc.save(`Invoice_${currentOrder.orderId || currentOrder._id}.pdf`);
 }
 
     // PDF Packing Slip Download - Full Page Layout
@@ -536,7 +536,7 @@ function downloadPackingSlipPDF() {
   doc.text('If undelivered, return to the "Shipped from" Adress', marginLeft, returnY);
   
   // Save the PDF
-  doc.save(`PackingSlip_${currentOrder._id}.pdf`);
+  doc.save(`PackingSlip_${currentOrder.orderId || currentOrder._id}.pdf`);
 }
 
     loadOrder();

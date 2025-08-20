@@ -338,6 +338,8 @@
             const res = await fetch(`/admin/orders`);
             orders = await res.json();
 
+            console.log('orders are : ',orders)
+
             // Flatten books for table display (same as before)
             let flatOrders = [];
             orders.forEach(order => {
@@ -382,7 +384,7 @@
                         <div><small>${order.userEmail ? order.userEmail : (order.deliveryDetails && order.deliveryDetails.email ? order.deliveryDetails.email : 'No Email')}</small></div>
                     </td>
                     <td>${formatDate(order.createdAt)}</td>
-                    <td>${order._id}</td>
+                    <td>${order.orderId || order._id}</td>
                     <td>${order.bookTitle}</td>
                     <td>${order.bookQuantity}</td>
                     <td>₹${order.bookPrice}</td>
