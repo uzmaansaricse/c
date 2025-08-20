@@ -295,217 +295,249 @@
     }
 
     // PDF Invoice Download - Full Page Layout
-    function downloadInvoicePDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('p', 'mm', 'a4');
-      
-      // Full page margins
-      const marginLeft = 15;
-      const marginRight = 15;
-      const marginTop = 20;
-      const pageWidth = 210 - (marginLeft + marginRight);
-      
-      // Header - Full width
-      doc.setFontSize(20);
-      doc.setFont(undefined, 'bold');
-      doc.text("ARAVALI PUBLICATION", 105, marginTop, { align: "center" });
-      
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'normal');
-      doc.text("1 Rajiv Nagar, VDN, Jaipur, Rajasthan - 302039", 105, marginTop + 8, { align: "center" });
-      doc.text("Phone: 8146785679 | Email: aravalipublication@gmail.com", 105, marginTop + 15, { align: "center" });
-      doc.text("GSTIN: 08AAQCA1234F1Z5", 105, marginTop + 22, { align: "center" });
-      
-      // Invoice Title
-      doc.setFontSize(16);
-      doc.setFont(undefined, 'bold');
-      doc.text("TAX INVOICE", 105, marginTop + 35, { align: "center" });
-      
-      // Invoice Details Box - Full width
-      const detailsY = marginTop + 45;
-      doc.rect(marginLeft, detailsY, pageWidth, 35);
-      
-      // Left side - Invoice details
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'normal');
-      doc.text(`Invoice No: INV-${currentOrder._id}`, marginLeft + 5, detailsY + 8);
-      doc.text(`Order ID: ${currentOrder._id}`, marginLeft + 5, detailsY + 15);
-      doc.text(`Order Date: ${formatDate(currentOrder.createdAt)}`, marginLeft + 5, detailsY + 22);
-      doc.text(`Order Time: ${formatTime(currentOrder.createdAt)}`, marginLeft + 5, detailsY + 29);
-      
-      // Right side - Customer details
-      const rightColX = marginLeft + pageWidth/2 + 5;
-      doc.text(`Customer Name: ${currentOrder.deliveryDetails.fullName || "-"}`, rightColX, detailsY + 8);
-      doc.text(`Email: ${currentOrder.deliveryDetails.email || currentOrder.userEmail || "-"}`, rightColX, detailsY + 15);
-      doc.text(`Phone: ${currentOrder.deliveryDetails.mobile || "-"}`, rightColX, detailsY + 22);
-      doc.text(`Payment: ${currentOrder.paymentMethod || "Online"}`, rightColX, detailsY + 29);
-      
-      // Billing & Shipping Addresses - Side by side
-      const addressY = detailsY + 40;
-      
-      // Billing Address
-      doc.setFont(undefined, 'bold');
-      doc.text("Billing Address:", marginLeft + 5, addressY + 5);
-      doc.setFont(undefined, 'normal');
-      const billingLines = [
-        currentOrder.deliveryDetails.fullName || "-",
-        currentOrder.deliveryDetails.address || "-",
-        `${currentOrder.deliveryDetails.city || "-"}, ${currentOrder.deliveryDetails.state || "-"}`,
-        `PIN: ${currentOrder.deliveryDetails.pincode || "-"}`
-      ];
-      billingLines.forEach((line, i) => {
-        doc.text(line, marginLeft + 5, addressY + 12 + (i * 5));
-      });
-      
-      // Shipping Address
-      const shippingX = marginLeft + pageWidth/2 + 5;
-      doc.setFont(undefined, 'bold');
-      doc.text("Shipping Address:", shippingX, addressY + 5);
-      doc.setFont(undefined, 'normal');
-      const shippingLines = [
-        currentOrder.deliveryDetails.fullName || "-",
-        currentOrder.deliveryDetails.address || "-",
-        `${currentOrder.deliveryDetails.city || "-"}, ${currentOrder.deliveryDetails.state || "-"}`,
-        `PIN: ${currentOrder.deliveryDetails.pincode || "-"}`
-      ];
-      shippingLines.forEach((line, i) => {
-        doc.text(line, shippingX, addressY + 12 + (i * 5));
-      });
-      
-      // Items Table - Full width
-      const tableY = addressY + 35;
-      let subtotal = 0;
-      currentOrder.books.forEach(b => subtotal += b.price * b.quantity);
-      
-      const rows = currentOrder.books.map((b, i) => [
-        i + 1,
-        b.title,
-        b.price.toFixed(2),
-        b.quantity,
-        (b.price * b.quantity).toFixed(2)
-      ]);
-      
-      doc.autoTable({
-        startY: tableY,
-        head: [["S. No.", "Product Description", "Unit Price (₹)", "Qty", "Total (₹)"]],
-        body: rows,
-        theme: 'grid',
-        headStyles: { fillColor: [200, 200, 200], fontStyle: 'bold' },
-        margin: { left: marginLeft, right: marginRight },
-        tableWidth: pageWidth
-      });
-      
-      // Summary Section
-      const summaryY = doc.lastAutoTable.finalY + 10;
-      const summaryX = marginLeft + pageWidth - 70;
-      
-      let discount = currentOrder.discount || 0;
-      let shipping = currentOrder.shippingCharge || 0;
-      let total = subtotal - discount + shipping;
-      if (total < 0) total = 0;
-      
-      doc.text(`Subtotal: ₹${subtotal.toFixed(2)}`, summaryX, summaryY);
-      doc.text(`Discount: ₹${discount.toFixed(2)}`, summaryX, summaryY + 7);
-      doc.text(`Shipping: ₹${shipping.toFixed(2)}`, summaryX, summaryY + 14);
-      doc.text(`Total: ₹${total.toFixed(2)}`, summaryX, summaryY + 21);
-      
-      // Terms and Signature
-      const termsY = summaryY + 35;
-      doc.setFontSize(9);
-      doc.text("Terms & Conditions:", marginLeft + 5, termsY);
-      doc.text("1. Goods once sold will not be taken back.", marginLeft + 5, termsY + 5);
-      doc.text("2. Subject to Jaipur jurisdiction only.", marginLeft + 5, termsY + 10);
-      
-      // Signature
-      doc.text("For Aravali Publication", summaryX, termsY + 20);
-      doc.text("Authorized Signatory", summaryX, termsY + 30);
-      
-      doc.save(`Invoice_${currentOrder._id}.pdf`);
-    }
+  function downloadInvoicePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'mm', 'a4');
+  
+  // Exact margins and positioning to match PDF
+  const marginLeft = 20;
+  const marginRight = 20;
+  const marginTop = 15;
+  const pageWidth = 210 - (marginLeft + marginRight);
+  
+  // Header - "Aravali Publication Invoice/Bill"
+  doc.setFontSize(14);
+  doc.setFont(undefined, 'bold');
+  doc.text("Aravali Publication Invoice/Bill", marginLeft, marginTop);
+  
+  // Sold By Section (Left side)
+  const soldByY = marginTop + 12;
+  doc.setFontSize(10);
+  doc.setFont(undefined, 'bold');
+  doc.text("Sold By:", marginLeft, soldByY);
+  
+  doc.setFont(undefined, 'normal');
+  doc.text("Aravali Publication,", marginLeft, soldByY + 5);
+  doc.text("1, Rajiv Nagar, VDN, Jaipur,", marginLeft, soldByY + 10);
+  doc.text("Rajasthan, 302039", marginLeft, soldByY + 15);
+  doc.text("IN", marginLeft, soldByY + 20);
+  
+  // Shipping Address Section (Right side)
+  const shippingX = marginLeft + 95; // Exact positioning as per PDF
+  doc.setFont(undefined, 'bold');
+  doc.text("Shipping Adress:", shippingX, soldByY); // Note: keeping "Adress" typo as in original
+  
+  doc.setFont(undefined, 'normal');
+  doc.text(currentOrder.deliveryDetails.fullName || "<Name of Recipient>", shippingX, soldByY + 5);
+  doc.text(currentOrder.deliveryDetails.address || "<Adress of Recipient>", shippingX, soldByY + 10);
+  
+  // Order Details
+  const orderY = soldByY + 30;
+  doc.setFont(undefined, 'normal');
+  doc.text(`Order ID: ${currentOrder._id}`, marginLeft, orderY);
+  doc.text(`Order Date: ${formatDate(currentOrder.createdAt)}`, marginLeft, orderY + 5);
+  
+  // Table Section - exactly matching PDF structure
+  const tableY = orderY + 15;
+  
+  // Calculate subtotal
+  let subtotal = 0;
+  currentOrder.books.forEach(b => subtotal += b.price * b.quantity);
+  
+  // Table data exactly as shown in PDF
+  const tableData = [];
+  
+  // Add book items
+  currentOrder.books.forEach((book, index) => {
+    const unitPrice = book.price;
+    const discount = 0; // As shown in PDF
+    const qty = book.quantity;
+    const tax = 0; // As shown in PDF
+    const totalAmount = unitPrice * qty;
+    
+    tableData.push([
+      (index + 1).toString(),
+      book.title,
+      unitPrice.toString(),
+      discount.toString(),
+      qty.toString(),
+      tax.toString(),
+      totalAmount.toString()
+    ]);
+  });
+  
+  // Add shipping charges row if applicable
+  const shippingCharge = currentOrder.shippingCharge || 0;
+  if (shippingCharge > 0) {
+    tableData.push([
+      "",
+      "Shipping Charges",
+      shippingCharge.toString(),
+      "0",
+      "1",
+      "0",
+      shippingCharge.toString()
+    ]);
+  }
+  
+  // Create table with exact styling
+  doc.autoTable({
+    startY: tableY,
+    head: [["S.\nNo.", "Product Description", "Unit\nPrice", "Discount", "Qty", "Tax", "Total\nAmount"]],
+    body: tableData,
+    theme: 'grid',
+    headStyles: { 
+      fillColor: [255, 255, 255], // White background as in PDF
+      textColor: [0, 0, 0], // Black text
+      fontStyle: 'bold',
+      fontSize: 9,
+      halign: 'center',
+      valign: 'middle'
+    },
+    bodyStyles: {
+      fontSize: 9,
+      halign: 'center',
+      valign: 'middle',
+      textColor: [0, 0, 0]
+    },
+    columnStyles: {
+      0: { cellWidth: 15 }, // S.No
+      1: { cellWidth: 60, halign: 'left' }, // Product Description
+      2: { cellWidth: 20 }, // Unit Price
+      3: { cellWidth: 20 }, // Discount
+      4: { cellWidth: 15 }, // Qty
+      5: { cellWidth: 15 }, // Tax
+      6: { cellWidth: 25 } // Total Amount
+    },
+    margin: { left: marginLeft, right: marginRight },
+    styles: {
+      lineColor: [0, 0, 0],
+      lineWidth: 0.3,
+      cellPadding: 2
+    },
+    tableLineColor: [0, 0, 0],
+    tableLineWidth: 0.3
+  });
+  
+  // Total row separate from table (as shown in PDF)
+  const totalY = doc.lastAutoTable.finalY;
+  const totalRowHeight = 8;
+  
+  // Draw total row box
+  doc.rect(marginLeft, totalY, pageWidth, totalRowHeight);
+  
+  // Calculate final total
+  const discount = currentOrder.discount || 0;
+  let finalTotal = subtotal + shippingCharge - discount;
+  if (finalTotal < 0) finalTotal = 0;
+  
+  // Total row content
+  doc.setFont(undefined, 'bold');
+  doc.setFontSize(9);
+  doc.text("Total", marginLeft + pageWidth - 45, totalY + 5);
+  doc.text("0", marginLeft + pageWidth - 25, totalY + 5); // Tax total (as shown in PDF)
+  doc.text(finalTotal.toString(), marginLeft + pageWidth - 12, totalY + 5);
+  
+  // Signature Section (exactly as in PDF)
+  const signatureY = totalY + 25;
+  
+  // Left side - Receiver's Sign
+  doc.setFontSize(10);
+  doc.setFont(undefined, 'normal');
+  doc.text("Receiver's Sign:", marginLeft, signatureY);
+  
+  // Right side - Aravali Publication Authorized Signatory
+  const rightX = marginLeft + pageWidth - 60;
+  doc.text("Aravali Publication", rightX, signatureY);
+  doc.text("Authorised Signatory", rightX, signatureY + 6);
+  
+  // Save the PDF
+  doc.save(`Invoice_${currentOrder._id}.pdf`);
+}
 
     // PDF Packing Slip Download - Full Page Layout
-    function downloadPackingSlipPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('p', 'mm', 'a4');
-      
-      const marginLeft = 15;
-      const marginRight = 15;
-      const marginTop = 20;
-      const pageWidth = 210 - (marginLeft + marginRight);
-      
-      // Header
-      doc.setFontSize(18);
-      doc.setFont(undefined, 'bold');
-      doc.text("PACKING SLIP", 105, marginTop, { align: "center" });
-      
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'normal');
-      doc.text("Aravali Publication", 105, marginTop + 10, { align: "center" });
-      doc.text("1 Rajiv Nagar, VDN, Jaipur, Rajasthan - 302039", 105, marginTop + 15, { align: "center" });
-      
-      // Order Details
-      const detailsY = marginTop + 30;
-      doc.rect(marginLeft, detailsY, pageWidth, 25);
-      
-      doc.text(`Order ID: ${currentOrder._id}`, marginLeft + 5, detailsY + 8);
-      doc.text(`Order Date: ${formatDate(currentOrder.createdAt)}`, marginLeft + 5, detailsY + 15);
-      doc.text(`Order Time: ${formatTime(currentOrder.createdAt)}`, marginLeft + 5, detailsY + 22);
-      
-      // Shipping Details
-      const shippingY = detailsY + 35;
-      doc.rect(marginLeft, shippingY, pageWidth, 35);
-      
-      doc.setFont(undefined, 'bold');
-      doc.text("SHIP TO:", marginLeft + 5, shippingY + 8);
-      doc.setFont(undefined, 'normal');
-      
-      const shipLines = [
-        currentOrder.deliveryDetails.fullName || "-",
-        currentOrder.deliveryDetails.address || "-",
-        `${currentOrder.deliveryDetails.city || "-"}, ${currentOrder.deliveryDetails.state || "-"}`,
-        `PIN: ${currentOrder.deliveryDetails.pincode || "-"}, Phone: ${currentOrder.deliveryDetails.mobile || "-"}`
-      ];
-      shipLines.forEach((line, i) => {
-        doc.text(line, marginLeft + 5, shippingY + 15 + (i * 5));
-      });
-      
-      // Items List
-      const itemsY = shippingY + 45;
-      doc.setFont(undefined, 'bold');
-      doc.text("ITEMS TO BE PACKED:", marginLeft + 5, itemsY + 5);
-      doc.setFont(undefined, 'normal');
-      
-      const itemRows = currentOrder.books.map((b, i) => [
-        i + 1,
-        b.title,
-        b.quantity
-      ]);
-      
-      doc.autoTable({
-        startY: itemsY + 10,
-        head: [["S. No.", "Product", "Qty"]],
-        body: itemRows,
-        theme: 'grid',
-        headStyles: { fillColor: [220, 220, 220], fontStyle: 'bold' },
-        margin: { left: marginLeft, right: marginRight },
-        tableWidth: pageWidth
-      });
-      
-      // Instructions
-      const instructionsY = doc.lastAutoTable.finalY + 15;
-      doc.setFontSize(9);
-      doc.text("Instructions:", marginLeft + 5, instructionsY);
-      doc.text("1. Please ensure all items are properly packed and sealed.", marginLeft + 5, instructionsY + 5);
-      doc.text("2. Attach this packing slip to the outside of the package.", marginLeft + 5, instructionsY + 10);
-      doc.text("3. In case of non-delivery, return to: Aravali Publication, 1 Rajiv Nagar, VDN, Jaipur - 302039", marginLeft + 5, instructionsY + 15);
-      
-      // Footer
-      const footerY = 270;
-      doc.setFontSize(8);
-      doc.text("This is a computer-generated packing slip. No signature required.", 105, footerY, { align: "center" });
-      
-      doc.save(`PackingSlip_${currentOrder._id}.pdf`);
-    }
+function downloadPackingSlipPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'mm', 'a4');
+  
+  // Exact margins and positioning to match PDF
+  const marginLeft = 20;
+  const marginRight = 20;
+  const marginTop = 20;
+  const pageWidth = 210 - (marginLeft + marginRight);
+  
+  // Header - "Aravali Publication"
+  doc.setFontSize(16);
+  doc.setFont(undefined, 'bold');
+  doc.text("Aravali Publication", marginLeft, marginTop);
+  
+  // Ship to Section
+  const shipToY = marginTop + 15;
+  doc.setFontSize(12);
+  doc.setFont(undefined, 'bold');
+  doc.text("Ship to:", marginLeft, shipToY);
+  
+  doc.setFont(undefined, 'normal');
+  doc.setFontSize(11);
+  doc.text(currentOrder.deliveryDetails.fullName || "<Name of Recipient>", marginLeft, shipToY + 8);
+  
+  // Format full address in multiple lines
+  const addressLines = [];
+  if (currentOrder.deliveryDetails.address) {
+    addressLines.push(currentOrder.deliveryDetails.address);
+  }
+  if (currentOrder.deliveryDetails.city && currentOrder.deliveryDetails.state) {
+    addressLines.push(`${currentOrder.deliveryDetails.city}, ${currentOrder.deliveryDetails.state}`);
+  }
+  if (currentOrder.deliveryDetails.pincode) {
+    addressLines.push(`PIN: ${currentOrder.deliveryDetails.pincode}`);
+  }
+  
+  // If no detailed address, show placeholder
+  if (addressLines.length === 0) {
+    addressLines.push("<Full_adress of Recipient>");
+  }
+  
+  addressLines.forEach((line, index) => {
+    doc.text(line, marginLeft, shipToY + 16 + (index * 6));
+  });
+  
+  // Mobile number
+  const mobileY = shipToY + 16 + (addressLines.length * 6);
+  doc.text(currentOrder.deliveryDetails.mobile || "<Mobile_Number_recipient>", marginLeft, mobileY + 6);
+  
+  // Shipped from Section
+  const shippedFromY = mobileY + 20;
+  doc.setFont(undefined, 'bold');
+  doc.setFontSize(12);
+  doc.text("Shipped from:", marginLeft, shippedFromY);
+  
+  doc.setFont(undefined, 'normal');
+  doc.setFontSize(11);
+  doc.text("Aravali Publication", marginLeft, shippedFromY + 8);
+  doc.text("1, Rajiv Nagar, VDN, Jaipur, Rajasthan, 302039", marginLeft, shippedFromY + 14);
+  doc.text("IN", marginLeft, shippedFromY + 20);
+  doc.text("8146785679", marginLeft, shippedFromY + 26);
+  
+  // Product Description
+  const productDescY = shippedFromY + 40;
+  doc.setFont(undefined, 'bold');
+  doc.setFontSize(12);
+  doc.text("Product Description:", marginLeft, productDescY);
+  
+  doc.setFont(undefined, 'normal');
+  doc.setFontSize(11);
+  doc.text("Aravali Publication Books", marginLeft + 50, productDescY);
+  
+  // Return instruction
+  const returnY = productDescY + 15;
+  doc.setFont(undefined, 'normal');
+  doc.setFontSize(10);
+  doc.text('If undelivered, return to the "Shipped from" Adress', marginLeft, returnY);
+  
+  // Save the PDF
+  doc.save(`PackingSlip_${currentOrder._id}.pdf`);
+}
 
     loadOrder();
   </script>
