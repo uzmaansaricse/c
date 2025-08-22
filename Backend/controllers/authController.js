@@ -2452,6 +2452,15 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+
+// Verify transporter configuration
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error("Nodemailer configuration error:", error);
+  } else {
+    console.log("Nodemailer is ready to send emails");
+  }
+});
 // silder image and video
 
 // const ADMIN_EMAIL = "uzmaasr54@gmail.com";      // Your admin email
@@ -4616,10 +4625,6 @@ export const sendOtp = async (req, res) => {
   const { identifier } = req.body; // phone or email
   if (!identifier) return res.status(400).json({ message: "Phone or email required" });
 
-  let user = await UserLogin.findOne({
-    $or: [{ mobile: identifier }, { email: identifier }]
-  });
-
   // Normalize for comparison
   const normId = identifier.includes('@') ? normalizeEmail(identifier) : normalizeMobile(identifier);
   const normAdminEmail = normalizeEmail(ADMIN_EMAIL);
@@ -4661,19 +4666,36 @@ export const sendOtp = async (req, res) => {
     return res.json({ message: "Admin OTP sent" });
   }
 
+  // For regular users, find or create user
+  let user = await UserLogin.findOne({
+    $or: [{ mobile: identifier }, { email: identifier }]
+  });
+
   // If user not found, create a new user with the identifier
   if (!user) {
     // Check if identifier is an email or mobile
     const isEmail = identifier.includes('@');
-    user = new UserLogin({
-      name: "New User",
-      email: isEmail ? identifier : undefined,
-      mobile: !isEmail ? identifier : undefined,
-      loginMethod: isEmail ? 'email' : 'phone',
+    
+    // Create user data object
+    const userData = {
+      name: isEmail ? `User (${identifier.split('@')[0]})` : "New User",
+      loginMethod: isEmail ? 'email_otp' : 'mobile_otp',
       password: "otp",
       otp: null,
       otpExpiresAt: null
-    });
+    };
+    
+    // Set email or mobile based on identifier type
+    if (isEmail) {
+      userData.email = identifier;
+      userData.mobile = null;
+    } else {
+      userData.mobile = identifier;
+      userData.email = null;
+    }
+    
+    user = new UserLogin(userData);
+    console.log(`Creating new user with ${isEmail ? 'email' : 'mobile'}: ${identifier}`);
   }
 
   // Only allow admin OTP for fixed admin email/phone, else downgrade to user
@@ -4685,23 +4707,60 @@ export const sendOtp = async (req, res) => {
     user.role = "user";
   }
 
+  // Update loginMethod based on identifier type for existing users
+  const isEmail = identifier.includes('@');
+  if (isEmail && user.loginMethod !== 'email_otp') {
+    user.loginMethod = 'email_otp';
+  } else if (!isEmail && user.loginMethod !== 'mobile_otp') {
+    user.loginMethod = 'mobile_otp';
+  }
+
   const otp = generateOTP();
   user.otp = otp;
   user.otpExpiresAt = new Date(Date.now() + 5 * 60000);
-  await user.save();
+  
+  try {
+    await user.save();
+    console.log(`User saved/updated successfully. ID: ${user._id}, LoginMethod: ${user.loginMethod}`);
+  } catch (saveError) {
+    console.error("Error saving user:", saveError);
+    
+    // If it's a duplicate key error, try to find the existing user
+    if (saveError.code === 11000) {
+      console.log("Duplicate key error detected, trying to find existing user...");
+      
+      // Try to find user by email or mobile
+      const existingUser = await UserLogin.findOne({
+        $or: [
+          { email: identifier },
+          { mobile: identifier }
+        ]
+      });
+      
+      if (existingUser) {
+        console.log("Found existing user, updating OTP...");
+        user = existingUser;
+        user.otp = otp;
+        user.otpExpiresAt = new Date(Date.now() + 5 * 60000);
+        await user.save();
+      } else {
+        console.error("Could not find existing user after duplicate key error");
+        throw new Error("Database error: Could not create or find user. Please try again.");
+      }
+    } else {
+      throw saveError;
+    }
+  }
 
   // Send OTP via SMS if mobile is present
   if (user.mobile) {
     try {
-      // Use admin client/number for admin, user client/number for others
-      const isAdmin = (normId === normAdminEmail || normId === normAdminMobile);
-      const twilioClientToUse = isAdmin ? twilioClientAdmin : twilioClientUser;
-      const fromNumber = isAdmin ? TWILIO_PHONE_NUMBER_ADMIN : TWILIO_PHONE_NUMBER_USER;
-      await twilioClientToUse.messages.create({
+      await twilioClientUser.messages.create({
         body: `Your OTP is: ${otp}`,
-        from: fromNumber,
+        from: TWILIO_PHONE_NUMBER_USER,
         to: user.mobile.startsWith("+") ? user.mobile : `+91${user.mobile}`,
       });
+      console.log(`SMS OTP sent to ${user.mobile}`);
     } catch (err) {
       console.error("Twilio SMS error:", err);
     }
@@ -4710,18 +4769,52 @@ export const sendOtp = async (req, res) => {
   // Send OTP via email if email is present
   if (user.email) {
     try {
-      await transporter.sendMail({
+      console.log(`Attempting to send email OTP to: ${user.email}`);
+      console.log(`Using email config - USER: ${process.env.EMAIL_USER}, PASS: ${process.env.EMAIL_PASS ? "SET" : "NOT SET"}`);
+      
+      const mailOptions = {
         from: process.env.EMAIL_USER,
         to: user.email,
         subject: "Your OTP Code",
         text: `Your OTP is: ${otp}`,
-      });
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333;">Your OTP Code</h2>
+            <p>Hello,</p>
+            <p>Your OTP code is: <strong style="font-size: 24px; color: #007bff;">${otp}</strong></p>
+            <p>This code will expire in 5 minutes.</p>
+            <p>If you didn't request this OTP, please ignore this email.</p>
+            <p>Best regards,<br>Your App Team</p>
+          </div>
+        `
+      };
+      
+      const result = await transporter.sendMail(mailOptions);
+      console.log(`Email OTP sent successfully to ${user.email}. Message ID: ${result.messageId}`);
     } catch (err) {
-      console.error("Nodemailer error:", err);
+      console.error("Nodemailer error details:", {
+        message: err.message,
+        code: err.code,
+        command: err.command,
+        responseCode: err.responseCode,
+        response: err.response
+      });
+      console.error("Email config - USER:", process.env.EMAIL_USER, "PASS:", process.env.EMAIL_PASS ? "SET" : "NOT SET");
+      
+      // Still return success to user but log the error
+      console.error("Failed to send email OTP, but continuing...");
     }
   }
 
-  return res.json({ message: "OTP sent" });
+  const responseMessage = user.email 
+    ? `OTP sent to ${user.email}` 
+    : `OTP sent to ${user.mobile}`;
+    
+  return res.json({ 
+    message: responseMessage,
+    identifier: identifier,
+    loginMethod: user.loginMethod
+  });
 };
 
 // POST /api/auth/verify-otp
@@ -4874,18 +4967,37 @@ export const socialLogin = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Test email configuration endpoint
+export const testEmailConfig = async (req, res) => {
+  try {
+    console.log("Testing email configuration...");
+    console.log("EMAIL_USER:", process.env.EMAIL_USER);
+    console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? "SET" : "NOT SET");
+    
+    // Test transporter verification
+    transporter.verify(function(error, success) {
+      if (error) {
+        console.error("Transporter verification failed:", error);
+        return res.status(500).json({ 
+          success: false, 
+          message: "Email configuration error", 
+          error: error.message 
+        });
+      } else {
+        console.log("Transporter verification successful");
+        return res.json({ 
+          success: true, 
+          message: "Email configuration is working",
+          emailUser: process.env.EMAIL_USER
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Test email config error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Test failed", 
+      error: error.message 
+    });
+  }
+};

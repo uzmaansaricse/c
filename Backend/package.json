@@ -8,7 +8,10 @@
   "main": "main.js",
   "scripts": {
     "start": "node main.js",
-    "dev": "nodemon main.js"
+    "dev": "nodemon main.js",
+    "test-email": "node test-email.js",
+    "fix-db": "node fix-db-index.js",
+    "test-otp": "node test-email-otp.js"
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.2",

@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   },
   loginMethod: {
     type: String,
-    enum: ['phone', 'email', 'google', 'facebook'],
+    enum: ['phone', 'email', 'email_otp', 'mobile_otp', 'google', 'facebook'],
     required: true,
     default: 'email'
   },
