@@ -381,7 +381,9 @@ const requiredEnvVars = [
   'ADMIN_MOBILE',
   'TWILIO_ACCOUNT_SID',
   'TWILIO_AUTH_TOKEN',
-  'TWILIO_PHONE_NUMBER'
+  'TWILIO_PHONE_NUMBER',
+  'VITE_GOOGLE_CLIENT_ID',  // Required for Google OAuth verification in backend
+  'VITE_FACEBOOK_APP_ID'    // Now served from backend to frontend
 ];
 
 const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);

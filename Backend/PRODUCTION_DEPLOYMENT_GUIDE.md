@@ -32,8 +32,8 @@ Your client needs to provide these environment variables on Hostinger:
 - `TWILIO_PHONE_NUMBER` - Twilio phone number for OTPs
 
 #### 🔹 Social Logins
-- `VITE_GOOGLE_CLIENT_ID` - Google OAuth client ID
-- `VITE_FACEBOOK_APP_ID` - Facebook app ID
+- `VITE_GOOGLE_CLIENT_ID` - Google OAuth client ID (required for backend verification)
+- `VITE_FACEBOOK_APP_ID` - Facebook app ID (served from backend to frontend)
 
 #### 🔹 Admin Configuration
 - `ADMIN_MOBILE` - Fixed Super Admin mobile number
@@ -65,7 +65,11 @@ Your client needs to provide these environment variables on Hostinger:
    - Upload all files from `forntendbook/` folder to your web hosting directory
    - Ensure `index.html` is accessible as the main page
 
-2. **Update CORS Settings** (if needed)
+2. **Frontend Deployment**
+   - No environment variables needed in frontend
+   - All social login IDs are served from backend
+
+3. **Update CORS Settings** (if needed)
    - If your frontend and backend are on different domains, update CORS in `main.js`
 
 ## 🔧 Configuration Notes

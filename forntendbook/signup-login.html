@@ -223,15 +223,56 @@
       await sendOtp();
     }
 
-    // Google Sign-In
+    // Dynamic Social Login Configuration
+    let socialConfig = null;
+
+    // Fetch social login configuration from backend
+    async function loadSocialLoginConfig() {
+      try {
+        const response = await fetch('/api/auth/social-login-config');
+        const data = await response.json();
+        if (data.success) {
+          socialConfig = data.config;
+          initializeSocialLogins();
+        } else {
+          console.error('Failed to load social login config:', data.message);
+        }
+      } catch (error) {
+        console.error('Error loading social login config:', error);
+      }
+    }
+
+    // Initialize social logins after config is loaded
+    function initializeSocialLogins() {
+      if (!socialConfig) return;
+
+      // Google Sign-In
+      if (socialConfig.googleClientId) {
+        google.accounts.id.initialize({
+          client_id: socialConfig.googleClientId,
+          callback: handleGoogleCredentialResponse
+        });
+        document.getElementById('google-login-btn').onclick = function() {
+          google.accounts.id.prompt();
+        };
+      }
+
+      // Facebook SDK init
+      if (socialConfig.facebookAppId) {
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId: socialConfig.facebookAppId,
+            cookie: true,
+            xfbml: true,
+            version: 'v19.0'
+          });
+        };
+      }
+    }
+
+    // Load config when page loads
     window.onload = function() {
-      google.accounts.id.initialize({
-        client_id: '502694400131-c91lrq2ohh5m1tj7c50uto2mimtktp9p.apps.googleusercontent.com',
-        callback: handleGoogleCredentialResponse
-      });
-      document.getElementById('google-login-btn').onclick = function() {
-        google.accounts.id.prompt();
-      };
+      loadSocialLoginConfig();
     };
     function handleGoogleCredentialResponse(response) {
       // response.credential is the id_token
@@ -255,15 +296,7 @@
       });
     }
 
-    // Facebook SDK init and login
-    window.fbAsyncInit = function() {
-      FB.init({
-        appId      : '2008218099974422', // <-- Replace with your Facebook App ID
-        cookie     : true,
-        xfbml      : true,
-        version    : 'v19.0'
-      });
-    };
+    // Facebook login button handler (moved to dynamic initialization)
     document.getElementById('fb-login-btn').onclick = function() {
       FB.login(function(response) {
         if (response.authResponse) {
