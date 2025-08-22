@@ -229,10 +229,14 @@
     // Fetch social login configuration from backend
     async function loadSocialLoginConfig() {
       try {
+        console.log('Fetching social login config from backend...');
         const response = await fetch('/api/auth/social-login-config');
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Social login config data:', data);
         if (data.success) {
           socialConfig = data.config;
+          console.log('Social config loaded:', socialConfig);
           initializeSocialLogins();
         } else {
           console.error('Failed to load social login config:', data.message);
@@ -244,23 +248,40 @@
 
     // Initialize social logins after config is loaded
     function initializeSocialLogins() {
-      if (!socialConfig) return;
+      if (!socialConfig) {
+        console.log('No social config available');
+        return;
+      }
+
+      console.log('Initializing social logins...');
 
       // Google Sign-In
       if (socialConfig.googleClientId) {
-        google.accounts.id.initialize({
-          client_id: socialConfig.googleClientId,
-          callback: handleGoogleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true
-        });
-        document.getElementById('google-login-btn').onclick = function() {
-          google.accounts.id.prompt();
-        };
+        console.log('Initializing Google Sign-In with client ID:', socialConfig.googleClientId);
+        try {
+          google.accounts.id.initialize({
+            client_id: socialConfig.googleClientId,
+            callback: handleGoogleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+            context: 'signin',
+            ux_mode: 'popup'
+          });
+          console.log('Google Sign-In initialized successfully');
+          document.getElementById('google-login-btn').onclick = function() {
+            console.log('Google login button clicked');
+            google.accounts.id.prompt();
+          };
+        } catch (error) {
+          console.error('Error initializing Google Sign-In:', error);
+        }
+      } else {
+        console.log('No Google Client ID available');
       }
 
       // Facebook SDK init
       if (socialConfig.facebookAppId) {
+        console.log('Initializing Facebook SDK with app ID:', socialConfig.facebookAppId);
         window.fbAsyncInit = function() {
           FB.init({
             appId: socialConfig.facebookAppId,
@@ -268,46 +289,58 @@
             xfbml: true,
             version: 'v19.0'
           });
+          console.log('Facebook SDK initialized successfully');
         };
+      } else {
+        console.log('No Facebook App ID available');
       }
     }
 
     // Load config when page loads
     window.onload = function() {
+      console.log('Page loaded, loading social login config...');
       loadSocialLoginConfig();
     };
     function handleGoogleCredentialResponse(response) {
       console.log('Google login response received');
+      console.log('Response type:', typeof response);
+      console.log('Response keys:', Object.keys(response));
       
-      // response.credential is the id_token
-      fetch('/api/auth/social-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: 'google', socialToken: response.credential })
-      })
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        console.log('Social login response:', data);
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-          if (data.sessionToken) {
-            localStorage.setItem('sessionToken', data.sessionToken);
+      try {
+        // response.credential is the id_token
+        fetch('/api/auth/social-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider: 'google', socialToken: response.credential })
+        })
+        .then(res => {
+          console.log('Fetch response status:', res.status);
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
           }
-          const redirectTarget = (data.role === 'admin') ? '/11Admin-panel.html' : '/index.html';
-          window.location.href = redirectTarget;
-        } else {
-          document.getElementById('msg').innerText = data.message || "Google login failed.";
-        }
-      })
-      .catch(error => {
-        console.error('Google login error:', error);
+          return res.json();
+        })
+        .then(data => {
+          console.log('Social login response:', data);
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+            if (data.sessionToken) {
+              localStorage.setItem('sessionToken', data.sessionToken);
+            }
+            const redirectTarget = (data.role === 'admin') ? '/11Admin-panel.html' : '/index.html';
+            window.location.href = redirectTarget;
+          } else {
+            document.getElementById('msg').innerText = data.message || "Google login failed.";
+          }
+        })
+        .catch(error => {
+          console.error('Google login error:', error);
+          document.getElementById('msg').innerText = "Google login failed. Please try again.";
+        });
+      } catch (error) {
+        console.error('Error in handleGoogleCredentialResponse:', error);
         document.getElementById('msg').innerText = "Google login failed. Please try again.";
-      });
+      }
     }
 
     // Facebook login button handler (moved to dynamic initialization)
