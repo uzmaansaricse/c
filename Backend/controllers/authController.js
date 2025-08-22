@@ -2437,12 +2437,9 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // ...other imports...
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const ADMIN_MOBILE = process.env.ADMIN_MOBILE;
-const TWILIO_PHONE_NUMBER_USER = process.env.TWILIO_PHONE_NUMBER_USER;
-const TWILIO_PHONE_NUMBER_ADMIN = process.env.TWILIO_PHONE_NUMBER_ADMIN;
 
-// Two separate Twilio clients for user and admin
-const twilioClientUser = twilio(process.env.TWILIO_ACCOUNT_SID_USER, process.env.TWILIO_AUTH_TOKEN_USER);
-const twilioClientAdmin = twilio(process.env.TWILIO_ACCOUNT_SID_ADMIN, process.env.TWILIO_AUTH_TOKEN_ADMIN);
+// Single Twilio client for both users and admin
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
@@ -4636,12 +4633,12 @@ export const sendOtp = async (req, res) => {
     adminOtp = generateOTP();
     adminOtpExpiresAt = new Date(Date.now() + 5 * 60000);
 
-    // Send OTP via SMS using admin Twilio client if admin mobile exists
+    // Send OTP via SMS using Twilio client if admin mobile exists
     if (normAdminMobile) {
       try {
-        await twilioClientAdmin.messages.create({
+        await twilioClient.messages.create({
           body: `Your Admin OTP is: ${adminOtp}`,
-          from: TWILIO_PHONE_NUMBER_ADMIN,
+          from: process.env.TWILIO_PHONE_NUMBER,
           to: normAdminMobile.startsWith("+") ? normAdminMobile : `+91${normAdminMobile}`,
         });
       } catch (err) {
@@ -4755,9 +4752,9 @@ export const sendOtp = async (req, res) => {
   // Send OTP via SMS if mobile is present
   if (user.mobile) {
     try {
-      await twilioClientUser.messages.create({
+      await twilioClient.messages.create({
         body: `Your OTP is: ${otp}`,
-        from: TWILIO_PHONE_NUMBER_USER,
+        from: process.env.TWILIO_PHONE_NUMBER,
         to: user.mobile.startsWith("+") ? user.mobile : `+91${user.mobile}`,
       });
       console.log(`SMS OTP sent to ${user.mobile}`);

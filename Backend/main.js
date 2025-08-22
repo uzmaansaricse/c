@@ -367,7 +367,31 @@ import userRoutes from "./routes/userRoutes.js";
  
 dotenv.config({});
 
+// Environment variable validation for production
+const requiredEnvVars = [
+  'MONGODB_URI',
+  'JWT_SECRET',
+  'EMAIL_USER',
+  'EMAIL_PASS',
+  'RAZORPAY_KEY_ID',
+  'RAZORPAY_KEY_SECRET',
+  'CLOUDINARY_CLOUD_NAME',
+  'CLOUDINARY_API_KEY',
+  'CLOUDINARY_API_SECRET',
+  'ADMIN_MOBILE',
+  'TWILIO_ACCOUNT_SID',
+  'TWILIO_AUTH_TOKEN',
+  'TWILIO_PHONE_NUMBER'
+];
 
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (missingVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingVars);
+  console.error('Please set all required environment variables before starting the application.');
+  process.exit(1);
+}
+
+console.log('✅ All required environment variables are set');
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -623,9 +647,9 @@ const connectionMongoDb = async () => {
 };
 
 
-const PORT = 9000; // Port number
+const PORT = process.env.PORT || 9000; // Use environment variable for production
 app.listen(PORT, async () => {
-    console.log(`App is running on http://localhost:${PORT}`);
+    console.log(`App is running on port ${PORT}`);
     await connectionMongoDb(); // MongoDB connection call
 });
 

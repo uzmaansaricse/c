@@ -647,7 +647,7 @@
         // add to cart
         async function fetchBooks() {
             try {
-                const response = await fetch("http://localhost:9000/api/get-books"); // Backend URL
+                const response = await fetch("/api/get-books"); // Backend URL
                 const books = await response.json();
                 const bookList = document.getElementById("book-list");
 
