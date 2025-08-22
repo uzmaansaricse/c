@@ -108,13 +108,13 @@
       <div id="otp-msg"></div>
     </div>
     <div class="or-divider"><span></span>or<span></span></div>
-    <div id="g_id_onload"
-     data-client_id="502694400131-c91lrq2ohh5m1tj7c50uto2mimtktp9p.apps.googleusercontent.com"
-     data-context="signin"
-     data-ux_mode="popup"
-     data-login_uri="http://localhost:9000/api/auth/social-login"
-     data-auto_prompt="false">
-</div>
+         <!-- Google OAuth Configuration -->
+     <div id="g_id_onload"
+      data-client_id="502694400131-c91lrq2ohh5m1tj7c50uto2mimtktp9p.apps.googleusercontent.com"
+      data-context="signin"
+      data-ux_mode="popup"
+      data-auto_prompt="false">
+ </div>
 
   <button class="social-btn" id="google-login-btn" type="button">
   <img
@@ -250,7 +250,9 @@
       if (socialConfig.googleClientId) {
         google.accounts.id.initialize({
           client_id: socialConfig.googleClientId,
-          callback: handleGoogleCredentialResponse
+          callback: handleGoogleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true
         });
         document.getElementById('google-login-btn').onclick = function() {
           google.accounts.id.prompt();
@@ -275,14 +277,22 @@
       loadSocialLoginConfig();
     };
     function handleGoogleCredentialResponse(response) {
+      console.log('Google login response received');
+      
       // response.credential is the id_token
       fetch('/api/auth/social-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider: 'google', socialToken: response.credential })
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
+        console.log('Social login response:', data);
         if (data.token) {
           localStorage.setItem('token', data.token);
           if (data.sessionToken) {
@@ -293,6 +303,10 @@
         } else {
           document.getElementById('msg').innerText = data.message || "Google login failed.";
         }
+      })
+      .catch(error => {
+        console.error('Google login error:', error);
+        document.getElementById('msg').innerText = "Google login failed. Please try again.";
       });
     }
 
