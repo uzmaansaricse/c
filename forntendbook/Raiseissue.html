@@ -256,7 +256,7 @@
       }
 
       try {
-        const res = await fetch("/user/raise-issue", {
+        const res = await fetch("http://localhost:9000/user/raise-issue", {
           method: "POST",
           body: formData
         });

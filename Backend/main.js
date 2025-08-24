@@ -367,33 +367,7 @@ import userRoutes from "./routes/userRoutes.js";
  
 dotenv.config({});
 
-// Environment variable validation for production
-const requiredEnvVars = [
-  'MONGODB_URI',
-  'JWT_SECRET',
-  'EMAIL_USER',
-  'EMAIL_PASS',
-  'RAZORPAY_KEY_ID',
-  'RAZORPAY_KEY_SECRET',
-  'CLOUDINARY_CLOUD_NAME',
-  'CLOUDINARY_API_KEY',
-  'CLOUDINARY_API_SECRET',
-  'ADMIN_MOBILE',
-  'TWILIO_ACCOUNT_SID',
-  'TWILIO_AUTH_TOKEN',
-  'TWILIO_PHONE_NUMBER',
-  'VITE_GOOGLE_CLIENT_ID',  // Required for Google OAuth verification in backend
-  'VITE_FACEBOOK_APP_ID'    // Now served from backend to frontend
-];
 
-const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-if (missingVars.length > 0) {
-  console.error('❌ Missing required environment variables:', missingVars);
-  console.error('Please set all required environment variables before starting the application.');
-  process.exit(1);
-}
-
-console.log('✅ All required environment variables are set');
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -457,24 +431,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-// Security Headers Middleware
 app.use((req, res, next) => {
-  // Force HTTPS in production
-  if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV === 'production') {
-    return res.redirect(`https://${req.headers.host}${req.url}`);
-  }
-  
-  // Security Headers
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://connect.facebook.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://graph.facebook.com;");
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   res.setHeader('Vary', 'Origin');  // Tell caches responses vary based on Origin
-  
   next();
 });
 
@@ -665,9 +623,9 @@ const connectionMongoDb = async () => {
 };
 
 
-const PORT = process.env.PORT || 9000; // Use environment variable for production
+const PORT = 9000; // Port number
 app.listen(PORT, async () => {
-    console.log(`App is running on port ${PORT}`);
+    console.log(`App is running on http://localhost:${PORT}`);
     await connectionMongoDb(); // MongoDB connection call
 });
 

@@ -86,7 +86,7 @@
                 document.getElementById("scanner-container").style.display = "none"; // Hide scanner
 
                 try {
-                    let response = await fetch(`/api/validate/${qrCode}`);
+                    let response = await fetch(`http://localhost:9000/api/validate/${qrCode}`);
                     let data = await response.json();
 
                     if (data.message === "Valid Book") {
