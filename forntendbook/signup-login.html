@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Login | Aravali Publication</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -89,6 +90,16 @@
       margin: 0 8px;
     }
     #msg, #otp-msg { color: #c62828; margin-top: 8px; min-height: 20px; }
+
+    .policy {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .policy a {
+      color: #0f9d58;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -100,6 +111,7 @@
       <input type="text" id="identifier" placeholder="Enter Mobile Number or Email" />
       <button onclick="checkUserType()">Continue</button>
     </div>
+
     <div id="step2-otp" class="hidden">
       <p>Enter OTP sent to your phone/email</p>
       <input type="text" id="otp" maxlength="6" placeholder="Enter OTP" />
@@ -107,41 +119,37 @@
       <button onclick="resendOtp()">Resend OTP</button>
       <div id="otp-msg"></div>
     </div>
+
     <div class="or-divider"><span></span>or<span></span></div>
+
     <div id="g_id_onload"
      data-client_id="502694400131-c91lrq2ohh5m1tj7c50uto2mimtktp9p.apps.googleusercontent.com"
      data-context="signin"
      data-ux_mode="popup"
-     data-login_uri="http://localhost:9000/api/auth/social-login"
+     data-login_uri="https://aravalipublication.com/api/auth/social-login"
      data-auto_prompt="false">
-</div>
+    </div>
 
-  <button class="social-btn" id="google-login-btn" type="button">
-  <img
-    src="images/google-icon-1.png"
-    alt="Google Logo"
-    width="20"
-    height="20"
-    style="vertical-align: middle; margin-right: 8px;"
-  />
-  Continue with Google
-</button>
+    <button class="social-btn" id="google-login-btn" type="button">
+      <img src="images/google-icon-1.png" alt="Google Logo" />
+      Continue with Google
+    </button>
 
-<button class="social-btn" id="fb-login-btn" type="button" title="Facebook login requires HTTPS and will not work on HTTP">
-  <img
-    src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
-    alt="Facebook Logo"
-    width="20"
-    height="20"
-    style="vertical-align: middle; margin-right: 8px;"
-  />
-  Continue with Facebook
-</button>
+    <button class="social-btn" id="fb-login-btn" type="button">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook Logo" />
+      Continue with Facebook
+    </button>
 
     <div id="msg"></div>
+
+    <div class="policy">
+      By continuing, you agree to our 
+      <a href="/privacy-policy.html" target="_blank">Privacy Policy</a> and 
+      <a href="/terms.html" target="_blank">Terms of Service</a>.
+    </div>
   </div>
 
-  <!-- Google & Facebook SDKs -->
+  <!-- SDKs -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
   <script>
@@ -159,7 +167,7 @@
       identifierValue = document.getElementById('identifier').value.trim();
       if (!identifierValue) {
         document.getElementById('msg').innerText = "Please enter mobile number or email.";
-        return;0
+        return;
       }
       document.getElementById('msg').innerText = "Checking...";
       const res = await fetch('/api/auth/check-user-type', {
@@ -202,18 +210,12 @@
       });
       const data = await res.json();
       if (data.token) {
-        document.getElementById('otp-msg').innerText = "Login successful!";
-        // Save token, role, and sessionToken as user object
         localStorage.setItem('token', data.token);
         if (data.sessionToken) {
           localStorage.setItem('sessionToken', data.sessionToken);
         }
-        // Redirect based on role
-        if (data.role === 'admin') {
-          window.location.href = '/11Admin-panel.html';
-        } else {
-          window.location.href = '/index.html';
-        }
+        const redirectTarget = (data.role === 'admin') ? '/11Admin-panel.html' : '/index.html';
+        window.location.href = redirectTarget;
       } else {
         document.getElementById('otp-msg').innerText = data.message || "Invalid OTP.";
       }
@@ -232,9 +234,28 @@
       document.getElementById('google-login-btn').onclick = function() {
         google.accounts.id.prompt();
       };
+
+      // Check if already logged in via token
+      const token = localStorage.getItem("token");
+      if (token) {
+        fetch('/api/auth/verify-token', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.valid && data.role) {
+            const redirectTarget = (data.role === 'admin') ? '/11Admin-panel.html' : '/index.html';
+            window.location.href = redirectTarget;
+          }
+        });
+      }
     };
+
     function handleGoogleCredentialResponse(response) {
-      // response.credential is the id_token
       fetch('/api/auth/social-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -255,10 +276,10 @@
       });
     }
 
-    // Facebook SDK init and login
+    // Facebook login
     window.fbAsyncInit = function() {
       FB.init({
-        appId      : '2008218099974422', // <-- Replace with your Facebook App ID
+        appId      : '2008218099974422',
         cookie     : true,
         xfbml      : true,
         version    : 'v19.0'
@@ -280,7 +301,6 @@
               if (data.sessionToken) {
                 localStorage.setItem('sessionToken', data.sessionToken);
               }
-              document.getElementById('msg').innerText = "Facebook login successful!";
               const redirectTarget = (data.role === 'admin') ? '/11Admin-panel.html' : '/index.html';
               window.location.href = redirectTarget;
             } else {
@@ -292,20 +312,6 @@
         }
       }, {scope: 'email'});
     };
-
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user.token) {
-      // User is not logged in, show login form
-      document.getElementById('step1').classList.remove('hidden');
-    } else {
-      // User is already logged in, redirect based on role
-      if (user.role === 'admin') {
-        window.location.href = '/11Admin-panel.html';
-      } else {
-        window.location.href = '/index.html';
-      }
-    }
   </script>
-  <script src="script.js"></script>
 </body>
 </html>
