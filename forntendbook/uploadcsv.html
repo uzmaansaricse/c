@@ -187,11 +187,11 @@
 
   // Sample CSV download
   downloadSample.onclick = () => {
-    const csv = 'Name,Email,Phone\nJohn Doe,john@example.com,1234567890\n';
+    const csv = 'Qr Details,SL No Below Qr Code,Qr Details,SL No Below Qr Code\n82TI79L76,069501,88LP78O79,069502\n81KJ79U74,069503,89LA84H82,069504\n68PX81A78,069505,80ZI73L75,069506\n';
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'sample.csv';
+    a.href = url; a.download = 'Sample_qr_codes.csv';
     a.click(); URL.revokeObjectURL(url);
   };
 
@@ -234,11 +234,18 @@
     form.append('file', file);
     let res = await fetch('/api/csvupload', { method:'POST', body: form });
     let data = await res.json();
-    if (!data.success) {
-      return Swal.fire('Error', data.message || 'Upload failed','error');
+    
+    if (data.message === 'CSV uploaded successfully') {
+      Swal.fire('Success!', `CSV uploaded successfully! ${data.successfulInserts} records added.`, 'success');
+      renderPreview(data.data || []);
+    } else if (data.message === 'CSV uploaded with some duplicates') {
+      Swal.fire('Partial Success', `${data.successfulInserts} new records added. ${data.duplicates} duplicates were skipped.`, 'warning');
+      renderPreview(data.data || []);
+    } else if (data.message === 'All entries already exist in database') {
+      Swal.fire('Info', 'All entries in the CSV already exist in the database.', 'info');
+    } else {
+      Swal.fire('Error', data.message || 'Upload failed', 'error');
     }
-    Swal.fire('Uploaded','CSV processed successfully','success');
-    renderPreview(data.rows || []);
   }
 
   // Render preview table

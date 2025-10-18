@@ -3398,12 +3398,23 @@ const uploadCSV = async (req, res) => {
     const results = [];
 
     fs.createReadStream(req.file.path)
-        .pipe(csvParser()) // Now it will work
+        .pipe(csvParser())
         .on("data", (data) => {
-            if (data.qrCode && data.serialNumber) {
+            const values = Object.values(data);
+            
+            // Process first pair (columns 0,1)
+            if (values[0] && values[1] && values[0].trim() && values[1].trim()) {
                 results.push({
-                    qrCode: data.qrCode,
-                    serialNumber: data.serialNumber
+                    qrCode: values[0].trim(),
+                    serialNumber: values[1].trim()
+                });
+            }
+            
+            // Process second pair (columns 2,3)
+            if (values[2] && values[3] && values[2].trim() && values[3].trim()) {
+                results.push({
+                    qrCode: values[2].trim(),
+                    serialNumber: values[3].trim()
                 });
             }
         })
@@ -3413,12 +3424,56 @@ const uploadCSV = async (req, res) => {
                     return res.status(400).json({ message: "No valid data found in CSV" });
                 }
 
-                await Qurexcel.insertMany(results);
-                fs.unlinkSync(req.file.path); // Delete uploaded CSV
-                res.json({ message: "CSV uploaded successfully", data: results });
+                const insertResult = await Qurexcel.insertMany(results, { ordered: false });
+                fs.unlinkSync(req.file.path);
+                
+                res.json({ 
+                    message: "CSV uploaded successfully", 
+                    data: insertResult,
+                    totalProcessed: results.length,
+                    successfulInserts: insertResult.length
+                });
+                
             } catch (err) {
-                res.status(500).json({ message: "Error saving data", error: err });
+                if (fs.existsSync(req.file.path)) {
+                    fs.unlinkSync(req.file.path);
+                }
+                
+                if (err.code === 11000) {
+                    const duplicateCount = err.writeErrors ? err.writeErrors.length : 0;
+                    const successCount = results.length - duplicateCount;
+                    
+                    if (successCount > 0) {
+                        return res.json({
+                            message: "CSV uploaded with some duplicates",
+                            data: results.slice(0, successCount),
+                            totalProcessed: results.length,
+                            successfulInserts: successCount,
+                            duplicates: duplicateCount
+                        });
+                    } else {
+                        return res.status(400).json({
+                            message: "All entries already exist in database",
+                            totalProcessed: results.length,
+                            duplicates: duplicateCount
+                        });
+                    }
+                }
+                
+                res.status(500).json({ 
+                    message: "Error saving data to database",
+                    error: err.message || "Unknown database error"
+                });
             }
+        })
+        .on("error", (err) => {
+            if (fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path);
+            }
+            res.status(400).json({ 
+                message: "Error reading CSV file",
+                error: err.message 
+            });
         });
 };
 
