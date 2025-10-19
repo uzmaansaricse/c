@@ -2,9 +2,11 @@
 <html>
 <head>
     <title>Order Analytics</title>
+    <script src="auth-check.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- ✅ Verified Font Awesome 6.5.0 CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-4Fy5/6PSvYdM0oD7cVWyNY6cXR1c5i0qJYWRDYH1St/UZR8a+HInKzBJ8f+ON0H2D0RYjXFM7Xh6Ldh7eB2o9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="auth-check.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="style.css">
     <style>
@@ -185,6 +187,7 @@ canvas {
         </div>
     </div>
 
+    <script src="auth-check.js"></script>
     <script>
         async function fetchAnalytics() {
             const res = await fetch('/admin/analytics');
@@ -225,6 +228,7 @@ canvas {
         }
         fetchAnalytics();
     </script>
+    <script src="auth-check.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

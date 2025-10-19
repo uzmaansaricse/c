@@ -5025,6 +5025,40 @@ export const socialLogin = async (req, res) => {
   }
 };
 
+// POST /api/auth/verify-token
+export const verifyToken = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    
+    if (!token) {
+      return res.status(401).json({ valid: false, message: "No token provided" });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Handle admin token
+    if (decoded.userId === 'admin') {
+      return res.json({ valid: true, role: 'admin', userId: 'admin' });
+    }
+
+    // Handle regular user token
+    const user = await UserLogin.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ valid: false, message: "User not found" });
+    }
+
+    return res.json({ 
+      valid: true, 
+      role: user.role, 
+      userId: user._id,
+      email: user.email 
+    });
+  } catch (error) {
+    console.error("Token verification error:", error);
+    return res.status(401).json({ valid: false, message: "Invalid token" });
+  }
+};
+
 // Test email configuration endpoint
 export const testEmailConfig = async (req, res) => {
   try {

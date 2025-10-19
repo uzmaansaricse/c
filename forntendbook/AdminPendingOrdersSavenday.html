@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pending Orders Alert</title>
     <link rel="stylesheet" href="style.css">
+    <script src="auth-check.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     /* General body styling */
@@ -236,6 +237,7 @@
         </table>
     </div>
 
+    <script src="auth-check.js"></script>
     <script>
     async function fetchIncompleteOrders() {
         const res = await fetch('api/admin/incomplete-orders');
@@ -274,6 +276,7 @@
     fetchIncompleteOrders();
     </script>
 
+    <script src="auth-check.js"></script>
     <script src="script.js"></script>
 </body>
 
