@@ -2358,7 +2358,7 @@ import csvParser from 'csv-parser';
 
 import { uploadToCloudinary, deleteFromCloudinary } from "../utility/cloudinary.js";
 
-// import { UserLogin } from "../models/User Model & OTP Model.js";
+import { UserLogin } from "../models/User Model & OTP Model.js";
 // import { authMiddleware } from "../utility/middleware.js";
 
 import { Imageadmin } from "../models/imageModel.js";
@@ -2535,7 +2535,6 @@ transporter.verify(function(error, success) {
 
 
 
-import { UserLogin } from "../models/User Model & OTP Model.js";
 import { sendOrderConfirmationEmail } from "./orderController.js";
 
 // Get user profile (only name and mobile)
@@ -5091,5 +5090,70 @@ export const testEmailConfig = async (req, res) => {
       message: "Test failed", 
       error: error.message 
     });
+  }
+};
+
+// Check if user is admin based on env credentials
+export const checkAdminAccess = async (req, res) => {
+  try {
+    console.log("🔍 Admin access check started");
+    const token = req.headers.authorization?.split(" ")[1];
+    
+    if (!token) {
+      console.log("❌ No token provided");
+      return res.status(401).json({ isAdmin: false, message: "No token provided" });
+    }
+
+    // Verify JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("✅ Token decoded:", decoded);
+
+    // Check if this is a direct admin token
+    if (decoded.userId === "admin" || decoded.role === "admin") {
+      console.log("✅ Direct admin token detected");
+      return res.json({ 
+        isAdmin: true, 
+        message: "Admin access granted",
+        user: { id: "admin", email: process.env.ADMIN_EMAIL, mobile: process.env.ADMIN_MOBILE }
+      });
+    }
+
+    // For regular user tokens, check against database
+    const userId = decoded.userId;
+    const user = await UserLogin.findById(userId);
+    
+    if (!user) {
+      console.log("❌ User not found in database");
+      return res.status(401).json({ isAdmin: false, message: "User not found" });
+    }
+
+    console.log("👤 User found:", { email: user.email, mobile: user.mobile });
+
+    // Check if user email or mobile matches admin credentials from env
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminMobile = process.env.ADMIN_MOBILE;
+    
+    const isAdmin = (user.email === adminEmail) || (user.mobile === adminMobile);
+    
+    console.log("🎯 Admin check result:", { isAdmin });
+    
+    if (isAdmin) {
+      console.log("✅ Admin access granted");
+      return res.json({ 
+        isAdmin: true, 
+        message: "Admin access granted",
+        user: { id: user._id, email: user.email, mobile: user.mobile }
+      });
+    } else {
+      console.log("❌ Admin access denied");
+      return res.status(403).json({ 
+        isAdmin: false, 
+        message: "Access denied. Admin privileges required." 
+      });
+    }
+
+  } catch (error) {
+    console.error("💥 Admin access check error:", error);
+    return res.status(401).json({ isAdmin: false, message: "Invalid token" });
   }
 };

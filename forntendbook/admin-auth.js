@@ -64,8 +64,8 @@ class AdminAuth {
                 return;
             }
 
-            // Verify token with backend
-            const response = await fetch('/api/auth/verify-admin', {
+            // Verify if user is admin based on env credentials
+            const response = await fetch('/api/auth/check-admin-access', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -76,8 +76,8 @@ class AdminAuth {
 
             const data = await response.json();
 
-            if (!response.ok || !data.valid || data.role !== 'admin') {
-                this.showAccessDenied();
+            if (!response.ok || !data.isAdmin) {
+                this.logoutAndRedirect();
                 return;
             }
 
@@ -86,7 +86,7 @@ class AdminAuth {
             
         } catch (error) {
             console.error('Auth check failed:', error);
-            this.redirectToLogin();
+            this.logoutAndRedirect();
         }
     }
 
@@ -100,13 +100,16 @@ class AdminAuth {
     redirectToLogin() {
         this.hideLoadingScreen();
         alert('Please login to access admin panel');
-        window.location.href = '/signup-login.html';
+        window.location.href = 'signup-login.html';
     }
 
-    showAccessDenied() {
+    logoutAndRedirect() {
         this.hideLoadingScreen();
-        alert('Access Denied! Admin privileges required.');
-        window.location.href = '/index.html';
+        // Clear all auth data
+        localStorage.removeItem('token');
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        alert('Access Denied! Only authorized admin can access this panel.');
+        window.location.href = 'signup-login.html';
     }
 }
 
