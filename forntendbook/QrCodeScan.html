@@ -54,6 +54,31 @@
           font-size: 18px;
           text-align: center;
         }
+        
+        /* Manual entry section */
+        .manual-entry {
+          max-width: 400px;
+          margin: 30px auto;
+          padding: 20px;
+          border: 2px solid #2c6e31;
+          border-radius: 8px;
+          text-align: center;
+        }
+        
+        .manual-entry input {
+          width: 70%;
+          padding: 10px;
+          font-size: 16px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          margin-right: 10px;
+        }
+        
+        .manual-entry button {
+          width: 25%;
+          margin: 0;
+          display: inline-block;
+        }
         </style>
    </head>
 <body>
@@ -65,6 +90,13 @@
 
     <!-- Scanner Area -->
     <div id="scanner-container"></div>
+
+    <!-- Manual Entry Section -->
+    <div class="manual-entry">
+        <h3>Or Enter Code Manually</h3>
+        <input type="text" id="manual-code" placeholder="Enter QR code manually">
+        <button onclick="validateManualCode()">Enter</button>
+    </div>
 
     <!-- Result Display -->
     <p id="result">Scan result will appear here...</p>
@@ -101,6 +133,30 @@
 
             function error(err) {
                 console.warn("Scan Error: ", err); // Ignore errors
+            }
+        }
+
+        async function validateManualCode() {
+            const manualCode = document.getElementById("manual-code").value.trim();
+            
+            if (!manualCode) {
+                document.getElementById("result").innerText = "Please enter a code";
+                return;
+            }
+
+            document.getElementById("result").innerText = "Validating...";
+
+            try {
+                let response = await fetch(`http://localhost:9000/api/validate/${manualCode}`);
+                let data = await response.json();
+
+                if (data.message === "Valid Book") {
+                    document.getElementById("result").innerHTML = "✅ Valid Book! Serial: " + data.serialNumber;
+                } else {
+                    document.getElementById("result").innerHTML = "❌ Fake Book Detected!";
+                }
+            } catch (error) {
+                document.getElementById("result").innerText = "❌ Error Validating Code!";
             }
         }
     </script>

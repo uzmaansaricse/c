@@ -207,7 +207,7 @@
 
     <!--new arrivals books container  -->
   <div class="head-text">
-    <h1>New Arrivals</h1>        <!-- Main Title -->
+    <h1>Latest/updated Editions</h1>        <!-- Main Title -->
     <h2>Books By P.R. Yadav</h2> <!-- Subtitle -->
     <div class="bookscard">
         <div class="slide-track">
@@ -309,7 +309,8 @@
 
      <!--old arrivals books container  -->
   <div class="head-text">
-    <h1>Old Arrivals</h1>        <!-- Main Title -->
+    <h1>Old/outdated Editions</h1>        <!-- Main Title -->
+    <p style="color: #666; font-size: 14px; margin: 5px 0 15px 0; font-style: italic;">Note: These books are for showcase purpose only and are not available for purchase.</p>
     <h2>Books By P.R. Yadav</h2> <!-- Subtitle -->
     <div class="bookscard">
         <div class="slide-track">
@@ -669,7 +670,7 @@
               : `₹${book.price}`
             }
           </div>
-          <button class="add-cart">Add to Cart</button>
+          <button class="add-cart" disabled style="background-color: #ccc; cursor: not-allowed;">Not for Sale</button>
           <button class="go-cart" style="display: none;">Go to Cart</button>
         `;
 
