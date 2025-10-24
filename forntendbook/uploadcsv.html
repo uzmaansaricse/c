@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Admin Panel – CSV & QR</title>
-    <script src="auth-check.js"></script>
+  <title>Admin Panel – CSV & QR Tracking</title>
+  <script src="auth-check.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     * { box-sizing: border-box; margin:0; padding:0; }
     body { font-family: Arial, sans-serif; background: #f9f9f9; display: flex; }
@@ -22,14 +23,12 @@
     .sidebar a:hover { background: #3f8744; }
     .sidebar li { list-style-type: none; }
 
-
     main {
       margin-left: 250px; padding: 20px; flex: 1; overflow-y: auto;
     }
     h1 { margin-bottom: 16px; color: #333; }
     h2 { margin: 24px 0 8px; color: #444; }
 
-    /* CSV Upload */
     .dropzone {
       border: 2px dashed #ccc; border-radius: 8px; background: #fff;
       padding: 30px; text-align: center; color: #666;
@@ -46,6 +45,30 @@
     }
     .btn:hover { background: #27642a; }
 
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      border-left: 4px solid #2c6e31;
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #2c6e31;
+    }
+    .stat-label {
+      color: #666;
+      margin-top: 5px;
+    }
+
     .progress {
       width: 100%; background: #eee; border-radius: 4px; overflow: hidden;
       margin-top: 10px; display: none;
@@ -54,7 +77,6 @@
       width: 0; height: 8px; background: #2c6e31; transition: width .3s;
     }
 
-    /* Preview Table */
     .preview {
       margin-top: 20px; overflow-x: auto; background: white;
       border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -71,242 +93,325 @@
     th.sort-desc::after { content: " ▼"; }
     tr:hover { background: #fffae6; }
 
-    /* QR Validation */
+    .status-uploaded { color: #ff9800; }
+    .status-verified { color: #4caf50; }
+    .status-scanned { color: #f44336; }
+
     .qr-section { margin-top: 40px; }
     .qr-section input {
       padding: 10px; width: 300px; max-width: 100%;
       border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;
     }
+
     @media (max-width: 768px) {
-  body {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    padding: 10px 15px;
-  }
-
-  .sidebar h2 {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-  }
-
-  .sidebar a {
-    padding: 8px 12px;
-  }
-
-  main {
-    margin-left: 0;
-    padding: 15px;
-  }
-
-  .qr-section input {
-    width: 100%;
-  }
-
-  .preview {
-    overflow-x: auto;
-  }
-
-  table {
-    min-width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .btn {
-    width: 100%;
-    text-align: center;
-    padding: 10px;
-  }
-
-  h1, h2 {
-    font-size: 1.1rem;
-  }
-}
-
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: relative; padding: 10px 15px; }
+      main { margin-left: 0; padding: 15px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
   </style>
-    <script src="admin-auth.js"></script>
+  <script src="admin-auth.js"></script>
 </head>
 <body>
   <nav class="sidebar">
     <h2>Admin Dashboard</h2>
-      <li><a href="video and imag showAdmin.html"><i class="fa-solid fa-box"></i> News Box</a></li>
-        <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Banner</a></li>
-        <li><a href="manageusers.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
-        <li><a href="AdminPendingOrdersSavenday.html"><i class="fa-solid fa-clock"></i> Pending Orders</a></li>
-        <li><a href="admin-all-ordersWithUpdate.html"><i class="fa-solid fa-globe"></i> Manage Orders</a></li>
-        <li><a href="orderAdmin-analytics.html"><i class="fa-solid fa-chart-line"></i> Order Analytics</a></li>
-        <!-- <li><a href="Admin order summery.html"><i class="fa-solid fa-list"></i> Order Summary</a></li> -->
-        <li><a href="book-upload.html"><i class="fa-solid fa-upload"></i> Book Upload</a></li>
-        <li><a href="BookUpdate Admin.html"><i class="fa-solid fa-pen-to-square"></i> Book Update/Delete</a></li>
-        <li><a href="uploadcsv.html"><i class="fa-solid fa-cloud-arrow-up"></i> Upload CSV</a></li>
-
-          <li><a href="index.html"><i class="fa-solid fa-headset"></i>Back to Webstite</a></li>
-        <li><a href="Logout.html"><i class="fa-solid fa-headset"></i> Logout</a></li>
+    <ul>
+      <li><a href="video and imag showAdmin.html">News Box</a></li>
+      <li><a href="BenerAdmin.html">Manage Banner</a></li>
+      <li><a href="manageusers.html">Manage Users</a></li>
+      <li><a href="AdminPendingOrdersSavenday.html">Pending Orders</a></li>
+      <li><a href="admin-all-ordersWithUpdate.html">Manage Orders</a></li>
+      <li><a href="orderAdmin-analytics.html">Order Analytics</a></li>
+      <li><a href="book-upload.html">Book Upload</a></li>
+      <li><a href="BookUpdate Admin.html">Book Update/Delete</a></li>
+      <li><a href="uploadcsv.html">Upload CSV</a></li>
+      <li><a href="index.html">Back to Website</a></li>
+      <li><a href="Logout.html">Logout</a></li>
+    </ul>
   </nav>
 
   <main>
-    <h1>CSV Upload & Preview</h1>
+    <h1>QR Code Management & Tracking</h1>
+    
+    <!-- QR Statistics -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-number" id="totalUploaded">0</div>
+        <div class="stat-label">Total Uploaded</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalUnscanned">0</div>
+        <div class="stat-label">Not Scanned</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalVerified">0</div>
+        <div class="stat-label">Verified (1st Scan)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalScanned">0</div>
+        <div class="stat-label">Multiple Scans</div>
+      </div>
+    </div>
+
+    <!-- File Upload -->
+    <h2>Upload QR Codes</h2>
     <div class="dropzone" id="dropzone">
-      <p>Drag & drop your CSV file here, or <strong>click</strong> to select.</p>
-      <input type="file" id="csvFile" accept=".csv">
+      <p>Drag & drop your CSV or Excel file here, or <strong>click</strong> to select.</p>
+      <input type="file" id="csvFile" accept=".csv,.xlsx,.xls">
     </div>
     <div class="progress" id="progress">
       <div class="progress-bar" id="progressBar"></div>
     </div>
     <button class="btn" id="downloadSample">Download Sample CSV</button>
+    <button class="btn" onclick="loadQRStats()">Refresh Statistics</button>
+    <button class="btn" id="clearAllData" style="background: #dc3545; margin-left: 10px;">Clear All Data</button>
 
-    <div class="preview" id="previewContainer" style="display:none">
-      <h2>Preview</h2>
+    <!-- QR Codes Table -->
+    <div class="preview" id="previewContainer">
+      <h2>QR Codes Tracking</h2>
+      <div style="margin-bottom: 15px;">
+        <label for="trackingLimit">Show Top: </label>
+        <select id="trackingLimit" onchange="loadQRStats()">
+          <option value="10">10 QR Codes</option>
+          <option value="50">50 QR Codes</option>
+          <option value="100" selected>100 QR Codes</option>
+          <option value="500">500 QR Codes</option>
+        </select>
+        <span style="margin-left: 20px; color: #666;">Sorted by scan count (highest first)</span>
+      </div>
       <table id="previewTable">
-        <thead><tr id="previewHead"></tr></thead>
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">QR Code</th>
+            <th onclick="sortTable(1)">Serial Number</th>
+            <th onclick="sortTable(2)">Status</th>
+            <th onclick="sortTable(3)">First Scan</th>
+            <th onclick="sortTable(4)">Last Scan</th>
+            <th onclick="sortTable(5)">Scan Count</th>
+            <th onclick="sortTable(6)">Uploaded</th>
+          </tr>
+        </thead>
         <tbody id="previewBody"></tbody>
       </table>
     </div>
 
+    <!-- QR Validation -->
     <section class="qr-section">
-      <h2>Validate QR Code</h2>
+      <h2>Test QR Code</h2>
       <input type="text" id="qrInput" placeholder="Enter QR Code">
       <button class="btn" id="qrCheckBtn">Check</button>
     </section>
   </main>
 
-    <script src="auth-check.js"></script>
- <script>
-  const dropzone = document.getElementById('dropzone'),
-        csvFile  = document.getElementById('csvFile'),
-        progress = document.getElementById('progress'),
-        pbar     = document.getElementById('progressBar'),
-        previewC = document.getElementById('previewContainer'),
-        pHead    = document.getElementById('previewHead'),
-        pBody    = document.getElementById('previewBody'),
-        downloadSample = document.getElementById('downloadSample'),
-        qrInput = document.getElementById('qrInput'),
-        qrBtn   = document.getElementById('qrCheckBtn');
+  <script>
+    const dropzone = document.getElementById('dropzone'),
+          csvFile  = document.getElementById('csvFile'),
+          progress = document.getElementById('progress'),
+          pbar     = document.getElementById('progressBar'),
+          previewC = document.getElementById('previewContainer'),
+          pBody    = document.getElementById('previewBody'),
+          downloadSample = document.getElementById('downloadSample'),
+          qrInput = document.getElementById('qrInput'),
+          qrBtn   = document.getElementById('qrCheckBtn');
 
-  // Sample CSV download
-  downloadSample.onclick = () => {
-    const csv = 'Qr Details,SL No Below Qr Code,Qr Details,SL No Below Qr Code\n82TI79L76,069501,88LP78O79,069502\n81KJ79U74,069503,89LA84H82,069504\n68PX81A78,069505,80ZI73L75,069506\n';
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'Sample_qr_codes.csv';
-    a.click(); URL.revokeObjectURL(url);
-  };
+    // Load QR statistics on page load
+    window.onload = function() {
+      loadQRStats();
+    };
 
-  // Drag & drop events
-  ['dragover','dragleave','drop'].forEach(evt => {
-    dropzone.addEventListener(evt, e => {
-      e.preventDefault();
-      dropzone.classList.toggle('dragover', evt === 'dragover');
-      if (evt === 'drop') handleFiles(e.dataTransfer.files);
-    });
-  });
-  dropzone.onclick = () => csvFile.click();
-  csvFile.onchange = () => handleFiles(csvFile.files);
+    // Sample CSV download
+    downloadSample.onclick = () => {
+      const csv = 'Qr Details,SL No Below Qr Code\n82TI79L76,069501\n88LP78O79,069502\n81KJ79U74,069503\n89LA84H82,069504\n68PX81A78,069505\n80ZI73L75,069506\n';
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'Sample_qr_codes.csv';
+      a.click(); URL.revokeObjectURL(url);
+    };
 
-  async function handleFiles(files) {
-    if (!files.length) return;
-    const file = files[0];
-    if (!file.name.endsWith('.csv')) {
-      return Swal.fire('Invalid','Please upload a .csv file','error');
-    }
-
-    // Show progress bar
-    progress.style.display = 'block';
-    pbar.style.width = '0%';
-
-    // Simulate upload
-    await new Promise(r => {
-      let pct = 0;
-      const id = setInterval(() => {
-        pct += 10;
-        pbar.style.width = pct + '%';
-        if (pct >= 100) { clearInterval(id); r(); }
-      }, 50);
-    });
-
-    progress.style.display = 'none';
-
-    // Send to backend
-    const form = new FormData();
-    form.append('file', file);
-    let res = await fetch('/api/csvupload', { method:'POST', body: form });
-    let data = await res.json();
-    
-    if (data.message === 'CSV uploaded successfully') {
-      Swal.fire('Success!', `CSV uploaded successfully! ${data.successfulInserts} records added.`, 'success');
-      renderPreview(data.data || []);
-    } else if (data.message === 'CSV uploaded with some duplicates') {
-      Swal.fire('Partial Success', `${data.successfulInserts} new records added. ${data.duplicates} duplicates were skipped.`, 'warning');
-      renderPreview(data.data || []);
-    } else if (data.message === 'All entries already exist in database') {
-      Swal.fire('Info', 'All entries in the CSV already exist in the database.', 'info');
-    } else {
-      Swal.fire('Error', data.message || 'Upload failed', 'error');
-    }
-  }
-
-  // Render preview table
-  function renderPreview(rows) {
-    previewC.style.display = rows.length ? 'block' : 'none';
-    pHead.innerHTML = '';
-    pBody.innerHTML = '';
-
-    if (!rows.length) return;
-    // headers
-    Object.keys(rows[0]).forEach((col, i) => {
-      const th = document.createElement('th');
-      th.textContent = col;
-      th.onclick = () => sortTable(i);
-      pHead.appendChild(th);
-    });
-    // body
-    rows.forEach(r => {
-      const tr = document.createElement('tr');
-      Object.values(r).forEach(c => {
-        const td = document.createElement('td');
-        td.textContent = c;
-        tr.appendChild(td);
+    // Drag & drop events
+    ['dragover','dragleave','drop'].forEach(evt => {
+      dropzone.addEventListener(evt, e => {
+        e.preventDefault();
+        dropzone.classList.toggle('dragover', evt === 'dragover');
+        if (evt === 'drop') handleFiles(e.dataTransfer.files);
       });
-      pBody.appendChild(tr);
     });
-  }
+    dropzone.onclick = () => csvFile.click();
+    csvFile.onchange = () => handleFiles(csvFile.files);
 
-  // Sort preview table
-  let sortDir = {};
-  function sortTable(colIndex) {
-    const table = document.getElementById('previewTable'),
-          rows  = Array.from(table.tBodies[0].rows);
-    const asc = !sortDir[colIndex];
-    rows.sort((a,b) => {
-      const aTxt = a.cells[colIndex].innerText,
-            bTxt = b.cells[colIndex].innerText;
-      return asc ? aTxt.localeCompare(bTxt) : bTxt.localeCompare(aTxt);
-    });
-    // re-append
-    rows.forEach(r => table.tBodies[0].appendChild(r));
-    // header arrow
-    Array.from(table.tHead.rows[0].cells).forEach((th,i) => {
-      th.classList.toggle('sort-asc', asc && i===colIndex);
-      th.classList.toggle('sort-desc', !asc && i===colIndex);
-    });
-    sortDir[colIndex] = asc;
-  }
+    async function handleFiles(files) {
+      if (!files.length) return;
+      const file = files[0];
+      const fileName = file.name.toLowerCase();
+      
+      if (!fileName.endsWith('.csv') && !fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
+        return Swal.fire('Invalid File Type','Please upload a CSV or Excel file (.csv, .xlsx, .xls)','error');
+      }
 
-  // QR Validation
-  qrBtn.onclick = async () => {
-    const code = qrInput.value.trim();
-    if (!code) return Swal.fire('Input','Please enter QR code','info');
-    let res = await fetch(`/api/validate/${encodeURIComponent(code)}`);
-    let { success, message } = await res.json();
-    Swal.fire(success ? 'Valid' : 'Invalid', message, success ? 'success':'error');
-  };
-</script>
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        return Swal.fire('File Too Large','Please upload a file smaller than 10MB','error');
+      }
 
+      // Show progress bar
+      progress.style.display = 'block';
+      pbar.style.width = '0%';
+
+      // Simulate upload progress
+      await new Promise(r => {
+        let pct = 0;
+        const id = setInterval(() => {
+          pct += 10;
+          pbar.style.width = pct + '%';
+          if (pct >= 100) { clearInterval(id); r(); }
+        }, 50);
+      });
+
+      progress.style.display = 'none';
+
+      // Send to backend
+      const form = new FormData();
+      form.append('file', file);
+      
+      try {
+        let res = await fetch('/api/csvupload', { method:'POST', body: form });
+        let data = await res.json();
+        
+        if (data.message === 'CSV uploaded successfully') {
+          Swal.fire('Success!', `File uploaded successfully! ${data.successfulInserts} records added.`, 'success');
+          loadQRStats(); // Refresh statistics
+        } else if (data.message === 'CSV uploaded with some duplicates') {
+          Swal.fire('Partial Success', `${data.successfulInserts} new records added. ${data.duplicates} duplicates were skipped.`, 'warning');
+          loadQRStats();
+        } else if (data.message === 'All entries already exist in database') {
+          Swal.fire('Info', 'All entries in the file already exist in the database.', 'info');
+        } else if (data.errors && data.errors.length > 0) {
+          let errorMsg = `Upload completed with ${data.errors.length} errors:\n`;
+          errorMsg += data.errors.slice(0, 5).join('\n'); // Show first 5 errors
+          if (data.errors.length > 5) {
+            errorMsg += `\n... and ${data.errors.length - 5} more errors`;
+          }
+          Swal.fire('Upload Errors', errorMsg, 'error');
+        } else {
+          Swal.fire('Error', data.message || 'Upload failed', 'error');
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        Swal.fire('Network Error', 'Failed to upload file. Please check your connection.', 'error');
+      }
+    }
+
+    // Load QR statistics
+    async function loadQRStats() {
+      try {
+        const limit = document.getElementById('trackingLimit').value;
+        const response = await fetch(`/api/qr-stats?limit=${limit}&sortBy=scanCount`);
+        const data = await response.json();
+        
+        if (data.success) {
+          // Update statistics
+          document.getElementById('totalUploaded').textContent = data.stats.totalUploaded;
+          document.getElementById('totalUnscanned').textContent = data.stats.totalUnscanned;
+          document.getElementById('totalVerified').textContent = data.stats.totalVerified;
+          document.getElementById('totalScanned').textContent = data.stats.totalScanned;
+          
+          // Render QR codes table
+          renderQRTable(data.qrCodes);
+        }
+      } catch (error) {
+        console.error('Error loading QR stats:', error);
+        Swal.fire('Error', 'Failed to load QR statistics', 'error');
+      }
+    }
+
+    // Render QR codes table
+    function renderQRTable(qrCodes) {
+      pBody.innerHTML = '';
+      
+      qrCodes.forEach(qr => {
+        const tr = document.createElement('tr');
+        const statusClass = `status-${qr.status}`;
+        
+        tr.innerHTML = `
+          <td>${qr.qrCode}</td>
+          <td>${qr.serialNumber}</td>
+          <td class="${statusClass}">${qr.status.toUpperCase()}</td>
+          <td>${qr.firstScanDate ? new Date(qr.firstScanDate).toLocaleDateString() : '-'}</td>
+          <td>${qr.lastScanDate ? new Date(qr.lastScanDate).toLocaleDateString() : '-'}</td>
+          <td>${qr.scanCount || 0}</td>
+          <td>${new Date(qr.createdAt).toLocaleDateString()}</td>
+        `;
+        pBody.appendChild(tr);
+      });
+    }
+
+    // Sort table
+    let sortDir = {};
+    function sortTable(colIndex) {
+      const table = document.getElementById('previewTable'),
+            rows  = Array.from(table.tBodies[0].rows);
+      const asc = !sortDir[colIndex];
+      rows.sort((a,b) => {
+        const aTxt = a.cells[colIndex].innerText,
+              bTxt = b.cells[colIndex].innerText;
+        return asc ? aTxt.localeCompare(bTxt) : bTxt.localeCompare(aTxt);
+      });
+      rows.forEach(r => table.tBodies[0].appendChild(r));
+      Array.from(table.tHead.rows[0].cells).forEach((th,i) => {
+        th.classList.toggle('sort-asc', asc && i===colIndex);
+        th.classList.toggle('sort-desc', !asc && i===colIndex);
+      });
+      sortDir[colIndex] = asc;
+    }
+
+    // Clear All Data
+    document.getElementById('clearAllData').onclick = async () => {
+      const result = await Swal.fire({
+        title: 'Clear All QR Code Data?',
+        text: 'Do you really want to clear all QR code details? This action cannot be undone!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Clear All!',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch('/api/clear-all-qr', { method: 'DELETE' });
+          const data = await response.json();
+          
+          if (data.success) {
+            Swal.fire('Cleared!', `${data.deletedCount} QR codes have been deleted.`, 'success');
+            loadQRStats(); // Refresh statistics
+          } else {
+            Swal.fire('Error', data.message || 'Failed to clear data', 'error');
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Network error occurred', 'error');
+        }
+      }
+    };
+
+    // QR Validation
+    qrBtn.onclick = async () => {
+      const code = qrInput.value.trim();
+      if (!code) return Swal.fire('Input','Please enter QR code','info');
+      
+      let res = await fetch(`/api/validate/${encodeURIComponent(code)}`);
+      let data = await res.json();
+      
+      if (data.success) {
+        Swal.fire('Valid QR Code', data.message, 'success');
+      } else {
+        Swal.fire('Invalid/Already Scanned', data.message, 'error');
+      }
+      
+      // Refresh stats after validation
+      loadQRStats();
+    };
+  </script>
 </body>
 </html>

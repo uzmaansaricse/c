@@ -1028,69 +1028,7 @@
 
 
 
-// // 📌 Excel File Upload API (QR Code Number and Serial Number upload)
-
-// // CSV Upload Controller
-// const uploadCSV = async (req, res) => {
-//     if (!req.file) {
-//         return res.status(400).json({ message: "CSV file required" });
-//     }
-
-//     const results = [];
-
-//     fs.createReadStream(req.file.path)
-//         .pipe(csvParser()) // Now it will work
-//         .on("data", (data) => {
-//             if (data.qrCode && data.serialNumber) {
-//                 results.push({
-//                     qrCode: data.qrCode,
-//                     serialNumber: data.serialNumber
-//                 });
-//             }
-//         })
-//         .on("end", async () => {
-//             try {
-//                 if (results.length === 0) {
-//                     return res.status(400).json({ message: "No valid data found in CSV" });
-//                 }
-
-//                 await Qurexcel.insertMany(results);
-//                 fs.unlinkSync(req.file.path); // Delete uploaded CSV
-//                 res.json({ message: "CSV uploaded successfully", data: results });
-//             } catch (err) {
-//                 res.status(500).json({ message: "Error saving data", error: err });
-//             }
-//         });
-// };
-
-// // QR Code Validation Controller
-// const validateQR = async (req, res) => {
-//     try {
-//         const { qrCode } = req.params;
-//         console.log("Scanned QR Code:", qrCode);
-
-//         const book = await Qurexcel.findOne({ qrCode: { $regex: new RegExp(`^${qrCode}$`, 'i') } });
-//         console.log("Database Book:", book);
-
-//         if (book) {
-//             return res.json({ message: "Valid Book", serialNumber: book.serialNumber });
-//         } else {
-//             return res.json({ message: "Fake Book" });
-//         }
-//     } catch (error) {
-//         console.error("Error:", error);
-//         res.status(500).json({ message: "Server Error", error });
-//     }
-// };
-
-
-
-
-// export { uploadCSV, validateQR };
-// // 🔹 Razorpay Instance
-
-
-// // import mongoose from "mongoose";
+// 🔹 Razorpay Instance
 
 
 // //  Razorpay Configuration
@@ -3400,177 +3338,13 @@ export { SearchgetAllBooks };
 
 
 
-// 📌 Excel File Upload API (QR Code Number and Serial Number upload)
-
-// CSV Upload Controller
-const uploadCSV = async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ message: "CSV file required" });
-    }
-
-    const results = [];
-
-    fs.createReadStream(req.file.path)
-        .pipe(csvParser())
-        .on("data", (data) => {
-            const values = Object.values(data);
-            
-            // Process first pair (columns 0,1)
-            if (values[0] && values[1] && values[0].trim() && values[1].trim()) {
-                results.push({
-                    qrCode: values[0].trim(),
-                    serialNumber: values[1].trim()
-                });
-            }
-            
-            // Process second pair (columns 2,3)
-            if (values[2] && values[3] && values[2].trim() && values[3].trim()) {
-                results.push({
-                    qrCode: values[2].trim(),
-                    serialNumber: values[3].trim()
-                });
-            }
-        })
-        .on("end", async () => {
-            try {
-                if (results.length === 0) {
-                    return res.status(400).json({ message: "No valid data found in CSV" });
-                }
-
-                const insertResult = await Qurexcel.insertMany(results, { ordered: false });
-                fs.unlinkSync(req.file.path);
-                
-                res.json({ 
-                    message: "CSV uploaded successfully", 
-                    data: insertResult,
-                    totalProcessed: results.length,
-                    successfulInserts: insertResult.length
-                });
-                
-            } catch (err) {
-                if (fs.existsSync(req.file.path)) {
-                    fs.unlinkSync(req.file.path);
-                }
-                
-                if (err.code === 11000) {
-                    const duplicateCount = err.writeErrors ? err.writeErrors.length : 0;
-                    const successCount = results.length - duplicateCount;
-                    
-                    if (successCount > 0) {
-                        return res.json({
-                            message: "CSV uploaded with some duplicates",
-                            data: results.slice(0, successCount),
-                            totalProcessed: results.length,
-                            successfulInserts: successCount,
-                            duplicates: duplicateCount
-                        });
-                    } else {
-                        return res.status(400).json({
-                            message: "All entries already exist in database",
-                            totalProcessed: results.length,
-                            duplicates: duplicateCount
-                        });
-                    }
-                }
-                
-                res.status(500).json({ 
-                    message: "Error saving data to database",
-                    error: err.message || "Unknown database error"
-                });
-            }
-        })
-        .on("error", (err) => {
-            if (fs.existsSync(req.file.path)) {
-                fs.unlinkSync(req.file.path);
-            }
-            res.status(400).json({ 
-                message: "Error reading CSV file",
-                error: err.message 
-            });
-        });
-};
-
-// QR Code Validation Controller
-const validateQR = async (req, res) => {
-    try {
-        const { qrCode } = req.params;
-        console.log("Scanned QR Code:", qrCode);
-
-        const book = await Qurexcel.findOne({ qrCode: { $regex: new RegExp(`^${qrCode}$`, 'i') } });
-        console.log("Database Book:", book);
-
-        if (book) {
-            return res.json({ message: "Valid Book", serialNumber: book.serialNumber });
-        } else {
-            return res.json({ message: "Fake Book" });
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ message: "Server Error", error });
-    }
-};
-
-
-
-
-export { uploadCSV, validateQR };
-// 🔹 Razorpay Instance
-
-
-// import mongoose from "mongoose";
-
+// 📌 Old QR functions removed to avoid duplicates - new implementations are at the end of file
 
 //  Razorpay Configuration
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
-
-// **🔹 Order Create API**
-// const createorder = async (req, res) => {
-//     try {
-//         let { cart, totalAmount, deliveryDetails } = req.body;
-//         if (!cart || !Array.isArray(cart) || cart.length === 0) {
-//             return res.status(400).json({ error: "Cart is empty or invalid format" });
-//         }
-
-//         // 1. Create order in DB with Pending status
-//         const newOrder = new Order({
-//             books: cart.map(book => ({
-//                 bookId: book.id,
-//                 title: book.title,
-//                 price: book.price,
-//                 quantity: book.quantity,
-//             })),
-//             totalPrice: totalAmount,
-//             deliveryDetails,
-//             status: "Pending",
-//             userEmail: deliveryDetails.email,
-//             pendingSince: Date.now()
-//             // Do NOT set paymentId here!
-//         });
-
-//         const savedOrder = await newOrder.save();
-
-//         // 2. Create Razorpay order
-//         const options = {
-//             amount: totalAmount * 100, // paise
-//             currency: "INR",
-//             receipt: savedOrder._id.toString(),
-//         };
-//         const razorpayOrder = await razorpay.orders.create(options);
-
-//         // 3. Send both orderId (Razorpay) and dbOrderId (MongoDB) to frontend
-//         res.json({
-//             orderId: razorpayOrder.id,
-//             amount: options.amount,
-//             dbOrderId: savedOrder._id
-//         });
-//     } catch (error) {
-//         console.error("Payment Error:", error);
-//         res.status(500).json({ error: "Payment error", details: error.message });
-//     }
-// };
 
 const createorder = async (req, res) => {
     try {
@@ -5230,6 +5004,253 @@ export const getAllUsers = async (req, res) => {
       success: false, 
       message: "Error fetching users",
       error: error.message 
+    });
+  }
+};
+
+// QR Code CSV Upload
+export const uploadCSV = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const fs = await import('fs');
+    let data = [];
+
+    // Check file extension
+    const fileName = req.file.originalname.toLowerCase();
+    
+    if (fileName.endsWith('.csv')) {
+      // Handle CSV files
+      const csvParser = await import('csv-parser');
+      const results = [];
+      
+      await new Promise((resolve, reject) => {
+        fs.createReadStream(req.file.path)
+          .pipe(csvParser.default())
+          .on('data', (row) => {
+            results.push(row);
+          })
+          .on('end', resolve)
+          .on('error', reject);
+      });
+      
+      data = results;
+    } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+      // Handle Excel files
+      const XLSX = await import('xlsx');
+      const workbook = XLSX.readFile(req.file.path);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      data = XLSX.utils.sheet_to_json(worksheet);
+    } else {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ message: "Unsupported file format. Please upload CSV or Excel files." });
+    }
+
+    let successfulInserts = 0;
+    let duplicates = 0;
+    let errors = [];
+
+    for (const row of data) {
+      const qrCode = row['Qr Details'];
+      const serialNumber = row['SL No Below Qr Code'];
+
+      if (!qrCode || !serialNumber) {
+        errors.push(`Missing data in row: QR=${qrCode}, Serial=${serialNumber}`);
+        continue;
+      }
+
+      try {
+        const existingQR = await Qurexcel.findOne({
+          $or: [{ qrCode }, { serialNumber }]
+        });
+
+        if (existingQR) {
+          duplicates++;
+        } else {
+          await Qurexcel.create({
+            qrCode,
+            serialNumber,
+            status: 'uploaded',
+            scanCount: 0
+          });
+          successfulInserts++;
+        }
+      } catch (error) {
+        errors.push(`Error processing QR ${qrCode}: ${error.message}`);
+      }
+    }
+
+    // Clean up uploaded file
+    fs.unlinkSync(req.file.path);
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        message: "File upload completed with errors",
+        successfulInserts,
+        duplicates,
+        errors
+      });
+    }
+
+    if (successfulInserts === 0 && duplicates > 0) {
+      return res.json({
+        message: "All entries already exist in database",
+        successfulInserts,
+        duplicates
+      });
+    }
+
+    if (duplicates > 0) {
+      return res.json({
+        message: "CSV uploaded with some duplicates",
+        successfulInserts,
+        duplicates
+      });
+    }
+
+    res.json({
+      message: "CSV uploaded successfully",
+      successfulInserts,
+      duplicates
+    });
+
+  } catch (error) {
+    console.error("CSV upload error:", error);
+    
+    // Clean up file if it exists
+    if (req.file && req.file.path) {
+      try {
+        const fs = await import('fs');
+        if (fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+      } catch (cleanupError) {
+        console.error("File cleanup error:", cleanupError);
+      }
+    }
+    
+    res.status(500).json({ message: "Server error during upload" });
+  }
+};
+
+// QR Code Validation
+export const validateQR = async (req, res) => {
+  try {
+    const { qrCode } = req.params;
+
+    // Search by both QR code and serial number
+    const qrRecord = await Qurexcel.findOne({
+      $or: [
+        { qrCode: qrCode },
+        { serialNumber: qrCode }
+      ]
+    });
+
+    if (!qrRecord) {
+      return res.json({
+        success: false,
+        message: "Invalid QR Code or Serial Number - not found in database",
+        status: "invalid"
+      });
+    }
+
+    if (qrRecord.scanCount === 0) {
+      // First time scan
+      qrRecord.status = 'verified';
+      qrRecord.scanCount = 1;
+      qrRecord.firstScanDate = new Date();
+      qrRecord.lastScanDate = new Date();
+      await qrRecord.save();
+
+      return res.json({
+        success: true,
+        message: "Book is Authenticated - First scan",
+        serialNumber: qrRecord.serialNumber,
+        qrCode: qrRecord.qrCode,
+        status: "authenticated",
+        scanCount: 1
+      });
+    } else {
+      // Already scanned
+      qrRecord.scanCount += 1;
+      qrRecord.lastScanDate = new Date();
+      qrRecord.status = 'scanned';
+      await qrRecord.save();
+
+      return res.json({
+        success: false,
+        message: "Duplicate scan detected",
+        serialNumber: qrRecord.serialNumber,
+        qrCode: qrRecord.qrCode,
+        status: "already_scanned",
+        scanCount: qrRecord.scanCount,
+        firstScanDate: qrRecord.firstScanDate
+      });
+    }
+
+  } catch (error) {
+    console.error("QR validation error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error during validation"
+    });
+  }
+};
+
+// Get QR Statistics
+export const getQRStats = async (req, res) => {
+  try {
+    const { limit = 100, sortBy = 'scanCount' } = req.query;
+
+    const totalUploaded = await Qurexcel.countDocuments();
+    const totalUnscanned = await Qurexcel.countDocuments({ scanCount: 0 });
+    const totalVerified = await Qurexcel.countDocuments({ scanCount: 1 });
+    const totalScanned = await Qurexcel.countDocuments({ scanCount: { $gt: 1 } });
+
+    // Get QR codes sorted by scan count (descending)
+    const qrCodes = await Qurexcel.find()
+      .sort({ [sortBy]: -1, createdAt: -1 })
+      .limit(parseInt(limit));
+
+    res.json({
+      success: true,
+      stats: {
+        totalUploaded,
+        totalUnscanned,
+        totalVerified,
+        totalScanned
+      },
+      qrCodes
+    });
+
+  } catch (error) {
+    console.error("QR stats error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching QR statistics"
+    });
+  }
+};
+
+// Clear All QR Data
+export const clearAllQR = async (req, res) => {
+  try {
+    const result = await Qurexcel.deleteMany({});
+    
+    res.json({
+      success: true,
+      message: "All QR code data cleared successfully",
+      deletedCount: result.deletedCount
+    });
+
+  } catch (error) {
+    console.error("Clear all QR error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error clearing QR data"
     });
   }
 };

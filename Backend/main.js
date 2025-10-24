@@ -356,7 +356,7 @@ import {
     uploadContent,
     uploadCSV, uploadImage, usergetOrders, validateQR, getUserProfile, deleteAccount,
     getAllPendingOrders,
-    deleteOrderById,
+    deleteOrderById, getQRStats, clearAllQR,
 } from "./controllers/authController.js";
 // import { getLoggedInUserOrders } from "./controllers/authController.js";
 
@@ -541,6 +541,12 @@ app.post("/api/csvupload", excelupload.single("file"), uploadCSV);
 
 // 📌 QR Code Validation Route
 app.get("/api/validate/:qrCode", validateQR);
+
+// 📌 QR Code Statistics Route
+app.get("/api/qr-stats", getQRStats);
+
+// 📌 Clear All QR Data Route
+app.delete("/api/clear-all-qr", clearAllQR);
 
 // // order....
 

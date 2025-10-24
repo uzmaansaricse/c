@@ -4,136 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Scanner</title>
-    <script src="https://unpkg.com/html5-qrcode"></script> <!-- Scanner Library -->
-    <style>/* Heading styling */
-        h2 {
-          color: #2c6e31;
-          font-size: 28px;
-          margin-bottom: 16px;
-          font-weight: bold;
-          text-align: center;
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f9;
         }
         
-        /* Scan button */
+        h2 {
+            color: #2c6e31;
+            font-size: 28px;
+            margin-bottom: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
         button {
-          background-color:#2c6e31;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          font-size: 16px;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-          display: block;
-          margin: 0 auto 20px;
+            background-color: #2c6e31;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin: 0 auto 20px;
+            width: 200px;
         }
         
         button:hover {
-          background-color: #2c6e31e1; 
+            background-color: #1e4a22;
         }
         
-        /* Scanner container */
         #scanner-container {
-          border: 2px dashed #2c6e31;
-          padding: 20px;
-          margin: 20px auto;
-          max-width: 400px;
-          height: 250px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #2c6e31;
-          font-style: italic;
-          text-align: center;
+            border: 2px dashed #2c6e31;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 400px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c6e31;
+            font-style: italic;
+            text-align: center;
+            border-radius: 8px;
         }
         
-        /* Scan result */
         #result {
-          color: #2c6e31;
-          font-weight: 600;
-          font-size: 18px;
-          text-align: center;
+            color: #2c6e31;
+            font-weight: 600;
+            font-size: 18px;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 50px;
         }
         
-        /* Manual entry section */
+        .result-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .result-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .result-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        
         .manual-entry {
-          max-width: 400px;
-          margin: 30px auto;
-          padding: 20px;
-          border: 2px solid #2c6e31;
-          border-radius: 8px;
-          text-align: center;
+            max-width: 400px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 2px solid #2c6e31;
+            border-radius: 8px;
+            text-align: center;
+            background: white;
+        }
+        
+        .manual-entry h3 {
+            color: #2c6e31;
+            margin-bottom: 15px;
         }
         
         .manual-entry input {
-          width: 70%;
-          padding: 10px;
-          font-size: 16px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          margin-right: 10px;
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
         }
         
         .manual-entry button {
-          width: 25%;
-          margin: 0;
-          display: inline-block;
+            width: 25%;
+            margin: 0;
+            display: inline-block;
+            padding: 10px;
         }
-        </style>
-        <script src="admin-auth.js"></script>
-   </head>
+        
+        .scan-history {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .scan-history h3 {
+            color: #2c6e31;
+            margin-bottom: 15px;
+        }
+        
+        .scan-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #2c6e31;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
 <body>
-
     <h2>Scan Your Book's QR Code</h2>
     
-    <!-- Button to Open Scanner -->
-    <button onclick="startScanner()">Scan QR Code</button>
+    <button onclick="startScanner()">📱 Scan QR Code</button>
 
-    <!-- Scanner Area -->
-    <div id="scanner-container"></div>
-
-    <!-- Manual Entry Section -->
-    <div class="manual-entry">
-        <h3>Or Enter Code Manually</h3>
-        <input type="text" id="manual-code" placeholder="Enter QR code manually">
-        <button onclick="validateManualCode()">Enter</button>
+    <div id="scanner-container">
+        Click "Scan QR Code" to start scanning
     </div>
 
-    <!-- Result Display -->
-    <p id="result">Scan result will appear here...</p>
+    <div class="manual-entry">
+        <h3>Or Enter Code Manually</h3>
+        <input type="text" id="manual-code" placeholder="Enter QR code or Serial Number" onkeypress="handleEnterKey(event)">
+        <button onclick="validateManualCode()">✓ Verify</button>
+    </div>
+
+    <div id="result">Scan result will appear here...</div>
+
+    <div class="scan-history" id="scanHistory" style="display: none;">
+        <h3>Recent Scans</h3>
+        <div id="historyList"></div>
+    </div>
 
     <script>
+        let scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
+        
         function startScanner() {
-            document.getElementById("scanner-container").style.display = "block"; // Show scanner area
+            document.getElementById("scanner-container").innerHTML = "";
             
             let scanner = new Html5QrcodeScanner(
                 "scanner-container", 
-                { fps: 10, qrbox: 250 } // FPS & Scanner Box Size
+                { fps: 10, qrbox: 250 }
             );
 
             scanner.render(success, error);
 
             async function success(qrCode) {
-                document.getElementById("result").innerText = "Scanning...";
-                scanner.clear(); // Scanner ko band karo
-                document.getElementById("scanner-container").style.display = "none"; // Hide scanner
-
-                try {
-                    let response = await fetch(`http://localhost:9000/api/validate/${qrCode}`);
-                    let data = await response.json();
-
-                    if (data.message === "Valid Book") {
-                        document.getElementById("result").innerHTML = "✅ Valid Book! Serial: " + data.serialNumber;
-                    } else {
-                        document.getElementById("result").innerHTML = "❌ Fake Book Detected!";
-                    }
-                } catch (error) {
-                    document.getElementById("result").innerText = "❌ Error Validating QR Code!";
-                }
+                document.getElementById("result").innerText = "Validating...";
+                scanner.clear();
+                document.getElementById("scanner-container").innerHTML = "Click 'Scan QR Code' to start scanning";
+                
+                await validateQRCode(qrCode);
             }
 
             function error(err) {
-                console.warn("Scan Error: ", err); // Ignore errors
+                console.warn("Scan Error: ", err);
+            }
+        }
+
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                validateManualCode();
             }
         }
 
@@ -141,26 +194,93 @@
             const manualCode = document.getElementById("manual-code").value.trim();
             
             if (!manualCode) {
-                document.getElementById("result").innerText = "Please enter a code";
+                showResult("⚠️ Please enter a QR code or Serial Number", "warning");
                 return;
             }
 
-            document.getElementById("result").innerText = "Validating...";
+            if (manualCode.length < 3) {
+                showResult("⚠️ QR code must be at least 3 characters long", "warning");
+                return;
+            }
 
+            document.getElementById("result").innerHTML = "🔍 Validating code...";
+            await validateQRCode(manualCode);
+            document.getElementById("manual-code").value = "";
+        }
+
+        async function validateQRCode(qrCode) {
             try {
-                let response = await fetch(`http://localhost:9000/api/validate/${manualCode}`);
+                let response = await fetch(`http://localhost:9000/api/validate/${encodeURIComponent(qrCode)}`);
                 let data = await response.json();
 
-                if (data.message === "Valid Book") {
-                    document.getElementById("result").innerHTML = "✅ Valid Book! Serial: " + data.serialNumber;
+                if (data.success) {
+                    // First time scan - valid
+                    showResult(`✅ Book is Authenticated!<br><strong>Serial Number:</strong> ${data.serialNumber}<br><strong>Status:</strong> First Scan Verified`, "success");
+                    addToHistory(qrCode, "Authenticated - First Scan", data.serialNumber);
                 } else {
-                    document.getElementById("result").innerHTML = "❌ Fake Book Detected!";
+                    if (data.status === "already_scanned") {
+                        // Already scanned - duplicate
+                        const firstScanDate = new Date(data.firstScanDate).toLocaleDateString();
+                        showResult(`⚠️ Duplicate Scan Detected!<br><strong>Serial Number:</strong> ${data.serialNumber}<br><strong>First Authenticated:</strong> ${firstScanDate}<br><strong>Status:</strong> Already Verified`, "warning");
+                        addToHistory(qrCode, "Duplicate Scan", data.serialNumber);
+                    } else {
+                        // Invalid QR code
+                        showResult(`❌ Invalid QR Code!<br><strong>Error:</strong> ${data.message}<br><strong>Status:</strong> Not Found in Database`, "error");
+                        addToHistory(qrCode, "Invalid QR Code", "N/A");
+                    }
                 }
             } catch (error) {
-                document.getElementById("result").innerText = "❌ Error Validating Code!";
+                console.error("Validation error:", error);
+                showResult("❌ Connection Error!<br><strong>Error:</strong> Unable to validate QR Code<br><strong>Status:</strong> Check your internet connection", "error");
+                addToHistory(qrCode, "Connection Error", "N/A");
             }
         }
-    </script>
 
+        function showResult(message, type) {
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result-${type}`;
+        }
+
+        function addToHistory(qrCode, status, serialNumber) {
+            const historyItem = {
+                qrCode,
+                status,
+                serialNumber,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            scanHistory.unshift(historyItem);
+            scanHistory = scanHistory.slice(0, 10); // Keep only last 10 scans
+            localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyDiv = document.getElementById("scanHistory");
+            const historyList = document.getElementById("historyList");
+            
+            if (scanHistory.length > 0) {
+                historyDiv.style.display = "block";
+                historyList.innerHTML = "";
+                
+                scanHistory.forEach(item => {
+                    const div = document.createElement("div");
+                    div.className = "scan-item";
+                    div.innerHTML = `
+                        <strong>${item.qrCode}</strong> - ${item.status}<br>
+                        <small>Serial: ${item.serialNumber} | ${item.timestamp}</small>
+                    `;
+                    historyList.appendChild(div);
+                });
+            }
+        }
+
+        // Load history on page load
+        window.onload = function() {
+            updateHistoryDisplay();
+        };
+    </script>
 </body>
 </html>
