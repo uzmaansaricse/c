@@ -76,15 +76,15 @@ export const sendOrderConfirmationEmail = async (email, fullName, order) => {
     const mailOptions = {
       from: `Aravali Publication <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `Confirmed! Your Aravali Publication order confirmation`,
+      subject: `Confirmed! Your Aravali Publication Order Confirmation`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd;">
-          <h2>Confirmed! Your Aravali Publication order confirmation</h2>
+          <h2>Confirmed! Your Aravali Publication Order Confirmation</h2>
           <p>Hello <b>${fullName}</b>,</p>
-          <p>Thank you for shopping on <a href="https://aravalipublication.com" target="_blank">Aravali Publication</a>. We feel happy to provide you with the latest and newest edition of our books.</p>
+          <p>Thank you for shopping on <a href="https://aravalipublication.com" target="_blank">Aravali Publication</a>. We are happy to provide you with the latest and newest edition of our books.</p>
           <h3>ORDER #${order._id}</h3>
           <p>Once your order has been dispatched, you will receive a tracking ID.</p>
-          <p>And here's summary of your purchase!</p>
+          <p>Here's a summary of your purchase!</p>
           <table style="width: 100%; border-collapse: collapse; border: 1px solid #000;">
             <thead>
               <tr>
@@ -106,7 +106,7 @@ export const sendOrderConfirmationEmail = async (email, fullName, order) => {
               </tr>
             </tbody>
           </table>
-          <h3>Shipping Info</h3>
+          <h3>Shipping Information</h3>
           <p>
             ${order.deliveryDetails.fullName}<br/>
             ${order.deliveryDetails.address || ''}, ${order.deliveryDetails.city || ''} - ${order.deliveryDetails.pincode || ''}<br/>

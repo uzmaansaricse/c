@@ -185,11 +185,17 @@
       <input type="text" id="language" />
       <label>Weight (kg):</label>
       <input type="number" id="weight" />
-      <label>Bullet Points (Saperate with comma ):</label>
+      <label>Bullet Points (Separate with comma):</label>
       <textarea id="bulletPoints" rows="2"></textarea>
       <input type="hidden" id="mainImageIndex" />
       <label>Book Images (Upload 1-5 images to replace, or leave blank to keep old):</label>
+      <small style="color: #4caf50; font-weight: 600; display: block; margin: 5px 0;">
+        ⭐ Upload images in order: First image = Front Cover, then remaining images in sequence.
+      </small>
       <input type="file" id="bookImages" name="bookImages" accept="image/*" multiple />
+      <small style="color: #666; display: block; margin: 5px 0;">
+        Note: Images will display on the user side in the exact order you upload them.
+      </small>
       <div id="imagePreview"></div>
       <button type="submit">Update</button>
     </form>
@@ -275,24 +281,43 @@
       };
     }
 
-    // Preview selected images before upload
+    // Preview selected images before upload - SEQUENTIAL ORDER
     document.getElementById('bookImages').addEventListener('change', function(e) {
       const previewContainer = document.getElementById('imagePreview');
       previewContainer.innerHTML = '';
       const files = e.target.files;
       if (files.length === 0) return;
+      
+      // Clear existing URLs to replace with new uploads
       window._bookImageUrls = [];
+      
+      // Show preview in sequential order
       for (let i = 0; i < files.length; i++) {
         const reader = new FileReader();
         reader.onload = function(event) {
+          const wrapper = document.createElement('div');
+          wrapper.style.display = 'inline-block';
+          wrapper.style.margin = '5px';
+          wrapper.style.position = 'relative';
+          
           const img = document.createElement('img');
           img.src = event.target.result;
-          img.alt = 'Selected Image';
+          img.alt = 'Selected Image ' + (i + 1);
           img.style.width = '80px';
-          img.style.marginBottom = '5px';
           img.style.border = '1px solid #ccc';
           img.style.borderRadius = '5px';
-          previewContainer.appendChild(img);
+          
+          const label = document.createElement('div');
+          label.textContent = i === 0 ? 'Front Cover' : 'Image ' + (i + 1);
+          label.style.fontSize = '10px';
+          label.style.textAlign = 'center';
+          label.style.marginTop = '2px';
+          label.style.color = i === 0 ? '#4caf50' : '#666';
+          label.style.fontWeight = i === 0 ? 'bold' : 'normal';
+          
+          wrapper.appendChild(img);
+          wrapper.appendChild(label);
+          previewContainer.appendChild(wrapper);
         };
         reader.readAsDataURL(files[i]);
       }
@@ -314,12 +339,17 @@
       formData.append('weight', document.getElementById('weight').value);
       formData.append('bulletPoints', document.getElementById('bulletPoints').value);
       formData.append('mainImageIndex', document.getElementById('mainImageIndex').value);
-      // Add new images if selected
+      
+      // ✅ SEQUENTIAL IMAGE UPLOAD - Add new images if selected
       const files = document.getElementById('bookImages').files;
       if (files.length > 0) {
+        // When new images are uploaded, they replace old ones in sequential order
+        // First uploaded image becomes the front cover (index 0)
         for (let i = 0; i < files.length; i++) {
           formData.append('bookImages', files[i]);
         }
+        // Set mainImageIndex to 0 when uploading new images
+        formData.set('mainImageIndex', '0');
       } else {
         // If no new images, send current image URLs as backup (after removal)
         const urls = window._bookImageUrls || [];
@@ -335,6 +365,7 @@
           return;
         }
       }
+      
       const res = await fetch(`/api/updatebook/${bookId}`, {
         method: 'PUT',
         body: formData
@@ -354,8 +385,9 @@
         Swal.fire({
           icon: 'success',
           title: 'Book Updated successfully!',
+          text: 'Images will display in the order uploaded. First image is the front cover.',
           showConfirmButton: false,
-          timer: 1500
+          timer: 2000
         });
         document.getElementById('updateForm').style.display = 'none';
         loadBooks();

@@ -1,182 +1,116 @@
-// JavaScript for Manage Users page with order search filters
-
-
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("🔍 Manage Users page loaded");
+  
+  const userListContainer = document.getElementById("userList");
+  const userDetailContainer = document.getElementById("userDetail"); // Fixed ID
   const searchName = document.getElementById("searchName");
   const searchEmail = document.getElementById("searchEmail");
   const searchMobile = document.getElementById("searchMobile");
-  const searchOrderId = document.getElementById("searchOrderId");
-  const userListContainer = document.getElementById("userList");
-  const userDetailContainer = document.getElementById("userDetail");
+  
+  if (!userListContainer) {
+    console.error("❌ userList container not found");
+    return;
+  }
 
-  // Function to fetch orders with delivery details
-  async function fetchOrdersWithDeliveryDetails(name, email, mobile, orderId) {
-    const token = localStorage.getItem('token');
+  let allUsers = [];
+
+  // Load all users on page load
+  loadUsers();
+
+  async function loadUsers() {
     try {
-      // Build query parameters
-      const params = new URLSearchParams();
-      if (name) params.append('searchByName', name);
-      if (email) params.append('searchByEmail', email);
-      if (mobile) params.append('searchByMobile', mobile);
-      if (orderId) params.append('searchByOrderId', orderId);
-
-      const res = await fetch(`/api/admin/all-orders?${params.toString()}`, {
-        method: "GET",
+      userListContainer.innerHTML = "<p>Loading users...</p>";
+      
+      const response = await fetch('http://localhost:9000/api/auth/all-users', {
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          'Content-Type': 'application/json'
         }
       });
-      const data = await res.json();
-      return data.orders || [];
+
+      console.log("Response status:", response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Response data:", data);
+      
+      if (data.success && data.users) {
+        allUsers = data.users;
+        displayUsers(allUsers);
+      } else {
+        userListContainer.innerHTML = `<p>Error: ${data.message || 'Failed to load users'}</p>`;
+      }
     } catch (error) {
-      console.error("Error fetching orders:", error);
-      return [];
+      console.error("Fetch error:", error);
+      userListContainer.innerHTML = `<p>Network error: ${error.message}. Make sure backend server is running on port 9000.</p>`;
     }
   }
 
-  // Function to render orders list
-  function renderOrdersList(orders) {
-    userListContainer.innerHTML = "";
-    if (orders.length === 0) {
-      userListContainer.innerHTML = "<p>No orders found.</p>";
-      userDetailContainer.innerHTML = "";
-      return;
-    }
-    orders.forEach(order => {
-      const orderItem = document.createElement("div");
-      orderItem.classList.add("order-item");
-      orderItem.innerHTML = `
-        <strong>Order ID:</strong> ${order._id}<br/>
-        <strong>Name:</strong> ${order.deliveryDetails.fullName}<br/>
-        <strong>Email:</strong> ${order.deliveryDetails.email || "N/A"}<br/>
-        <strong>Mobile:</strong> ${order.deliveryDetails.mobile}<br/>
-        <strong>Status:</strong> ${order.status}<br/>
-        <strong>Total:</strong> ₹${order.totalPrice}<br/>
-        <hr/>
-      `;
-      orderItem.style.cursor = "pointer";
-      orderItem.addEventListener("click", async () => {
-        const detail = await fetchOrderDetail(order._id);
-        renderOrderDetail(detail);
-      });
-      userListContainer.appendChild(orderItem);
-    });
-  }
-
-  // Function to fetch order detail by ID
-  async function fetchOrderDetail(orderId) {
-    const token = localStorage.getItem('token');
-    try {
-      const res = await fetch(`/api/admin/order/${orderId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
-      });
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching order detail:", error);
-      return null;
-    }
-  }
-
-  // Function to render order detail
-  function renderOrderDetail(order) {
-    if (!order) {
-      userDetailContainer.innerHTML = "<p>Order details not found.</p>";
-      return;
-    }
-    userDetailContainer.innerHTML = `
-      <h3>Order Details</h3>
-      <p><strong>Order ID:</strong> ${order._id}</p>
-      <p><strong>Name:</strong> ${order.deliveryDetails.fullName}</p>
-      <p><strong>Email:</strong> ${order.deliveryDetails.email || "N/A"}</p>
-      <p><strong>Mobile:</strong> ${order.deliveryDetails.mobile}</p>
-      <p><strong>Status:</strong> ${order.status}</p>
-      <p><strong>Total Price:</strong> ₹${order.totalPrice}</p>
-      <h4>Books:</h4>
-      <ul>
-        ${order.books.map(book => `
-          <li>${book.bookId.title} - ₹${book.price} x ${book.quantity}</li>
-        `).join("")}
-      </ul>
-      <p><strong>Address:</strong> ${order.deliveryDetails.address || "N/A"}</p>
-      <p><strong>City:</strong> ${order.deliveryDetails.city || "N/A"}</p>
-      <p><strong>State:</strong> ${order.deliveryDetails.state || "N/A"}</p>
-      <p><strong>Pincode:</strong> ${order.deliveryDetails.pincode || "N/A"}</p>
-    `;
-  }
-
-  // Event listeners for search filters
-  [searchName, searchEmail, searchMobile, searchOrderId].forEach(input => {
-    input.addEventListener("input", async () => {
-      const name = searchName.value.trim();
-      const email = searchEmail.value.trim();
-      const mobile = searchMobile.value.trim();
-      const orderId = searchOrderId.value.trim();
-      const orders = await fetchOrdersWithDeliveryDetails(name, email, mobile, orderId);
-      renderOrdersList(orders);
-    });
-  });
-});
-
-  // Function to fetch user detail by ID
-  async function fetchUserDetail(userId) {
-    const token = localStorage.getItem('token');
-    try {
-      const res = await fetch(`/api/users/${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
-      });
-      const data = await res.json();
-      return data.user;
-    } catch (error) {
-      console.error("Error fetching user detail:", error);
-      return null;
-    }
-  }
-
-  // Function to render user list
-  function renderUserList(users) {
-    userListContainer.innerHTML = "";
+  function displayUsers(users) {
+    console.log("Displaying users:", users.length);
+    
     if (users.length === 0) {
       userListContainer.innerHTML = "<p>No users found.</p>";
-      userDetailContainer.innerHTML = "";
       return;
     }
-    users.forEach(user => {
-      const userItem = document.createElement("div");
-      userItem.classList.add("user-item");
-      userItem.textContent = `${user.name} - ${user.mobile} - ${user.email || "No Email"}`;
-      userItem.style.cursor = "pointer";
-      userItem.addEventListener("click", async () => {
-        const detail = await fetchUserDetail(user._id);
-        renderUserDetail(detail);
-      });
-      userListContainer.appendChild(userItem);
+
+    let html = `<h3>Total Users: ${users.length}</h3>`;
+    
+    users.forEach((user, index) => {
+      html += `
+        <div class="user-item" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; background: white; border-radius: 5px; cursor: pointer;" onclick="showUserDetail('${user._id}')">
+          <strong>${index + 1}. ${user.name || 'No Name'}</strong><br>
+          <span style="color: #666;">Email: ${user.email || 'No Email'}</span><br>
+          <span style="color: #666;">Mobile: ${user.mobile || 'No Mobile'}</span><br>
+          <span style="color: #666;">Role: ${user.role || 'user'}</span><br>
+          <span style="color: #666;">Joined: ${new Date(user.createdAt).toLocaleDateString()}</span>
+        </div>
+      `;
     });
+    
+    userListContainer.innerHTML = html;
+    console.log("✅ Users displayed successfully");
   }
 
-  // Function to render user detail
-  function renderUserDetail(user) {
-    if (!user) {
-      userDetailContainer.innerHTML = "<p>User details not found.</p>";
-      return;
+  // Show user details
+  window.showUserDetail = function(userId) {
+    const user = allUsers.find(u => u._id === userId);
+    if (user && userDetailContainer) {
+      userDetailContainer.innerHTML = `
+        <h3>User Details</h3>
+        <p><strong>Name:</strong> ${user.name || 'N/A'}</p>
+        <p><strong>Email:</strong> ${user.email || 'N/A'}</p>
+        <p><strong>Mobile:</strong> ${user.mobile || 'N/A'}</p>
+        <p><strong>Login Method:</strong> ${user.loginMethod || 'N/A'}</p>
+        <p><strong>Role:</strong> ${user.role || 'user'}</p>
+        <p><strong>User ID:</strong> ${user._id}</p>
+        <p><strong>Created:</strong> ${new Date(user.createdAt).toLocaleString()}</p>
+      `;
     }
-    userDetailContainer.innerHTML = `
-      <h3>User Detail</h3>
-      <p><strong>Name:</strong> ${user.name}</p>
-      <p><strong>Mobile:</strong> ${user.mobile}</p>
-      <p><strong>Email:</strong> ${user.email || "No Email"}</p>
-      <p><strong>Role:</strong> ${user.role}</p>
-      <p><strong>Created At:</strong> ${new Date(user.createdAt).toLocaleString()}</p>
-      <p><strong>Updated At:</strong> ${new Date(user.updatedAt).toLocaleString()}</p>
-    `;
+  };
+
+  // Search functionality
+  function filterUsers() {
+    const nameFilter = searchName?.value.toLowerCase() || '';
+    const emailFilter = searchEmail?.value.toLowerCase() || '';
+    const mobileFilter = searchMobile?.value.toLowerCase() || '';
+
+    const filteredUsers = allUsers.filter(user => {
+      const matchName = !nameFilter || (user.name && user.name.toLowerCase().includes(nameFilter));
+      const matchEmail = !emailFilter || (user.email && user.email.toLowerCase().includes(emailFilter));
+      const matchMobile = !mobileFilter || (user.mobile && user.mobile.includes(mobileFilter));
+      
+      return matchName && matchEmail && matchMobile;
+    });
+
+    displayUsers(filteredUsers);
   }
 
-  // Event listener for search input
-  // Removed unused searchInput event listener to avoid errors
+  // Add event listeners for search
+  if (searchName) searchName.addEventListener('input', filterUsers);
+  if (searchEmail) searchEmail.addEventListener('input', filterUsers);
+  if (searchMobile) searchMobile.addEventListener('input', filterUsers);
+});

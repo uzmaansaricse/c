@@ -278,12 +278,20 @@
 
                 <div class="image-section">     <!--changes isha-->
                     <div class="section-title">Book Images (Upload 1-5 images)</div>
+                    <small style="color: #4caf50; font-weight: 600; margin-bottom: 10px; display: block;">
+                        ⭐ The first image you upload will be displayed as the front cover on the user side.
+                    </small>
                     <input type="file" name="bookImage1" accept="image/*" required>
+                    <small style="color: #4caf50; font-size: 11px; margin-left: 5px;">📌 Front Cover (Required)</small>
                     <input type="file" name="bookImage2" accept="image/*">
+                    <small style="color: #666; font-size: 11px; margin-left: 5px;">Image 2 (Optional)</small>
                     <input type="file" name="bookImage3" accept="image/*">
+                    <small style="color: #666; font-size: 11px; margin-left: 5px;">Image 3 (Optional)</small>
                     <input type="file" name="bookImage4" accept="image/*">
+                    <small style="color: #666; font-size: 11px; margin-left: 5px;">Image 4 (Optional)</small>
                     <input type="file" name="bookImage5" accept="image/*">
-                    <small>Note: Upload at least 1 image, up to 5 images.</small>
+                    <small style="color: #666; font-size: 11px; margin-left: 5px;">Image 5 (Optional)</small>
+                    <small>Note: Upload images in the order you want them to appear. First image = Front cover.</small>
                 </div>
 
                 <div class="bullet-points-section">
@@ -328,20 +336,29 @@
       formData.append("bulletPoints", bulletPointsArr.join(","));
     }
 
-    // — require at least 1 image, rest optional
+    // ✅ SEQUENTIAL IMAGE UPLOAD - Upload images in exact order (1,2,3,4,5)
+    // This ensures the first image uploaded will be the front cover
     const imageFields = ["bookImage1","bookImage2","bookImage3","bookImage4","bookImage5"];
     let atLeastOne = false;
-    for (let field of imageFields) {
+    
+    // Upload images in sequential order
+    for (let i = 0; i < imageFields.length; i++) {
+      const field = imageFields[i];
       const input = document.querySelector(`input[name="${field}"]`);
       if (input && input.files[0]) {
+        // Append with index to maintain order in backend
         formData.append("bookImages", input.files[0]);
         atLeastOne = true;
       }
     }
+    
     if (!atLeastOne) {
       Swal.fire("❌ At least 1 image is required.", "", "error");
       return;
     }
+
+    // Set mainImageIndex to 0 (first image will be the front cover)
+    formData.append("mainImageIndex", "0");
 
     try {
       Swal.fire({
@@ -360,7 +377,7 @@
       Swal.close();
 
       if (res.ok) {
-        Swal.fire("✅ Success!", "Book uploaded successfully.", "success");
+        Swal.fire("✅ Success!", "Book uploaded successfully. First image will be displayed as front cover.", "success");
         document.getElementById("book-form").reset();
       } else {
         let errText = "";

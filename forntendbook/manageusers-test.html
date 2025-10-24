@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Manage Users - Test</title>
+    <style>
+       body { 
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+    border: 2px solid #2c6e31;
+    max-width: 1100px;
+    margin: auto;
+}
+
+h2 {
+    text-align: center;
+    color: #2c6e31;
+    font-size: 32px;
+    margin-bottom: 30px;
+}
+
+.search-container {
+    margin-bottom: 20px;
+}
+
+.search-container input {
+    width: 20%; 
+    padding: 10px; 
+    margin-right: 10px; 
+    font-size: 16px; 
+    border: 1px solid #ccc; 
+    border-radius: 5px;
+}
+
+#userList {
+    max-height: 400px; 
+    overflow-y: auto; 
+    border: 1px solid #ccc; 
+    padding: 10px; 
+    border-radius: 5px; 
+    background: #fafafa;
+}
+
+#userDetail {
+    margin-top: 20px; 
+    padding: 15px; 
+    border: 1px solid #2c6e31; 
+    border-radius: 5px; 
+    background: #e6f2e6;
+}
+
+.user-item:hover {
+    background-color: #f0f0f0 !important;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Manage Users - Test</h2>
+        <div class="search-container">
+            <input type="text" id="searchName" placeholder="Search by Name" />
+            <input type="text" id="searchEmail" placeholder="Search by Email" />
+            <input type="text" id="searchMobile" placeholder="Search by Mobile" />
+        </div>
+        <div id="userList"></div>
+        <div id="userDetail"></div>
+    </div>
+
+    <script src="manageusers.js"></script>
+</body>
+</html>

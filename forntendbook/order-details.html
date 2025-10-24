@@ -294,21 +294,23 @@
       }
     }
 
-    // PDF Invoice Download - Full Page Layout
+    // PDF Invoice Download - Full Page Layout with Center Alignment
   function downloadInvoicePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'mm', 'a4');
   
-  // Exact margins and positioning to match PDF
+  // A4 size dimensions: 210mm x 297mm
+  // Margins for better centering
   const marginLeft = 20;
   const marginRight = 20;
   const marginTop = 15;
   const pageWidth = 210 - (marginLeft + marginRight);
+  const centerX = 105; // Center of A4 page
   
-  // Header - "Aravali Publication Invoice/Bill"
+  // Header - "Aravali Publication Invoice/Bill" - Centered
   doc.setFontSize(14);
   doc.setFont(undefined, 'bold');
-  doc.text("Aravali Publication Invoice/Bill", marginLeft, marginTop);
+  doc.text("Aravali Publication Invoice/Bill", centerX, marginTop, { align: 'center' });
   
   // Sold By Section (Left side)
   const soldByY = marginTop + 12;
@@ -323,21 +325,24 @@
   doc.text("IN", marginLeft, soldByY + 20);
   
   // Shipping Address Section (Right side)
-  const shippingX = marginLeft + 95; // Exact positioning as per PDF
+  const shippingX = marginLeft + 95;
   doc.setFont(undefined, 'bold');
-  doc.text("Shipping Adress:", shippingX, soldByY); // Note: keeping "Adress" typo as in original
+  doc.text("Shipping Address:", shippingX, soldByY);
   
   doc.setFont(undefined, 'normal');
   doc.text(currentOrder.deliveryDetails.fullName || "<Name of Recipient>", shippingX, soldByY + 5);
-  doc.text(currentOrder.deliveryDetails.address || "<Adress of Recipient>", shippingX, soldByY + 10);
+  doc.text(currentOrder.deliveryDetails.address || "<Address of Recipient>", shippingX, soldByY + 10);
   
-  // Order Details
+  // Order Details - Centered
   const orderY = soldByY + 30;
   doc.setFont(undefined, 'normal');
-  doc.text(`Order ID: ${currentOrder.orderId || currentOrder._id}`, marginLeft, orderY);
-  doc.text(`Order Date: ${formatDate(currentOrder.createdAt)}`, marginLeft, orderY + 5);
+  doc.setFontSize(10);
+  const orderId = `Order ID: ${currentOrder.orderId || currentOrder._id}`;
+  const orderDate = `Order Date: ${formatDate(currentOrder.createdAt)}`;
+  doc.text(orderId, centerX, orderY, { align: 'center' });
+  doc.text(orderDate, centerX, orderY + 5, { align: 'center' });
   
-  // Table Section - exactly matching PDF structure
+  // Table Section - centered on page
   const tableY = orderY + 15;
   
   // Calculate subtotal
@@ -380,14 +385,14 @@
     ]);
   }
   
-  // Create table with exact styling
+  // Create table with exact styling and centering
   doc.autoTable({
     startY: tableY,
     head: [["S.\nNo.", "Product Description", "Unit\nPrice", "Discount", "Qty", "Tax", "Total\nAmount"]],
     body: tableData,
     theme: 'grid',
     headStyles: { 
-      fillColor: [255, 255, 255], // White background as in PDF
+      fillColor: [255, 255, 255], // White background
       textColor: [0, 0, 0], // Black text
       fontStyle: 'bold',
       fontSize: 9,
@@ -419,7 +424,7 @@
     tableLineWidth: 0.3
   });
   
-  // Total row separate from table (as shown in PDF)
+  // Total row separate from table
   const totalY = doc.lastAutoTable.finalY;
   const totalRowHeight = 8;
   
@@ -435,41 +440,43 @@
   doc.setFont(undefined, 'bold');
   doc.setFontSize(9);
   doc.text("Total", marginLeft + pageWidth - 45, totalY + 5);
-  doc.text("0", marginLeft + pageWidth - 25, totalY + 5); // Tax total (as shown in PDF)
+  doc.text("0", marginLeft + pageWidth - 25, totalY + 5); // Tax total
   doc.text(finalTotal.toString(), marginLeft + pageWidth - 12, totalY + 5);
   
-  // Signature Section (exactly as in PDF)
+  // Signature Section
   const signatureY = totalY + 25;
   
-  // Left side - Receiver's Sign
+  // Left side - Receiver's Signature
   doc.setFontSize(10);
   doc.setFont(undefined, 'normal');
-  doc.text("Receiver's Sign:", marginLeft, signatureY);
+  doc.text("Receiver's Signature:", marginLeft, signatureY);
   
   // Right side - Aravali Publication Authorized Signatory
   const rightX = marginLeft + pageWidth - 60;
   doc.text("Aravali Publication", rightX, signatureY);
-  doc.text("Authorised Signatory", rightX, signatureY + 6);
+  doc.text("Authorized Signatory", rightX, signatureY + 6);
   
   // Save the PDF
   doc.save(`Invoice_${currentOrder.orderId || currentOrder._id}.pdf`);
 }
 
-    // PDF Packing Slip Download - Full Page Layout
+    // PDF Packing Slip Download - Full Page Layout with Center Alignment
 function downloadPackingSlipPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'mm', 'a4');
   
-  // Exact margins and positioning to match PDF
+  // A4 size dimensions: 210mm x 297mm
+  // Margins for better centering
   const marginLeft = 20;
   const marginRight = 20;
   const marginTop = 20;
   const pageWidth = 210 - (marginLeft + marginRight);
+  const centerX = 105; // Center of A4 page
   
-  // Header - "Aravali Publication"
+  // Header - "Aravali Publication" - Centered
   doc.setFontSize(16);
   doc.setFont(undefined, 'bold');
-  doc.text("Aravali Publication", marginLeft, marginTop);
+  doc.text("Aravali Publication", centerX, marginTop, { align: 'center' });
   
   // Ship to Section
   const shipToY = marginTop + 15;
@@ -495,7 +502,7 @@ function downloadPackingSlipPDF() {
   
   // If no detailed address, show placeholder
   if (addressLines.length === 0) {
-    addressLines.push("<Full_adress of Recipient>");
+    addressLines.push("<Full Address of Recipient>");
   }
   
   addressLines.forEach((line, index) => {
@@ -504,7 +511,7 @@ function downloadPackingSlipPDF() {
   
   // Mobile number
   const mobileY = shipToY + 16 + (addressLines.length * 6);
-  doc.text(currentOrder.deliveryDetails.mobile || "<Mobile_Number_recipient>", marginLeft, mobileY + 6);
+  doc.text(currentOrder.deliveryDetails.mobile || "<Mobile Number of Recipient>", marginLeft, mobileY + 6);
   
   // Shipped from Section
   const shippedFromY = mobileY + 20;
@@ -533,7 +540,7 @@ function downloadPackingSlipPDF() {
   const returnY = productDescY + 15;
   doc.setFont(undefined, 'normal');
   doc.setFontSize(10);
-  doc.text('If undelivered, return to the "Shipped from" Adress', marginLeft, returnY);
+  doc.text('If undelivered, return to the "Shipped from" Address', marginLeft, returnY);
   
   // Save the PDF
   doc.save(`PackingSlip_${currentOrder.orderId || currentOrder._id}.pdf`);

@@ -2747,8 +2747,11 @@ const addBook = async (req, res) => {
         if (!req.files || req.files.length < 1) {
             return res.status(400).json({ message: "At least 1 image is required." });
         }
-        // No longer require exactly 5 images
+        
+        // ✅ SEQUENTIAL IMAGE ORDER - Images are stored in the exact order they're uploaded
+        // The first image (index 0) will always be the front cover
         const bookImages = req.files.map(file => file.path);
+        console.log("✅ Images stored in sequential order:", bookImages);
 
         // ✅ Handle bulletPoints
         let bulletArray = [];
@@ -2777,7 +2780,10 @@ const addBook = async (req, res) => {
             return res.status(400).json({ message: "Price, Offer Price & Page Number must be numbers" });
         }
 
-        // ✅ Save book
+        // ✅ Always set mainImageIndex to 0 (first image is front cover)
+        const finalMainImageIndex = 0;
+
+        // ✅ Save book with sequential image order
         const newBook = new Book({
             title,
             author,
@@ -2785,8 +2791,8 @@ const addBook = async (req, res) => {
             offerPrice,
             description,
             category,
-            bookImages,
-            mainImageIndex: Number(mainImageIndex) || 0,
+            bookImages, // Images in sequential order
+            mainImageIndex: finalMainImageIndex, // First image is front cover
             bulletPoints: bulletArray,
             isbn,
             pageNumber,
@@ -2795,7 +2801,11 @@ const addBook = async (req, res) => {
         });
 
         await newBook.save();
-        res.status(201).json({ message: "Book added successfully", book: newBook });
+        console.log("✅ Book saved with images in sequential order. Front cover at index 0.");
+        res.status(201).json({ 
+            message: "Book added successfully. First image will be displayed as front cover.", 
+            book: newBook 
+        });
 
     } catch (error) {
         console.error("❌ Error adding book:", error.message || error);
@@ -3215,10 +3225,14 @@ const updateBook = async (req, res) => {
         }
 
         // ✅ Agar naye image upload huye hain, to unka path save karo
+        // Images will be stored in sequential order as uploaded
         if (req.files && req.files.length > 0) {
-            console.log("🟩 Uploaded Files:", req.files);
-            updateData.bookImages = req.files.map(file => file.path); // path agar local storage ho
-            // OR file.location if using S3 or Cloudinary
+            console.log("🟩 Uploaded Files in sequential order:", req.files);
+            // Store images in the exact order they're uploaded
+            updateData.bookImages = req.files.map(file => file.path);
+            // When new images are uploaded, set first image as front cover
+            updateData.mainImageIndex = 0;
+            console.log("✅ New images uploaded. First image set as front cover (index 0).");
         }
 
         // Validations
@@ -4733,26 +4747,50 @@ export const sendOtp = async (req, res) => {
     // Check if identifier is an email or mobile
     const isEmail = identifier.includes('@');
     
-    // Create user data object
-    const userData = {
-      name: isEmail ? `User (${identifier.split('@')[0]})` : "New User",
-      loginMethod: isEmail ? 'email_otp' : 'mobile_otp',
-      password: "otp",
-      otp: null,
-      otpExpiresAt: null
-    };
+    // Double-check to prevent duplicates
+    const existingUser = await UserLogin.findOne(
+      isEmail ? { email: identifier } : { mobile: identifier }
+    );
     
-    // Set email or mobile based on identifier type
-    if (isEmail) {
-      userData.email = identifier;
-      userData.mobile = null;
+    if (existingUser) {
+      user = existingUser;
+      console.log(`Found existing user during double-check: ${identifier}`);
     } else {
-      userData.mobile = identifier;
-      userData.email = null;
+      // Create user data object
+      const userData = {
+        name: isEmail ? `User (${identifier.split('@')[0]})` : "New User",
+        loginMethod: isEmail ? 'email_otp' : 'mobile_otp',
+        password: "otp",
+        otp: null,
+        otpExpiresAt: null
+      };
+      
+      // Set email or mobile based on identifier type
+      if (isEmail) {
+        userData.email = identifier;
+        userData.mobile = null;
+      } else {
+        userData.mobile = identifier;
+        userData.email = null;
+      }
+      
+      try {
+        user = new UserLogin(userData);
+        await user.save();
+        console.log(`✅ Created new user with ${isEmail ? 'email' : 'mobile'}: ${identifier}`);
+      } catch (error) {
+        // If save fails due to duplicate, try to find the user again
+        console.log(`Error creating user, trying to find existing: ${error.message}`);
+        user = await UserLogin.findOne(
+          isEmail ? { email: identifier } : { mobile: identifier }
+        );
+        if (!user) {
+          return res.status(500).json({ message: "Error creating user account" });
+        }
+      }
     }
-    
-    user = new UserLogin(userData);
-    console.log(`Creating new user with ${isEmail ? 'email' : 'mobile'}: ${identifier}`);
+  } else {
+    console.log(`✅ Found existing user: ${identifier}`);
   }
 
   // Only allow admin OTP for fixed admin email/phone, else downgrade to user
@@ -4835,13 +4873,13 @@ export const sendOtp = async (req, res) => {
         subject: "Your OTP Code",
         text: `Your OTP is: ${otp}`,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; text-align: center;">
             <h2 style="color: #333;">Your OTP Code</h2>
             <p>Hello,</p>
             <p>Your OTP code is: <strong style="font-size: 24px; color: #007bff;">${otp}</strong></p>
             <p>This code will expire in 5 minutes.</p>
             <p>If you didn't request this OTP, please ignore this email.</p>
-            <p>Best regards,<br>Your App Team</p>
+            <p>Best regards,<br>Aravali Publication Team</p>
           </div>
         `
       };
@@ -4903,9 +4941,17 @@ export const verifyOtp = async (req, res) => {
   }
 
   // --- NORMAL USER FLOW (DB) ---
-  const user = await UserLogin.findOne({
+  let user = await UserLogin.findOne({
     $or: [{ mobile: identifier }, { email: identifier }]
   });
+
+  // If user still not found, this shouldn't happen if sendOtp was called first
+  if (!user) {
+    console.log(`❌ User not found during OTP verification: ${identifier}`);
+    return res.status(400).json({ message: "User not found. Please request OTP again." });
+  }
+
+  console.log(`✅ User found for OTP verification: ${identifier}`);
 
   let roleToReturn = user?.role;
   if (
@@ -4917,9 +4963,12 @@ export const verifyOtp = async (req, res) => {
     roleToReturn = "user";
   }
 
-  if (!user || user.otp !== otp || user.otpExpiresAt < new Date()) {
+  if (user.otp !== otp || user.otpExpiresAt < new Date()) {
+    console.log(`❌ Invalid OTP for user: ${identifier}`);
     return res.status(400).json({ message: "Invalid or expired OTP" });
   }
+
+  console.log(`✅ OTP verified successfully for user: ${identifier}`);
 
   user.otp = null;
   user.otpExpiresAt = null;
@@ -5155,5 +5204,32 @@ export const checkAdminAccess = async (req, res) => {
   } catch (error) {
     console.error("💥 Admin access check error:", error);
     return res.status(401).json({ isAdmin: false, message: "Invalid token" });
+  }
+};
+
+// Get all users for admin management
+export const getAllUsers = async (req, res) => {
+  try {
+    console.log("📋 getAllUsers API called");
+    
+    const users = await UserLogin.find({})
+      .select('name email mobile loginMethod role createdAt')
+      .sort({ createdAt: -1 });
+    
+    console.log(`📊 Found ${users.length} users in database`);
+    console.log("👥 Users:", users.map(u => ({ name: u.name, email: u.email, mobile: u.mobile })));
+    
+    res.json({ 
+      success: true, 
+      users: users,
+      total: users.length 
+    });
+  } catch (error) {
+    console.error("💥 Error in getAllUsers:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error fetching users",
+      error: error.message 
+    });
   }
 };

@@ -57,17 +57,17 @@ export async function sendTrackingEmail(email, name, trackingId, message, courie
   //   courier = "India Post"; // default courier if none selected
   // }
 
-  // Fix: Show courier name only if it exists, else show empty string to avoid "courier service " without name
+  // Fix: Show courier name only if it exists, else show empty string
   const courierDisplay = courier && courier.trim() !== "" ? courier : "";
 
   const emailMessage = `
   Hello ${name || 'Customer'},
 
-  This is an update regarding your recent order at Aravali Publication. We’ve dispatched your order with courier service ${courierDisplay} and your tracking id is ${tracking}
+  This is an update regarding your recent order at Aravali Publication. We've dispatched your order with courier service ${courierDisplay} and your tracking ID is ${tracking}
 
-  Tracking  ID #${tracking}
+  Tracking ID #${tracking}
 
-  You will receive your order soon
+  You will receive your order soon.
 
   Regards,
   Aravali Publication
@@ -76,20 +76,20 @@ export async function sendTrackingEmail(email, name, trackingId, message, courie
   const mailOptions = {
     from: `Aravali Publication <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: `Dispatched! Your Aravali Publication order has been dispatched`,
+    subject: `Dispatched! Your Aravali Publication Order Has Been Dispatched`,
     html: `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; background: #f7f7f7; padding: 32px;">
-        <div style="max-width: 480px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(44,110,49,0.08); overflow: hidden;">
+        <div style="max-width: 600px; margin: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(44,110,49,0.08); overflow: hidden;">
           <div style="background: linear-gradient(90deg, #2c6e31 60%, #4caf50 100%); padding: 24px 0; text-align: center;">
             <img src="https://i.ibb.co/6b7n6k2/aravali-logo.png" alt="Aravali Publication" style="height: 48px; margin-bottom: 8px;"/>
             <h2 style="color: #fff; margin: 0; font-size: 1.6rem; letter-spacing: 1px;">Order Update</h2>
           </div>
-          <div style="padding: 28px 32px 24px 32px;">
-            <p style="font-size: 1.1rem; color: #222; margin-bottom: 18px;">Dear <b>${name || 'Customer'}</b>,</p>
-            <div style="background: #f1f8f2; border-left: 4px solid #2c6e31; padding: 16px 18px; border-radius: 6px; margin-bottom: 18px;">
+          <div style="padding: 28px 32px 24px 32px; text-align: center;">
+            <p style="font-size: 1.1rem; color: #222; margin-bottom: 18px; text-align: left;">Dear <b>${name || 'Customer'}</b>,</p>
+            <div style="background: #f1f8f2; border-left: 4px solid #2c6e31; padding: 16px 18px; border-radius: 6px; margin-bottom: 18px; text-align: left;">
               <span style="font-size: 1.05rem; color: #222;">${emailMessage.replace(/\n/g, '<br/>')}</span>
             </div>
-            <p style="margin: 0 0 18px 0; color: #555; font-size: 0.98rem;">Thank you for shopping with us.<br/>- <b>Aravali Publication</b></p>
+            <p style="margin: 0 0 18px 0; color: #555; font-size: 0.98rem; text-align: left;">Thank you for shopping with us.<br/>- <b>Aravali Publication</b></p>
             <div style="text-align: center; margin-top: 24px;">
               <a href="https://aravalipublication.com" style="display: inline-block; background: #2c6e31; color: #fff; text-decoration: none; padding: 10px 28px; border-radius: 5px; font-weight: 600; font-size: 1rem; letter-spacing: 0.5px;">Visit Our Website</a>
             </div>
