@@ -13,12 +13,29 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    <style>
     .books-grid {
-        display: flex
-;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    padding: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .original-price {
+        font-size: 14px;
+        color: #8b0000;
+        text-decoration: line-through;
+        margin-right: 8px;
+    }
+    
+    .offer-price {
+        font-size: 20px;
+        font-weight: bold;
+        color: #28a745;
+    }
+    
+    .book-price {
+        margin: 8px 0;
+        font-weight: 600;
     }
    </style>
 </head>
@@ -322,7 +339,8 @@
 
         addCartBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          addToCart(book._id, book.title, book.bookImage, book.price);
+          const finalPrice = book.offerPrice && book.offerPrice < book.price ? book.offerPrice : book.price;
+          addToCart(book._id, book.title, book.bookImage, finalPrice);
 
           Swal.fire({
             icon: 'success',

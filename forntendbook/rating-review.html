@@ -238,9 +238,28 @@
         const currentBookId = bookIds[currentIndex];
         document.getElementById('orderId').value = orderId;
         document.getElementById('bookId').value = currentBookId;
-        document.getElementById('currentBookInfo').innerText = `Review for Book ID: ${currentBookId}`;
+        
+        // Fetch book details to show book name
+        fetchBookDetails(currentBookId);
 
         document.getElementById('reviewForm').reset();
+    }
+
+    // Fetch book details by ID
+    async function fetchBookDetails(bookId) {
+        try {
+            const response = await fetch(`/api/book-details/${bookId}`);
+            const data = await response.json();
+            
+            if (data.success && data.book) {
+                document.getElementById('currentBookInfo').innerText = `Review for: ${data.book.title}`;
+            } else {
+                document.getElementById('currentBookInfo').innerText = `Review for Book ID: ${bookId}`;
+            }
+        } catch (error) {
+            console.error('Error fetching book details:', error);
+            document.getElementById('currentBookInfo').innerText = `Review for Book ID: ${bookId}`;
+        }
     }
 
     // Form Submit

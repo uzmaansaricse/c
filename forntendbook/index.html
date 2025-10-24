@@ -49,6 +49,24 @@
             display: block;
             margin: auto;
         }
+        
+        .original-price {
+            font-size: 14px;
+            color: #8b0000;
+            text-decoration: line-through;
+            margin-right: 8px;
+        }
+        
+        .offer-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .book-price {
+            margin: 8px 0;
+            font-weight: 600;
+        }
     </style>
 
 </head>
@@ -323,7 +341,7 @@
 
     <div class="about-section">
         <h2 class="about-h2">Books By P.R. Yadav</h2>
-        <p class="tagline">From Cells to Ecosystems-Discover the Science of Life</p>
+       
         <div class="about-container">
             <div class="about-card">
 
@@ -621,6 +639,98 @@
         fetchLatestContent();
 
 
+// 📘 New Arrivals - Latest/updated Editions
+async function fetchNewBooks() {
+  try {
+    const response = await fetch('/api/new-book');  
+    const data = await response.json();
+    console.log("Fetched New Books:", data);
+
+    const newBooksContainer = document.getElementById("newBooksContainer");
+    newBooksContainer.innerHTML = "";
+
+    // Check if there are no new books
+    if (!data.books || data.books.length === 0) {
+      newBooksContainer.innerHTML = `
+        <div style="text-align: center; padding: 30px; color: #666;">
+          <i class="fas fa-book" style="font-size: 36px; margin-bottom: 15px;"></i>
+          <h4>No New Books Available</h4>
+          <p>Check back later for new arrivals!</p>
+        </div>
+      `;
+      return;
+    }
+
+    data.books.forEach(book => {
+      if (!book || !book._id || !book.title) {
+        console.warn("Skipping invalid book:", book);
+        return;
+      }
+
+      const bookCard = document.createElement("div");
+      bookCard.classList.add("book-card");
+
+      bookCard.innerHTML = `
+        <img class="book-image" src="${book.bookImage || 'default.jpg'}" alt="${book.title}">
+        <div class="rating-overlay">
+          ${generateStars(book.averageRating)}
+          <span class="avg-text">(${book.averageRating || 0} ⭐)</span>
+        </div>
+        <div class="book-title">${book.title}</div>
+        <div class="book-author">by ${book.author || 'Unknown'}</div>
+        <div class="book-price">
+          ${
+            book.offerPrice && book.offerPrice < book.price
+            ? `<span class="original-price" style="text-decoration: line-through;">₹${book.price}</span> <span class="offer-price">₹${book.offerPrice}</span>`
+            : `₹${book.price}`
+          }
+        </div>
+        <button class="add-cart">Add to Cart</button>
+        <button class="go-cart" style="display: none;">Go to Cart</button>
+      `;
+
+      bookCard.querySelector(".book-image").addEventListener("click", () => {
+        window.location.href = `/newbookDetelies.html?id=${book._id}`;
+      });
+
+      const addCartBtn = bookCard.querySelector(".add-cart");
+      const goCartBtn = bookCard.querySelector(".go-cart");
+
+      addCartBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const finalPrice = book.offerPrice && book.offerPrice < book.price ? book.offerPrice : book.price;
+        addToCart(book._id, book.title, book.bookImage, finalPrice);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Added to Cart',
+          text: `"${book.title}" has been added to your cart.`,
+          showConfirmButton: false,
+          timer: 1500
+        });
+
+        addCartBtn.style.display = "none";
+        goCartBtn.style.display = "inline-block";
+      });
+
+      goCartBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.location.href = "Cart Page with Checkout.html";
+      });
+
+      newBooksContainer.appendChild(bookCard);
+    });
+
+  } catch (err) {
+    console.error("Error fetching new books:", err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops!',
+      text: 'Failed to load new books.',
+    });
+  }
+}
+
  
 
 // 📘 Old Arrivals
@@ -754,6 +864,7 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    fetchNewBooks();
     fetchOldBooks();
     updateCartNotification();
   });

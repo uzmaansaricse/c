@@ -4163,6 +4163,34 @@ const addReview = async (req, res) => {
     }
 };
 
+// Get Book Details by ID
+export const getBookById = async (req, res) => {
+  try {
+    const { bookId } = req.params;
+    
+    const book = await Book.findById(bookId).select('title author price category');
+    
+    if (!book) {
+      return res.status(404).json({
+        success: false,
+        message: "Book not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      book: book
+    });
+
+  } catch (error) {
+    console.error("Error fetching book:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching book details"
+    });
+  }
+};
+
 
 
 export { addReview, };

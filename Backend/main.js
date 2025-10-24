@@ -356,7 +356,7 @@ import {
     uploadContent,
     uploadCSV, uploadImage, usergetOrders, validateQR, getUserProfile, deleteAccount,
     getAllPendingOrders,
-    deleteOrderById, getQRStats, clearAllQR, getUserOrdersForAdmin,
+    deleteOrderById, getQRStats, clearAllQR, getUserOrdersForAdmin, getBookById,
 } from "./controllers/authController.js";
 // import { getLoggedInUserOrders } from "./controllers/authController.js";
 
@@ -550,6 +550,9 @@ app.delete("/api/clear-all-qr", clearAllQR);
 
 // 📌 Get User Orders for Admin
 app.get("/api/user-orders", getUserOrdersForAdmin);
+
+// 📌 Get Book Details by ID
+app.get("/api/book-details/:bookId", getBookById);
 
 // // order....
 
