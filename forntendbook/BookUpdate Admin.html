@@ -140,6 +140,37 @@
     .image-remove-btn:hover {
       background: rgba(255, 255, 255, 0.9);
     }
+
+    .image-preview-slot {
+      margin-top: 10px;
+      min-height: 80px;
+      border: 2px dashed #ddd;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .image-preview-slot img {
+      max-width: 100%;
+      max-height: 80px;
+      border-radius: 3px;
+    }
+
+    .image-preview-slot .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(255, 0, 0, 0.8);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      font-size: 12px;
+    }
   </style>
     <script src="admin-auth.js"></script>
 </head>
@@ -192,11 +223,42 @@
       <small style="color: #4caf50; font-weight: 600; display: block; margin: 5px 0;">
         ⭐ Upload images in order: First image = Front Cover, then remaining images in sequence.
       </small>
-      <input type="file" id="bookImages" name="bookImages" accept="image/*" multiple />
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 10px 0;">
+        <div>
+          <label for="bookImage1">Image 1 (Front Cover):</label>
+          <input type="file" id="bookImage1" name="bookImage1" accept="image/*" onchange="previewImage(1)" />
+          <div id="preview1" class="image-preview-slot"></div>
+        </div>
+        
+        <div>
+          <label for="bookImage2">Image 2:</label>
+          <input type="file" id="bookImage2" name="bookImage2" accept="image/*" onchange="previewImage(2)" />
+          <div id="preview2" class="image-preview-slot"></div>
+        </div>
+        
+        <div>
+          <label for="bookImage3">Image 3:</label>
+          <input type="file" id="bookImage3" name="bookImage3" accept="image/*" onchange="previewImage(3)" />
+          <div id="preview3" class="image-preview-slot"></div>
+        </div>
+        
+        <div>
+          <label for="bookImage4">Image 4:</label>
+          <input type="file" id="bookImage4" name="bookImage4" accept="image/*" onchange="previewImage(4)" />
+          <div id="preview4" class="image-preview-slot"></div>
+        </div>
+        
+        <div>
+          <label for="bookImage5">Image 5:</label>
+          <input type="file" id="bookImage5" name="bookImage5" accept="image/*" onchange="previewImage(5)" />
+          <div id="preview5" class="image-preview-slot"></div>
+        </div>
+      </div>
+      
       <small style="color: #666; display: block; margin: 5px 0;">
         Note: Images will display on the user side in the exact order you upload them.
       </small>
-      <div id="imagePreview"></div>
       <button type="submit">Update</button>
     </form>
   </div>
@@ -227,27 +289,61 @@
     }
 
     function renderImagePreview(urls) {
-      const previewContainer = document.getElementById('imagePreview');
-      previewContainer.innerHTML = '';
+      // Clear all preview slots first
+      for (let i = 1; i <= 5; i++) {
+        const previewSlot = document.getElementById(`preview${i}`);
+        previewSlot.innerHTML = '';
+      }
+      
+      // Show existing images in their slots
       urls.forEach((url, idx) => {
-        const wrapper = document.createElement('div');
-        wrapper.classList.add('image-wrapper');
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = 'Book Image';
-        // Remove button
-        const btn = document.createElement('button');
-        btn.innerText = '✖';
-        btn.title = 'Remove';
-        btn.className = 'image-remove-btn';
-        btn.onclick = function() {
-          urls.splice(idx, 1);
-          renderImagePreview(urls);
-        };
-        wrapper.appendChild(img);
-        wrapper.appendChild(btn);
-        previewContainer.appendChild(wrapper);
+        if (idx < 5) {
+          const previewSlot = document.getElementById(`preview${idx + 1}`);
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = `Book Image ${idx + 1}`;
+          
+          const removeBtn = document.createElement('button');
+          removeBtn.innerHTML = '×';
+          removeBtn.className = 'remove-btn';
+          removeBtn.onclick = function() {
+            urls.splice(idx, 1);
+            renderImagePreview(urls);
+          };
+          
+          previewSlot.innerHTML = '';
+          previewSlot.appendChild(img);
+          previewSlot.appendChild(removeBtn);
+        }
       });
+    }
+
+    // Preview individual image when selected
+    function previewImage(slotNumber) {
+      const fileInput = document.getElementById(`bookImage${slotNumber}`);
+      const previewSlot = document.getElementById(`preview${slotNumber}`);
+      
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.alt = `Selected Image ${slotNumber}`;
+          
+          const removeBtn = document.createElement('button');
+          removeBtn.innerHTML = '×';
+          removeBtn.className = 'remove-btn';
+          removeBtn.onclick = function() {
+            fileInput.value = '';
+            previewSlot.innerHTML = '';
+          };
+          
+          previewSlot.innerHTML = '';
+          previewSlot.appendChild(img);
+          previewSlot.appendChild(removeBtn);
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      }
     }
 
     async function showUpdateForm(bookId) {
@@ -273,55 +369,16 @@
       const urls = book.bookImages ? [...book.bookImages] : [];
       renderImagePreview(urls);
       window._bookImageUrls = urls;
-      // Reset file input
-      document.getElementById('bookImages').value = '';
+      
+      // Clear all file inputs
+      for (let i = 1; i <= 5; i++) {
+        document.getElementById(`bookImage${i}`).value = '';
+      }
       // Set delete button handler for this book
       document.getElementById('deleteBookBtn').onclick = function() {
         deleteBook(bookId, true);
       };
     }
-
-    // Preview selected images before upload - SEQUENTIAL ORDER
-    document.getElementById('bookImages').addEventListener('change', function(e) {
-      const previewContainer = document.getElementById('imagePreview');
-      previewContainer.innerHTML = '';
-      const files = e.target.files;
-      if (files.length === 0) return;
-      
-      // Clear existing URLs to replace with new uploads
-      window._bookImageUrls = [];
-      
-      // Show preview in sequential order
-      for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          const wrapper = document.createElement('div');
-          wrapper.style.display = 'inline-block';
-          wrapper.style.margin = '5px';
-          wrapper.style.position = 'relative';
-          
-          const img = document.createElement('img');
-          img.src = event.target.result;
-          img.alt = 'Selected Image ' + (i + 1);
-          img.style.width = '80px';
-          img.style.border = '1px solid #ccc';
-          img.style.borderRadius = '5px';
-          
-          const label = document.createElement('div');
-          label.textContent = i === 0 ? 'Front Cover' : 'Image ' + (i + 1);
-          label.style.fontSize = '10px';
-          label.style.textAlign = 'center';
-          label.style.marginTop = '2px';
-          label.style.color = i === 0 ? '#4caf50' : '#666';
-          label.style.fontWeight = i === 0 ? 'bold' : 'normal';
-          
-          wrapper.appendChild(img);
-          wrapper.appendChild(label);
-          previewContainer.appendChild(wrapper);
-        };
-        reader.readAsDataURL(files[i]);
-      }
-    });
 
     document.getElementById('bookUpdateForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -341,13 +398,27 @@
       formData.append('mainImageIndex', document.getElementById('mainImageIndex').value);
       
       // ✅ SEQUENTIAL IMAGE UPLOAD - Add new images if selected
-      const files = document.getElementById('bookImages').files;
-      if (files.length > 0) {
-        // When new images are uploaded, they replace old ones in sequential order
-        // First uploaded image becomes the front cover (index 0)
-        for (let i = 0; i < files.length; i++) {
-          formData.append('bookImages', files[i]);
+      const imageFields = [
+        "bookImage1",
+        "bookImage2", 
+        "bookImage3",
+        "bookImage4",
+        "bookImage5"
+      ];
+
+      let hasNewImages = false;
+      let imageCount = 0;
+      
+      for (let field of imageFields) {
+        const fileInput = document.getElementById(field);
+        if (fileInput && fileInput.files[0]) {
+          formData.append("bookImages", fileInput.files[0]);
+          hasNewImages = true;
+          imageCount++;
         }
+      }
+
+      if (hasNewImages) {
         // Set mainImageIndex to 0 when uploading new images
         formData.set('mainImageIndex', '0');
       } else {

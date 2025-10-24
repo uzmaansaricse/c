@@ -719,53 +719,86 @@
             doc.text('[Warehouse Address]', 120, 89);
             doc.text('Phone: 8146785679', 120, 96);
             
-            // Items to pack
-            const tableStartY = 125;
+            // Package details
+            const packageStartY = 125;
             
             doc.setFont(undefined, 'bold');
-            doc.text('ITEMS TO PACK:', 20, 120);
+            doc.text('PACKAGE DETAILS:', 20, 120);
             
-            // Table headers
-            doc.rect(20, tableStartY, 170, 8);
-            doc.text('S.No', 25, tableStartY + 5);
-            doc.text('Item Description', 45, tableStartY + 5);
-            doc.text('Quantity', 140, tableStartY + 5);
-            doc.text('Packed', 165, tableStartY + 5);
+            // Calculate total weight and quantity
+            let totalQuantity = 0;
+            let totalWeight = 0;
             
-            // Table rows
-            doc.setFont(undefined, 'normal');
-            let currentY = tableStartY + 8;
-            
-            order.books.forEach((book, index) => {
-                doc.rect(20, currentY, 170, 8);
-                doc.text((index + 1).toString(), 25, currentY + 5);
-                doc.text(book.title.substring(0, 35), 45, currentY + 5);
-                doc.text(book.quantity.toString(), 145, currentY + 5);
-                doc.text('☐', 170, currentY + 5); // Checkbox for packed
-                
-                currentY += 8;
+            order.books.forEach(book => {
+                totalQuantity += book.quantity;
+                // Assuming average book weight of 0.5kg, or use book.weight if available
+                const bookWeight = book.weight || 0.5;
+                totalWeight += bookWeight * book.quantity;
             });
             
-            // Instructions
-            doc.setFont(undefined, 'bold');
-            doc.text('PACKING INSTRUCTIONS:', 20, currentY + 20);
+            // Package info table
+            doc.rect(20, packageStartY, 170, 8);
+            doc.text('Package Information', 25, packageStartY + 5);
+            
+            let currentY = packageStartY + 8;
+            
+            doc.rect(20, currentY, 170, 8);
             doc.setFont(undefined, 'normal');
-            doc.text('• Handle with care', 20, currentY + 27);
-            doc.text('• Check all items before packing', 20, currentY + 34);
-            doc.text('• Include invoice copy in package', 20, currentY + 41);
-            doc.text('• Seal package properly', 20, currentY + 48);
+            doc.text(`Total Items: ${totalQuantity} books`, 25, currentY + 5);
+            
+            currentY += 8;
+            doc.rect(20, currentY, 170, 8);
+            doc.text(`Total Weight: ${totalWeight.toFixed(2)} kg`, 25, currentY + 5);
+            
+            currentY += 8;
+            doc.rect(20, currentY, 170, 8);
+            doc.text(`Package Value: ₹${order.totalPrice}`, 25, currentY + 5);
+            
+            // Packing verification
+            currentY += 20;
+            doc.setFont(undefined, 'bold');
+            doc.text('PACKING VERIFICATION:', 20, currentY);
+            
+            currentY += 10;
+            doc.setFont(undefined, 'normal');
+            doc.text('☐ Items counted and verified', 20, currentY);
+            currentY += 7;
+            doc.text('☐ Package weight confirmed', 20, currentY);
+            currentY += 7;
+            doc.text('☐ Address label attached', 20, currentY);
+            currentY += 7;
+            doc.text('☐ Invoice copy included', 20, currentY);
+            currentY += 7;
+            doc.text('☐ Package sealed properly', 20, currentY);
+            
+            // Instructions
+            currentY += 20;
+            doc.setFont(undefined, 'bold');
+            doc.text('PACKING INSTRUCTIONS:', 20, currentY);
+            doc.setFont(undefined, 'normal');
+            currentY += 7;
+            doc.text('• Handle with care - Books inside', 20, currentY);
+            currentY += 7;
+            doc.text('• Check weight matches label', 20, currentY);
+            currentY += 7;
+            doc.text('• Use appropriate packaging material', 20, currentY);
+            currentY += 7;
+            doc.text('• Seal package securely', 20, currentY);
             
             // Signature section
+            currentY += 20;
             doc.setFont(undefined, 'bold');
-            doc.text('PACKED BY:', 20, currentY + 65);
-            doc.text('DATE:', 120, currentY + 65);
+            doc.text('PACKED BY:', 20, currentY);
+            doc.text('DATE & TIME:', 120, currentY);
             
+            currentY += 10;
             doc.setFont(undefined, 'normal');
-            doc.line(20, currentY + 75, 80, currentY + 75); // Signature line
-            doc.line(120, currentY + 75, 180, currentY + 75); // Date line
+            doc.line(20, currentY, 80, currentY); // Signature line
+            doc.line(120, currentY, 180, currentY); // Date line
             
-            doc.text('Signature', 20, currentY + 80);
-            doc.text('Date & Time', 120, currentY + 80);
+            currentY += 5;
+            doc.text('Signature', 20, currentY);
+            doc.text('Date & Time', 120, currentY);
             
             // Footer
             doc.setFontSize(8);
