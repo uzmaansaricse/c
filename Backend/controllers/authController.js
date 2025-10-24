@@ -3751,7 +3751,7 @@ const saveorder = async (req, res) => {
         existingOrder.userEmail = (user && user.email) || deliveryDetails.email || existingOrder.userEmail;
         existingOrder.loginMethodId = loginMethodId || existingOrder.loginMethodId;
         existingOrder.paymentId = paymentId;
-        existingOrder.status = "Paid";
+        existingOrder.status = "Unshipped"; // Changed from "Paid" to "Unshipped"
         existingOrder.deliveryDetails = {
             ...existingOrder.deliveryDetails,
             ...deliveryDetails

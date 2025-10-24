@@ -26,7 +26,7 @@ const orderSchema = new mongoose.Schema(
       pincode: { type: String, required: true },
     },
     paymentId: { type: String, required: false },
-    status: { type: String, enum: ["Pending", "Paid", "Failed", "Cancelled", "Incomplete"], default: "Pending" },
+    status: { type: String, enum: ["Pending", "Paid", "Failed", "Cancelled", "Incomplete", "Unshipped", "Shipped", "Delivered", "Refunded"], default: "Pending" },
     failureReason: { type: String, default: "" },
     trackingId: { type: String, default: "" },
     statusHistory: [

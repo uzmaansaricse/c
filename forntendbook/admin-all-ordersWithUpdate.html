@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Admin Orders & Summary</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="auth-check.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
@@ -98,13 +98,29 @@
         .action-btn {
             margin: 2px 0;
         }
-        .download-btn {
-            background: #ff9800;
-            color: #fff;
-            margin-top: 4px;
+        .invoice-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #2c6e31;
         }
-        .download-btn:hover {
-            background: #e67e22;
+        .invoice-btn {
+            background: #ff6b35;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .invoice-btn:hover {
+            background: #e55a2b;
+        }
+        .invoice-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
         .table-responsive {
             overflow-x: auto;
@@ -158,6 +174,16 @@
         tbody tr:hover {
             background-color: #f1f1f1;
         }
+        .checkbox-cell {
+            width: 50px;
+        }
+        .order-checkbox {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+        .selected-row {
+            background-color: #e8f5e8 !important;
+        }
         @media (max-width: 768px) {
             .container {
                 margin-left: 0;
@@ -169,23 +195,8 @@
                 height: auto;
                 box-shadow: none;
             }
-            .sidebar h2 {
-                font-size: 20px;
-            }
-            h1 {
-                font-size: 20px;
-            }
-            th, td {
-                font-size: 14px;
-            }
-        }
-        @media (max-width: 480px) {
-            table {
-                font-size: 12px;
-            }
         }
     </style>
-
     <script src="admin-auth.js"></script>
 </head>
 
@@ -199,18 +210,25 @@
         <li><a href="AdminPendingOrdersSavenday.html"><i class="fa-solid fa-clock"></i> Pending Orders</a></li>
         <li><a href="admin-all-ordersWithUpdate.html"><i class="fa-solid fa-globe"></i> Manage Orders</a></li>
         <li><a href="orderAdmin-analytics.html"><i class="fa-solid fa-chart-line"></i> Order Analytics</a></li>
-        <!-- <li><a href="Admin order summery.html"><i class="fa-solid fa-list"></i> Order Summary</a></li> -->
         <li><a href="book-upload.html"><i class="fa-solid fa-upload"></i> Book Upload</a></li>
         <li><a href="BookUpdate Admin.html"><i class="fa-solid fa-pen-to-square"></i> Book Update/Delete</a></li>
         <li><a href="uploadcsv.html"><i class="fa-solid fa-cloud-arrow-up"></i> Upload CSV</a></li>
-
-          <li><a href="index.html"><i class="fa-solid fa-headset"></i>Back to Webstite</a></li>
+          <li><a href="index.html"><i class="fa-solid fa-headset"></i>Back to Website</a></li>
         <li><a href="Logout.html"><i class="fa-solid fa-headset"></i> Logout</a></li>
         </ul>
     </div>
 
     <div class="container">
         <h1>Admin Orders & Summary</h1>
+        
+        <div class="invoice-section">
+            <h3>Invoice Generation</h3>
+            <p>Select orders with status "Unshipped" and successful payment to generate invoices and mark as "Shipped"</p>
+            <button id="generateInvoiceBtn" class="invoice-btn" onclick="generateInvoicesForSelected()" disabled>
+                Generate Invoice for Selected Orders (0)
+            </button>
+        </div>
+
         <div class="filter-section">
             <label for="searchInput">Search:</label>
             <input type="text" id="searchInput" placeholder="Order ID" oninput="fetchOrders()">
@@ -219,21 +237,43 @@
             <select id="statusFilter" onchange="fetchOrders()">
                 <option value="">All</option>
                 <option value="Pending">Pending</option>
-            //    <option value="Unshipped">Unshipped</option>
+                <option value="Unshipped">Unshipped</option>
                 <option value="Shipped">Shipped</option>
                 <option value="Delivered">Delivered</option>
                 <option value="Cancelled">Cancelled</option>
                 <option value="Refunded">Refunded</option>
             </select>
 
-            <label for="dateRange">Date:</label>
+            <label for="monthFilter">Month:</label>
+            <select id="monthFilter" onchange="fetchOrders()">
+                <option value="">All Months</option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+
+            <label for="yearFilter">Year:</label>
+            <select id="yearFilter" onchange="fetchOrders()">
+                <option value="">All Years</option>
+            </select>
+
+            <label for="dateRange">Date Range:</label>
             <select id="dateRange" onchange="fetchOrders()">
                 <option value="1">Last Day (24 hours)</option>
                 <option value="3">Last 3 Days</option>
                 <option value="7" selected>Last 7 Days</option>
                 <option value="14">Last 14 Days</option>
                 <option value="30">Last 30 Days</option>
-                <!-- <option value="all">All</option> -->
+                <option value="all">All Time</option>
             </select>
 
             <label for="sortDate">Sort:</label>
@@ -242,10 +282,14 @@
                 <option value="asc">Date Asc</option>
             </select>
         </div>
+        
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
+                        <th class="checkbox-cell">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="order-checkbox">
+                        </th>
                         <th>Details</th>
                         <th>Name</th>
                         <th>Status</th>
@@ -269,6 +313,9 @@
     </div>
 
     <script>
+        let allOrders = [];
+        let selectedOrders = new Set();
+
         function formatDate(isoDate) {
             const date = new Date(isoDate);
             return `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
@@ -277,12 +324,13 @@
         function filterOrders(orders) {
             const search = document.getElementById("searchInput").value.trim().toLowerCase();
             const status = document.getElementById("statusFilter").value;
+            const month = document.getElementById("monthFilter").value;
+            const year = document.getElementById("yearFilter").value;
             const dateRange = document.getElementById("dateRange").value;
             const sort = document.getElementById("sortDate").value;
 
             let filtered = orders;
 
-            // Filter by search (Order ID or Tracking ID)
             if (search) {
                 filtered = filtered.filter(order =>
                     order._id.toLowerCase().includes(search) ||
@@ -290,24 +338,33 @@
                 );
             }
 
-            // Filter by status (case-insensitive, trimmed)
             if (status) {
                 filtered = filtered.filter(order => {
                     const orderStatus = (order.status || '').toString().trim().toLowerCase();
                     const filterStatus = status.toString().trim().toLowerCase();
-                    console.log('Comparing:', orderStatus, 'vs', filterStatus);
                     return orderStatus === filterStatus;
                 });
-                console.log('Filtered orders:', filtered);
-                console.log('All order statuses:', filtered.map(o => o.status));
             }
 
-            // Filter by date range
-            if (dateRange !== "all") {
+            // Month/Year filtering
+            if (month || year) {
+                filtered = filtered.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    const orderMonth = (orderDate.getMonth() + 1).toString().padStart(2, '0');
+                    const orderYear = orderDate.getFullYear().toString();
+                    
+                    const matchMonth = !month || orderMonth === month;
+                    const matchYear = !year || orderYear === year;
+                    
+                    return matchMonth && matchYear;
+                });
+            }
+
+            // Date range filtering (only if month/year not selected)
+            if (dateRange !== "all" && !month && !year) {
                 const days = parseInt(dateRange, 10);
                 const now = new Date();
                 filtered = filtered.filter(order => {
-                    // Use pendingSince for pending orders if exists and is valid date, else createdAt
                     let orderDate;
                     if (order.status && order.status.toLowerCase() === "pending" && order.pendingSince && !isNaN(new Date(order.pendingSince).getTime())) {
                         orderDate = new Date(order.pendingSince);
@@ -315,12 +372,10 @@
                         orderDate = new Date(order.createdAt);
                     }
                     const diffDays = (now - orderDate) / (1000 * 60 * 60 * 24);
-                    console.log('Order ID:', order._id, 'Status:', order.status, 'Order Date:', orderDate, 'Diff Days:', diffDays, 'Days Filter:', days);
                     return diffDays <= days;
                 });
             }
 
-            // Sort by date
             filtered.sort((a, b) => {
                 if (sort === "asc") {
                     return new Date(a.createdAt) - new Date(b.createdAt);
@@ -332,41 +387,79 @@
             return filtered;
         }
 
-        async function fetchOrders() {
-            const status = document.getElementById("statusFilter").value;
-            let orders = [];
-
-            // Always fetch all orders and filter on frontend for all statuses including pending
-            const res = await fetch(`/admin/orders`);
-            orders = await res.json();
-
-            console.log('orders are : ',orders)
-
-            // Flatten books for table display (same as before)
-            let flatOrders = [];
+        function populateYearDropdown(orders) {
+            const yearSelect = document.getElementById("yearFilter");
+            const years = new Set();
+            
             orders.forEach(order => {
-                order.books.forEach(book => {
-                    flatOrders.push({
-                        ...order,
-                        pendingSince: order.pendingSince,  // Add pendingSince here
-                        bookTitle: book.title,
-                        bookQuantity: book.quantity,
-                        bookPrice: book.price,
-                        bookTotal: book.price * book.quantity
+                const year = new Date(order.createdAt).getFullYear();
+                years.add(year);
+            });
+            
+            // Clear existing options except "All Years"
+            yearSelect.innerHTML = '<option value="">All Years</option>';
+            
+            // Add years in descending order
+            Array.from(years).sort((a, b) => b - a).forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            });
+        }
+
+        async function fetchOrders() {
+            try {
+                const res = await fetch(`/admin/orders`);
+                const orders = await res.json();
+                allOrders = orders;
+
+                // Populate year dropdown
+                populateYearDropdown(orders);
+
+                let flatOrders = [];
+                orders.forEach(order => {
+                    order.books.forEach(book => {
+                        flatOrders.push({
+                            ...order,
+                            pendingSince: order.pendingSince,
+                            bookTitle: book.title,
+                            bookQuantity: book.quantity,
+                            bookPrice: book.price,
+                            bookTotal: book.price * book.quantity
+                        });
                     });
                 });
-            });
 
-            // Apply frontend filter for all statuses including pending
-            flatOrders = filterOrders(flatOrders);
+                flatOrders = filterOrders(flatOrders);
+                renderOrderTable(flatOrders);
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+            }
+        }
 
-            // Render table as before...
+        function renderOrderTable(orders) {
             const table = document.getElementById("orderTable");
             table.innerHTML = '';
 
-                flatOrders.forEach(order => {
+            orders.forEach(order => {
                 const row = document.createElement("tr");
+                const isSelected = selectedOrders.has(order._id);
+                const canSelect = order.status === 'Unshipped' && order.paymentId; // Only unshipped orders with payment
+                
+                if (isSelected) {
+                    row.classList.add('selected-row');
+                }
+
                 row.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" 
+                               class="order-checkbox" 
+                               data-order-id="${order._id}"
+                               ${isSelected ? 'checked' : ''}
+                               ${canSelect ? '' : 'disabled'}
+                               onchange="toggleOrderSelection('${order._id}')">
+                    </td>
                     <td>
                         <button class="action-btn" onclick="window.open('order-details.html?id=${order._id}','_blank')">View</button>
                     </td>
@@ -400,21 +493,301 @@
                 `;
                 table.appendChild(row);
             });
+
+            updateInvoiceButton();
+        }
+
+        function toggleOrderSelection(orderId) {
+            if (selectedOrders.has(orderId)) {
+                selectedOrders.delete(orderId);
+            } else {
+                selectedOrders.add(orderId);
+            }
+            updateInvoiceButton();
+            updateRowHighlight(orderId);
+        }
+
+        function updateRowHighlight(orderId) {
+            const checkbox = document.querySelector(`input[data-order-id="${orderId}"]`);
+            const row = checkbox.closest('tr');
+            if (selectedOrders.has(orderId)) {
+                row.classList.add('selected-row');
+            } else {
+                row.classList.remove('selected-row');
+            }
+        }
+
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const orderCheckboxes = document.querySelectorAll('.order-checkbox:not(#selectAll):not(:disabled)');
+            
+            if (selectAllCheckbox.checked) {
+                orderCheckboxes.forEach(checkbox => {
+                    const orderId = checkbox.getAttribute('data-order-id');
+                    selectedOrders.add(orderId);
+                    checkbox.checked = true;
+                    updateRowHighlight(orderId);
+                });
+            } else {
+                orderCheckboxes.forEach(checkbox => {
+                    const orderId = checkbox.getAttribute('data-order-id');
+                    selectedOrders.delete(orderId);
+                    checkbox.checked = false;
+                    updateRowHighlight(orderId);
+                });
+            }
+            updateInvoiceButton();
+        }
+
+        function updateInvoiceButton() {
+            const btn = document.getElementById('generateInvoiceBtn');
+            const count = selectedOrders.size;
+            btn.textContent = `Generate Invoice for Selected Orders (${count})`;
+            btn.disabled = count === 0;
+        }
+
+        async function generateInvoicesForSelected() {
+            if (selectedOrders.size === 0) return;
+
+            try {
+                const selectedOrderIds = Array.from(selectedOrders);
+                const ordersToProcess = allOrders.filter(order => selectedOrderIds.includes(order._id));
+
+                // Generate PDF invoice
+                await generateInvoicePDF(ordersToProcess);
+
+                // Update order statuses to "Shipped"
+                for (const orderId of selectedOrderIds) {
+                    await updateOrderStatus(orderId, 'Shipped');
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: `Invoice generated and ${selectedOrderIds.length} orders marked as shipped.`,
+                });
+
+                // Clear selections and refresh
+                selectedOrders.clear();
+                fetchOrders();
+
+            } catch (error) {
+                console.error('Error generating invoices:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to generate invoices. Please try again.',
+                });
+            }
+        }
+
+        async function generateInvoicePDF(orders) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let isFirstPage = true;
+
+            orders.forEach((order, orderIndex) => {
+                // Add new page for each order (except first)
+                if (!isFirstPage) {
+                    doc.addPage();
+                }
+                isFirstPage = false;
+
+                // INVOICE PAGE
+                generateInvoicePage(doc, order, orderIndex + 1);
+                
+                // Add new page for packing slip
+                doc.addPage();
+                
+                // PACKING SLIP PAGE
+                generatePackingSlipPage(doc, order, orderIndex + 1);
+            });
+
+            doc.save(`invoices_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        function generateInvoicePage(doc, order, orderNumber) {
+            // Header
+            doc.setFontSize(20);
+            doc.setFont(undefined, 'bold');
+            doc.text('ARAVALI PUBLICATION', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(16);
+            doc.text('INVOICE', 105, 30, { align: 'center' });
+            
+            // Invoice details
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Invoice #: INV-${order.orderId || order._id}`, 20, 45);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 52);
+            doc.text(`Order ID: ${order.orderId || order._id}`, 20, 59);
+            
+            // Company details (right side)
+            doc.text('ARAVALI PUBLICATION', 140, 45);
+            doc.text('Address: [Company Address]', 140, 52);
+            doc.text('Phone: 8146785679', 140, 59);
+            doc.text('Email: info@aravalipublication.com', 140, 66);
+            
+            // Customer details
+            doc.setFont(undefined, 'bold');
+            doc.text('BILL TO:', 20, 80);
+            doc.setFont(undefined, 'normal');
+            doc.text(order.deliveryDetails.fullName, 20, 87);
+            doc.text(order.deliveryDetails.address, 20, 94);
+            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, 20, 101);
+            doc.text(`PIN: ${order.deliveryDetails.pincode}`, 20, 108);
+            doc.text(`Phone: ${order.deliveryDetails.mobile}`, 20, 115);
+            if (order.deliveryDetails.email) {
+                doc.text(`Email: ${order.deliveryDetails.email}`, 20, 122);
+            }
+            
+            // Items table
+            const tableStartY = 135;
+            
+            // Table headers
+            doc.setFont(undefined, 'bold');
+            doc.rect(20, tableStartY, 170, 8);
+            doc.text('S.No', 25, tableStartY + 5);
+            doc.text('Description', 45, tableStartY + 5);
+            doc.text('Qty', 120, tableStartY + 5);
+            doc.text('Rate', 140, tableStartY + 5);
+            doc.text('Amount', 165, tableStartY + 5);
+            
+            // Table rows
+            doc.setFont(undefined, 'normal');
+            let currentY = tableStartY + 8;
+            let totalAmount = 0;
+            
+            order.books.forEach((book, index) => {
+                const amount = book.price * book.quantity;
+                totalAmount += amount;
+                
+                doc.rect(20, currentY, 170, 8);
+                doc.text((index + 1).toString(), 25, currentY + 5);
+                doc.text(book.title.substring(0, 30), 45, currentY + 5);
+                doc.text(book.quantity.toString(), 125, currentY + 5);
+                doc.text(`₹${book.price}`, 145, currentY + 5);
+                doc.text(`₹${amount}`, 170, currentY + 5);
+                
+                currentY += 8;
+            });
+            
+            // Total
+            doc.setFont(undefined, 'bold');
+            doc.rect(20, currentY, 170, 8);
+            doc.text('TOTAL', 120, currentY + 5);
+            doc.text(`₹${totalAmount}`, 170, currentY + 5);
+            
+            // Footer
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(8);
+            doc.text('Thank you for your business!', 105, 270, { align: 'center' });
+            doc.text('This is a computer generated invoice.', 105, 275, { align: 'center' });
+        }
+
+        function generatePackingSlipPage(doc, order, orderNumber) {
+            // Header
+            doc.setFontSize(20);
+            doc.setFont(undefined, 'bold');
+            doc.text('ARAVALI PUBLICATION', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(16);
+            doc.text('PACKING SLIP', 105, 30, { align: 'center' });
+            
+            // Packing slip details
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Packing Slip #: PS-${order.orderId || order._id}`, 20, 45);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 52);
+            doc.text(`Order ID: ${order.orderId || order._id}`, 20, 59);
+            
+            // Shipping details
+            doc.setFont(undefined, 'bold');
+            doc.text('SHIP TO:', 20, 75);
+            doc.setFont(undefined, 'normal');
+            doc.text(order.deliveryDetails.fullName, 20, 82);
+            doc.text(order.deliveryDetails.address, 20, 89);
+            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, 20, 96);
+            doc.text(`PIN: ${order.deliveryDetails.pincode}`, 20, 103);
+            doc.text(`Phone: ${order.deliveryDetails.mobile}`, 20, 110);
+            
+            // Shipping from
+            doc.setFont(undefined, 'bold');
+            doc.text('SHIP FROM:', 120, 75);
+            doc.setFont(undefined, 'normal');
+            doc.text('ARAVALI PUBLICATION', 120, 82);
+            doc.text('[Warehouse Address]', 120, 89);
+            doc.text('Phone: 8146785679', 120, 96);
+            
+            // Items to pack
+            const tableStartY = 125;
+            
+            doc.setFont(undefined, 'bold');
+            doc.text('ITEMS TO PACK:', 20, 120);
+            
+            // Table headers
+            doc.rect(20, tableStartY, 170, 8);
+            doc.text('S.No', 25, tableStartY + 5);
+            doc.text('Item Description', 45, tableStartY + 5);
+            doc.text('Quantity', 140, tableStartY + 5);
+            doc.text('Packed', 165, tableStartY + 5);
+            
+            // Table rows
+            doc.setFont(undefined, 'normal');
+            let currentY = tableStartY + 8;
+            
+            order.books.forEach((book, index) => {
+                doc.rect(20, currentY, 170, 8);
+                doc.text((index + 1).toString(), 25, currentY + 5);
+                doc.text(book.title.substring(0, 35), 45, currentY + 5);
+                doc.text(book.quantity.toString(), 145, currentY + 5);
+                doc.text('☐', 170, currentY + 5); // Checkbox for packed
+                
+                currentY += 8;
+            });
+            
+            // Instructions
+            doc.setFont(undefined, 'bold');
+            doc.text('PACKING INSTRUCTIONS:', 20, currentY + 20);
+            doc.setFont(undefined, 'normal');
+            doc.text('• Handle with care', 20, currentY + 27);
+            doc.text('• Check all items before packing', 20, currentY + 34);
+            doc.text('• Include invoice copy in package', 20, currentY + 41);
+            doc.text('• Seal package properly', 20, currentY + 48);
+            
+            // Signature section
+            doc.setFont(undefined, 'bold');
+            doc.text('PACKED BY:', 20, currentY + 65);
+            doc.text('DATE:', 120, currentY + 65);
+            
+            doc.setFont(undefined, 'normal');
+            doc.line(20, currentY + 75, 80, currentY + 75); // Signature line
+            doc.line(120, currentY + 75, 180, currentY + 75); // Date line
+            
+            doc.text('Signature', 20, currentY + 80);
+            doc.text('Date & Time', 120, currentY + 80);
+            
+            // Footer
+            doc.setFontSize(8);
+            doc.text('This is a computer generated packing slip.', 105, 270, { align: 'center' });
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            const res = await fetch(`/admin/order/${orderId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status })
+            });
+
+            if (!res.ok) {
+                throw new Error(`Failed to update order ${orderId}`);
+            }
         }
 
         async function updateOrder(orderId) {
             try {
                 const status = document.getElementById(`status-${orderId}`).value;
-
-                const res = await fetch(`/admin/order/${orderId}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ status })
-                });
-
-                if (!res.ok) {
-                    throw new Error("Failed to update order");
-                }
+                await updateOrderStatus(orderId, status);
 
                 Swal.fire({
                     icon: 'success',
@@ -436,10 +809,10 @@
             try {
                 const trackingId = document.getElementById(`tracking-${orderId}`).value;
 
-                // Fetch the order to get the email (userEmail)
                 const resOrder = await fetch(`/admin/order/${orderId}`);
                 const order = await resOrder.json();
                 const email = order.userEmail || (order.deliveryDetails && order.deliveryDetails.email);
+                
                 if (!email) {
                     Swal.fire({
                         icon: "error",
@@ -449,7 +822,6 @@
                     return;
                 }
 
-                // Send tracking/message to backend (with email)
                 const res = await fetch(`/order/${orderId}/tracking`, {
                     method: "PATCH",
                     headers: {
@@ -459,13 +831,9 @@
                     body: JSON.stringify({ trackingId, email }),
                 });
 
-                const text = await res.text();
-
                 if (!res.ok) {
                     throw new Error("Failed to update tracking ID");
                 }
-
-                const data = JSON.parse(text);
 
                 Swal.fire({
                     icon: "success",
@@ -484,38 +852,7 @@
             }
         }
 
-        // Order detail page (popup)
-        async function viewOrderDetails(orderId) {
-            try {
-                const res = await fetch(`/admin/order/${orderId}`);
-                const order = await res.json();
-                let html = `
-                    <b>Order ID:</b> ${order._id}<br>
-                    <b>Date:</b> ${formatDate(order.createdAt)}<br>
-                    <b>Status:</b> ${order.status}<br>
-                    <b>Customer:</b> ${order.deliveryDetails.fullName} (${order.deliveryDetails.mobile})<br>
-                    <b>Address:</b> ${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state} - ${order.deliveryDetails.pincode}<br>
-                    <b>Email:</b> ${order.userEmail || (order.deliveryDetails && order.deliveryDetails.email ? order.deliveryDetails.email : 'No Email')}<br>
-                    <b>Books:</b>
-                    <ul>
-                        ${order.books.map(book => `<li>${book.title} (Qty: ${book.quantity}) - ₹${book.price}</li>`).join('')}
-                    </ul>
-                    <b>Tracking ID:</b> ${order.trackingId || 'N/A'}
-                `;
-                Swal.fire({
-                    title: 'Order Details',
-                    html: html,
-                    width: 600
-                });
-            } catch (error) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Could not fetch order details."
-                });
-            }
-        }
-
+        // Initialize
         fetchOrders();
     </script>
     <script src="script.js"></script>
