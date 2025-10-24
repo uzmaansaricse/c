@@ -2,7 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("🔍 Manage Users page loaded");
   
   const userListContainer = document.getElementById("userList");
-  const userDetailContainer = document.getElementById("userDetail"); // Fixed ID
+  const userDetailContainer = document.getElementById("userDetail");
+  const userInfoContainer = document.getElementById("userInfo");
+  const userOrdersContainer = document.getElementById("userOrders");
   const searchName = document.getElementById("searchName");
   const searchEmail = document.getElementById("searchEmail");
   const searchMobile = document.getElementById("searchMobile");
@@ -75,11 +77,12 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ Users displayed successfully");
   }
 
-  // Show user details
-  window.showUserDetail = function(userId) {
+  // Show user details and orders
+  window.showUserDetail = async function(userId) {
     const user = allUsers.find(u => u._id === userId);
-    if (user && userDetailContainer) {
-      userDetailContainer.innerHTML = `
+    if (user && userInfoContainer) {
+      // Display user info
+      userInfoContainer.innerHTML = `
         <h3>User Details</h3>
         <p><strong>Name:</strong> ${user.name || 'N/A'}</p>
         <p><strong>Email:</strong> ${user.email || 'N/A'}</p>
@@ -89,8 +92,127 @@ document.addEventListener("DOMContentLoaded", () => {
         <p><strong>User ID:</strong> ${user._id}</p>
         <p><strong>Created:</strong> ${new Date(user.createdAt).toLocaleString()}</p>
       `;
+      
+      // Load user orders
+      await loadUserOrders(user.email, user._id);
     }
   };
+
+  // Load orders for a specific user
+  async function loadUserOrders(userEmail, userId) {
+    try {
+      userOrdersContainer.innerHTML = "<p>Loading orders...</p>";
+      
+      const response = await fetch(`http://localhost:9000/api/user-orders?email=${encodeURIComponent(userEmail)}&userId=${userId}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.orders) {
+        displayUserOrders(data.orders);
+      } else {
+        userOrdersContainer.innerHTML = `<p>No orders found for this user.</p>`;
+      }
+    } catch (error) {
+      console.error("Error loading user orders:", error);
+      userOrdersContainer.innerHTML = `<p>Error loading orders: ${error.message}</p>`;
+    }
+  }
+
+  // Display user orders with dropdown
+  function displayUserOrders(orders) {
+    if (orders.length === 0) {
+      userOrdersContainer.innerHTML = "<p>No orders found for this user.</p>";
+      return;
+    }
+
+    let html = `
+      <h3>User Orders (${orders.length})</h3>
+      <select class="order-dropdown" id="orderSelect" onchange="showOrderDetails()">
+        <option value="">Select an order to view details</option>
+    `;
+    
+    orders.forEach(order => {
+      const orderDate = new Date(order.createdAt).toLocaleDateString();
+      html += `<option value="${order._id}">Order ID: ${order.orderId} - ₹${order.totalPrice} - ${order.status} - ${orderDate}</option>`;
+    });
+    
+    html += `</select><div id="orderDetailsContainer"></div>`;
+    
+    userOrdersContainer.innerHTML = html;
+    
+    // Store orders for details display
+    window.currentUserOrders = orders;
+  }
+
+  // Show order details
+  window.showOrderDetails = function() {
+    const selectElement = document.getElementById('orderSelect');
+    const orderDetailsContainer = document.getElementById('orderDetailsContainer');
+    const selectedOrderId = selectElement.value;
+    
+    if (!selectedOrderId || !window.currentUserOrders) {
+      orderDetailsContainer.innerHTML = '';
+      return;
+    }
+    
+    const order = window.currentUserOrders.find(o => o._id === selectedOrderId);
+    if (!order) return;
+    
+    let html = `
+      <div class="order-details">
+        <h4>Order Details</h4>
+        <p><strong>Order ID:</strong> ${order.orderId}</p>
+        <p><strong>Status:</strong> <span style="color: ${getStatusColor(order.status)}">${order.status}</span></p>
+        <p><strong>Total Amount:</strong> ₹${order.totalPrice}</p>
+        <p><strong>Payment ID:</strong> ${order.paymentId || 'N/A'}</p>
+        <p><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+        
+        <h5>Delivery Details:</h5>
+        <p><strong>Name:</strong> ${order.deliveryDetails.fullName}</p>
+        <p><strong>Mobile:</strong> ${order.deliveryDetails.mobile}</p>
+        <p><strong>Email:</strong> ${order.deliveryDetails.email}</p>
+        <p><strong>Address:</strong> ${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state} - ${order.deliveryDetails.pincode}</p>
+        
+        <h5>Books Ordered:</h5>
+    `;
+    
+    order.books.forEach(book => {
+      html += `
+        <div class="order-item">
+          <p><strong>Title:</strong> ${book.title}</p>
+          <p><strong>Price:</strong> ₹${book.price}</p>
+          <p><strong>Quantity:</strong> ${book.quantity}</p>
+          <p><strong>Subtotal:</strong> ₹${book.price * book.quantity}</p>
+        </div>
+      `;
+    });
+    
+    if (order.trackingId) {
+      html += `<p><strong>Tracking ID:</strong> ${order.trackingId}</p>`;
+    }
+    
+    html += `</div>`;
+    
+    orderDetailsContainer.innerHTML = html;
+  };
+
+  // Get status color
+  function getStatusColor(status) {
+    const colors = {
+      'Pending': '#ff9800',
+      'Paid': '#4caf50',
+      'Failed': '#f44336',
+      'Cancelled': '#9e9e9e',
+      'Shipped': '#2196f3',
+      'Delivered': '#4caf50',
+      'Refunded': '#ff5722'
+    };
+    return colors[status] || '#666';
+  }
 
   // Search functionality
   function filterUsers() {

@@ -3366,9 +3366,23 @@ const createorder = async (req, res) => {
             });
         }
 
+        // Try to find user by email to link the order
+        let userId = null;
+        if (deliveryDetails.email) {
+            try {
+                const user = await UserLogin.findOne({ email: deliveryDetails.email });
+                if (user) {
+                    userId = user._id;
+                }
+            } catch (error) {
+                console.log("User lookup failed, proceeding without userId:", error.message);
+            }
+        }
+
         // Create order in DB with Pending status
         const newOrder = new Order({
             orderId,
+            userId: userId, // Link to user if found
             books: cart.map(book => ({
                 bookId: book.id,
                 title: book.title,
@@ -5231,6 +5245,47 @@ export const getQRStats = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error fetching QR statistics"
+    });
+  }
+};
+
+// Get User Orders for Admin Management
+export const getUserOrdersForAdmin = async (req, res) => {
+  try {
+    const { email, userId } = req.query;
+    
+    if (!email && !userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Email or userId is required"
+      });
+    }
+
+    // Build query to find orders by email or userId
+    let query = {};
+    if (email) {
+      query.userEmail = email;
+    }
+    if (userId) {
+      query.userId = userId;
+    }
+
+    const orders = await Order.find(query)
+      .sort({ createdAt: -1 })
+      .populate('books.bookId', 'title')
+      .lean();
+
+    res.json({
+      success: true,
+      orders: orders,
+      total: orders.length
+    });
+
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching user orders"
     });
   }
 };
