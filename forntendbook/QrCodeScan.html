@@ -210,7 +210,7 @@
 
         async function validateQRCode(qrCode) {
             try {
-                let response = await fetch(`http://localhost:9000/api/validate/${encodeURIComponent(qrCode)}`);
+                let response = await fetch(`/api/validate/${encodeURIComponent(qrCode)}`);
                 let data = await response.json();
 
                 if (data.success) {

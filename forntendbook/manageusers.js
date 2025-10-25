@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       userListContainer.innerHTML = "<p>Loading users...</p>";
       
-      const response = await fetch('http://localhost:9000/api/auth/all-users', {
+      const response = await fetch('/api/auth/all-users', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       userOrdersContainer.innerHTML = "<p>Loading orders...</p>";
       
-      const response = await fetch(`http://localhost:9000/api/user-orders?email=${encodeURIComponent(userEmail)}&userId=${userId}`);
+      const response = await fetch(`/api/user-orders?email=${encodeURIComponent(userEmail)}&userId=${userId}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
