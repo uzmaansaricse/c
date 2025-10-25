@@ -170,6 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <p><strong>Total Amount:</strong> ₹${order.totalPrice}</p>
         <p><strong>Payment ID:</strong> ${order.paymentId || 'N/A'}</p>
         <p><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+        <button class="btn-details" onclick="window.open('order-details.html?id=${order._id}','_blank')">View Full Order Details</button>
         
         <h5>Delivery Details:</h5>
         <p><strong>Name:</strong> ${order.deliveryDetails.fullName}</p>
