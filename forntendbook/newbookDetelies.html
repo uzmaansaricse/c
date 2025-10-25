@@ -186,6 +186,19 @@
     color: #4caf50;
     font-weight: bold;
 }
+
+.cart-added {
+    color: #28a745 !important;
+}
+
+.cart-not-added {
+    color: #888 !important;
+    text-decoration: line-through !important;
+}
+
+.hidden {
+    display: none !important;
+}
 </style>
 
  </head>
@@ -705,6 +718,91 @@ nextButton.addEventListener('click', showNextSlide);
             slider.style.transform = `translateX(-${index * 100}%)`;
         }
     };
+    </script>
+
+    <script>
+    // Similar Books Section
+    async function fetchSimilarBooks() {
+        try {
+            const response = await fetch('/api/new-book');
+            const data = await response.json();
+            const similarBooksContainer = document.getElementById("newBooksContainer");
+            similarBooksContainer.innerHTML = "";
+
+            if (!data.books || data.books.length === 0) {
+                similarBooksContainer.innerHTML = `<p>No similar books available</p>`;
+                return;
+            }
+
+            data.books.slice(0, 6).forEach(book => {
+                const bookCard = document.createElement("div");
+                bookCard.classList.add("book-card");
+
+                const isInCart = checkIfInCart(book._id);
+                
+                bookCard.innerHTML = `
+                    <img class="book-image" src="${book.bookImage}" alt="${book.title}">
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-author">by ${book.author}</div>
+                    <div class="book-price">
+                        <span class="old-price ${isInCart ? 'cart-added' : 'cart-not-added'}">₹${book.price}</span>
+                        <span class="offer-price ${isInCart ? 'cart-added' : 'cart-not-added'}">₹${book.offerPrice}</span>
+                    </div>
+                    <button class="add-cart ${isInCart ? 'hidden' : ''}" data-id="${book._id}">Add to Cart</button>
+                    <button class="go-cart ${isInCart ? '' : 'hidden'}" data-id="${book._id}">Go to Cart</button>
+                `;
+
+                bookCard.querySelector(".book-image").addEventListener("click", () => {
+                    window.location.href = `newbookDetelies.html?id=${book._id}`;
+                });
+
+                similarBooksContainer.appendChild(bookCard);
+            });
+
+            // Add event listeners for cart buttons
+            document.querySelectorAll('.add-cart').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const bookId = this.dataset.id;
+                    const book = data.books.find(b => b._id === bookId);
+                    addToCart(book._id, book.title, book.bookImage, book.offerPrice);
+                    updateCartButtons(bookId);
+                });
+            });
+
+            document.querySelectorAll('.go-cart').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    window.location.href = "Cart Page with Checkout.html";
+                });
+            });
+
+        } catch (error) {
+            console.error("Error fetching similar books:", error);
+        }
+    }
+
+    function checkIfInCart(bookId) {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        return cart.some(item => item.id === bookId);
+    }
+
+    function updateCartButtons(bookId) {
+        const bookCard = document.querySelector(`[data-id="${bookId}"]`).closest('.book-card');
+        const addBtn = bookCard.querySelector('.add-cart');
+        const goBtn = bookCard.querySelector('.go-cart');
+        const priceElements = bookCard.querySelectorAll('.old-price, .offer-price');
+        
+        addBtn.classList.add('hidden');
+        goBtn.classList.remove('hidden');
+        priceElements.forEach(el => {
+            el.classList.remove('cart-not-added');
+            el.classList.add('cart-added');
+        });
+    }
+
+    // Load similar books when page loads
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchSimilarBooks();
+    });
     </script>
     
  <script src="script.js"></script>

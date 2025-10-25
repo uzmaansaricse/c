@@ -67,6 +67,19 @@
             margin: 8px 0;
             font-weight: 600;
         }
+
+        .cart-added {
+            color: #28a745 !important;
+        }
+        
+        .cart-not-added {
+            color: #888 !important;
+            text-decoration: line-through !important;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
     </style>
 
 </head>
@@ -302,10 +315,10 @@
 
 
         <!-- Popup 4 -->
-        <div class="overlay" id="overlay3"></div>
-        <div class="popup" id="popup3">
+        <div class="overlay" id="overlay4"></div>
+        <div class="popup" id="popup4">
             <div class="popup-content">
-                <span class="close" onclick="closePopup('popup3', 'overlay3')">&times;</span>
+                <span class="close" onclick="closePopup('popup4', 'overlay4')">&times;</span>
                 <h3>Honest discounts</h3>
                 <p>We do not offer discounts just to attract you. The prices of the books are not falsely hiked to lure
                     you
@@ -320,7 +333,7 @@
             </div>
             <div class="etxt">
                 <h3>Honest discounts</h3>
-                <h4 class="learn-more" onclick="openPopup('popup3', 'overlay3')">Learn More</h4>
+                <h4 class="learn-more" onclick="openPopup('popup4', 'overlay4')">Learn More</h4>
             </div>
         </div>
     </div>
@@ -670,6 +683,8 @@ async function fetchNewBooks() {
       const bookCard = document.createElement("div");
       bookCard.classList.add("book-card");
 
+      const isInCart = checkIfInCart(book._id);
+
       bookCard.innerHTML = `
         <img class="book-image" src="${book.bookImage || 'default.jpg'}" alt="${book.title}">
         <div class="rating-overlay">
@@ -681,12 +696,13 @@ async function fetchNewBooks() {
         <div class="book-price">
           ${
             book.offerPrice && book.offerPrice < book.price
-            ? `<span class="original-price" style="text-decoration: line-through;">₹${book.price}</span> <span class="offer-price">₹${book.offerPrice}</span>`
-            : `₹${book.price}`
+            ? `<span class="original-price ${isInCart ? 'cart-added' : 'cart-not-added'}" style="text-decoration: line-through;">₹${book.price}</span> <span class="offer-price ${isInCart ? 'cart-added' : 'cart-not-added'}">₹${book.offerPrice}</span>`
+            : `<span class="offer-price ${isInCart ? 'cart-added' : 'cart-not-added'}">₹${book.price}</span>`
+          
           }
         </div>
-        <button class="add-cart">Add to Cart</button>
-        <button class="go-cart" style="display: none;">Go to Cart</button>
+        <button class="add-cart ${isInCart ? 'hidden' : ''}" data-id="${book._id}">Add to Cart</button>
+        <button class="go-cart ${isInCart ? '' : 'hidden'}" data-id="${book._id}" style="display: ${isInCart ? 'inline-block' : 'none'};">Go to Cart</button>
       `;
 
       bookCard.querySelector(".book-image").addEventListener("click", () => {
@@ -709,8 +725,7 @@ async function fetchNewBooks() {
           timer: 1500
         });
 
-        addCartBtn.style.display = "none";
-        goCartBtn.style.display = "inline-block";
+        updateCartButtons(book._id, bookCard);
       });
 
       goCartBtn.addEventListener("click", (e) => {
@@ -734,96 +749,72 @@ async function fetchNewBooks() {
  
 
 // 📘 Old Arrivals
+async function fetchOldBooks() {
+  try {
+    const response = await fetch('/api/old-book');  
+    const data = await response.json();
+    console.log("Fetched Books:", data);
 
-  async function fetchOldBooks() {
-    try {
-      const response = await fetch('/api/old-book');  
-      const data = await response.json();
-      console.log("Fetched Books:", data);
+    const oldBooksContainer = document.getElementById("oldBooksContainer");
+    oldBooksContainer.innerHTML = "";
 
-      const oldBooksContainer = document.getElementById("oldBooksContainer");
-      oldBooksContainer.innerHTML = "";
+    // Check if there are no old books
+    if (!data.books || data.books.length === 0) {
+      oldBooksContainer.innerHTML = `
+        <div style="text-align: center; padding: 30px; color: #666;">
+          <i class="fas fa-book" style="font-size: 36px; margin-bottom: 15px;"></i>
+          <h4>No Old Books Available</h4>
+          <p>Check back later for old books!</p>
+        </div>
+      `;
+      return;
+    }
 
-      // Check if there are no old books
-      if (!data.books || data.books.length === 0) {
-        oldBooksContainer.innerHTML = `
-          <div style="text-align: center; padding: 30px; color: #666;">
-            <i class="fas fa-book" style="font-size: 36px; margin-bottom: 15px;"></i>
-            <h4>No Old Books Available</h4>
-            <p>Check back later for old books!</p>
-          </div>
-        `;
+    data.books.forEach(book => {
+      if (!book || !book._id || !book.title) {
+        console.warn("Skipping invalid book:", book);
         return;
       }
 
-      data.books.forEach(book => {
-        if (!book || !book._id || !book.title) {
-          console.warn("Skipping invalid book:", book);
-          return;
-        }
+      const bookCard = document.createElement("div");
+      bookCard.classList.add("book-card");
 
-        const bookCard = document.createElement("div");
-        bookCard.classList.add("book-card");
+      const isInCart = checkIfInCart(book._id);
 
-        bookCard.innerHTML = `
-          <img class="book-image" src="${book.bookImage || 'default.jpg'}" alt="${book.title}">
-          <div class="rating-overlay">
-            ${generateStars(book.averageRating)}
-            <span class="avg-text">(${book.averageRating || 0} ⭐)</span>
-          </div>
-          <div class="book-title">${book.title}</div>
-          <div class="book-author">by ${book.author || 'Unknown'}</div>
-          <div class="book-price">
-            ${
-              book.offerPrice && book.offerPrice < book.price
-              ? `<span class="original-price" style="text-decoration: line-through;">₹${book.price}</span> <span class="offer-price">₹${book.offerPrice}</span>`
-              : `₹${book.price}`
-            }
-          </div>
-          <button class="add-cart" disabled style="background-color: #ccc; cursor: not-allowed;">Not for Sale</button>
-          <button class="go-cart" style="display: none;">Go to Cart</button>
-        `;
+      bookCard.innerHTML = `
+        <img class="book-image" src="${book.bookImage || 'default.jpg'}" alt="${book.title}">
+        <div class="rating-overlay">
+          ${generateStars(book.averageRating)}
+          <span class="avg-text">(${book.averageRating || 0} ⭐)</span>
+        </div>
+        <div class="book-title">${book.title}</div>
+        <div class="book-author">by ${book.author || 'Unknown'}</div>
+        <div class="book-price">
+          ${
+            book.offerPrice && book.offerPrice < book.price
+            ? `<span class="original-price ${isInCart ? 'cart-added' : 'cart-not-added'}" style="text-decoration: line-through;">₹${book.price}</span> <span class="offer-price ${isInCart ? 'cart-added' : 'cart-not-added'}">₹${book.offerPrice}</span>`
+            : `<span class="offer-price ${isInCart ? 'cart-added' : 'cart-not-added'}">₹${book.price}</span>`
+          }
+        </div>
+        <button class="add-cart" data-id="${book._id}" disabled style="background-color: #ccc; cursor: not-allowed;">Not for Sale</button>
+      `;
 
-        bookCard.querySelector(".book-image").addEventListener("click", () => {
-          window.location.href = `/newbookDetelies.html?id=${book._id}`;
-        });
-
-        const addCartBtn = bookCard.querySelector(".add-cart");
-        const goCartBtn = bookCard.querySelector(".go-cart");
-
-        addCartBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          addToCart(book._id, book.title, book.bookImage, book.offerPrice || book.price);
-
-          Swal.fire({
-            icon: 'success',
-            title: 'Added to Cart',
-            text: `"${book.title}" has been added to your cart.`,
-            showConfirmButton: false,
-            timer: 1500
-          });
-
-          addCartBtn.style.display = "none";
-          goCartBtn.style.display = "inline-block";
-        });
-
-        goCartBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          window.location.href = "Cart Page with Checkout.html";
-        });
-
-        oldBooksContainer.appendChild(bookCard);
+      bookCard.querySelector(".book-image").addEventListener("click", () => {
+        window.location.href = `newbookDetelies.html?id=${book._id}`;
       });
 
-    } catch (err) {
-      console.error("Error fetching old books:", err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops!',
-        text: 'Failed to load old books.',
-      });
-    }
+      oldBooksContainer.appendChild(bookCard);
+    });
+
+  } catch (err) {
+    console.error("Error fetching old books:", err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops!',
+      text: 'Failed to load old books.',
+    });
   }
+}
 
   function generateStars(rating) {
     rating = parseFloat(rating) || 0;
@@ -861,6 +852,25 @@ async function fetchNewBooks() {
     const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     cartBadge.textContent = totalQuantity;
     cartBadge.style.display = totalQuantity === 0 ? "none" : "inline-block";
+  }
+
+  function checkIfInCart(bookId) {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    return cart.some(item => item.id === bookId);
+  }
+
+  function updateCartButtons(bookId, bookCard) {
+    const addBtn = bookCard.querySelector('.add-cart');
+    const goBtn = bookCard.querySelector('.go-cart');
+    const priceElements = bookCard.querySelectorAll('.original-price, .offer-price');
+    
+    addBtn.classList.add('hidden');
+    goBtn.classList.remove('hidden');
+    goBtn.style.display = 'inline-block';
+    priceElements.forEach(el => {
+      el.classList.remove('cart-not-added');
+      el.classList.add('cart-added');
+    });
   }
 
   document.addEventListener("DOMContentLoaded", () => {
