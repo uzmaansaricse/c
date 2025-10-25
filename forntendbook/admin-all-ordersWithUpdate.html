@@ -608,41 +608,44 @@
 
         function generateInvoicePage(doc, order, orderNumber) {
             // Header
-            doc.setFontSize(20);
+            doc.setFontSize(30);
             doc.setFont(undefined, 'bold');
-            doc.text('ARAVALI PUBLICATION', 105, 20, { align: 'center' });
+            doc.text('ARAVALI PUBLICATION', 105, 40, { align: 'center' });
             
-            doc.setFontSize(16);
-            doc.text('INVOICE', 105, 30, { align: 'center' });
+            doc.setFontSize(24);
+            doc.text('INVOICE', 105, 55, { align: 'center' });
             
             // Invoice details
-            doc.setFontSize(10);
+            doc.setFontSize(15);
             doc.setFont(undefined, 'normal');
-            doc.text(`Invoice #: INV-${order.orderId || order._id}`, 20, 45);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 52);
-            doc.text(`Order ID: ${order.orderId || order._id}`, 20, 59);
+            doc.text(`Invoice #: INV-${order.orderId || order._id}`, 20, 75);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 85);
+            doc.text(`Order ID: ${order.orderId || order._id}`, 20, 95);
             
             // Company details (right side)
-            doc.text('ARAVALI PUBLICATION', 140, 45);
-            doc.text('Plot number 1, Rajeev Nagar, Vidhyadhar Nagar Sector 3, Jaipur 302038', 140, 52);
-            doc.text('Phone: 9358087121, 9982934869', 140, 59);
-            doc.text('Email: ancp012@gmail.com', 140, 66);
+            doc.text('ARAVALI PUBLICATION', 140, 75);
+            doc.text('Plot number 1, Rajeev Nagar,', 140, 85);
+            doc.text('Vidhyadhar Nagar Sector 3,', 140, 95);
+            doc.text('Jaipur 302038', 140, 105);
+            doc.text('Phone: 9358087121', 140, 115);
+            doc.text(' 9982934869', 140, 125);
+            doc.text('Email: ancp012@gmail.com', 140, 135);
             
             // Customer details
             doc.setFont(undefined, 'bold');
-            doc.text('BILL TO:', 20, 80);
+            doc.text('BILL TO:', 20, 140);
             doc.setFont(undefined, 'normal');
-            doc.text(order.deliveryDetails.fullName, 20, 87);
-            doc.text(order.deliveryDetails.address, 20, 94);
-            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, 20, 101);
-            doc.text(`PIN: ${order.deliveryDetails.pincode}`, 20, 108);
-            doc.text(`Phone: ${order.deliveryDetails.mobile}`, 20, 115);
+            doc.text(order.deliveryDetails.fullName, 20, 150);
+            doc.text(order.deliveryDetails.address, 20, 160);
+            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, 20, 170);
+            doc.text(`PIN: ${order.deliveryDetails.pincode}`, 20, 180);
+            doc.text(`Phone: ${order.deliveryDetails.mobile}`, 20, 190);
             if (order.deliveryDetails.email) {
-                doc.text(`Email: ${order.deliveryDetails.email}`, 20, 122);
+                doc.text(`Email: ${order.deliveryDetails.email}`, 20, 200);
             }
             
             // Items table
-            const tableStartY = 135;
+            const tableStartY = 220;
             
             // Table headers
             doc.setFont(undefined, 'bold');
@@ -666,8 +669,8 @@
                 doc.text((index + 1).toString(), 25, currentY + 5);
                 doc.text(book.title.substring(0, 30), 45, currentY + 5);
                 doc.text(book.quantity.toString(), 125, currentY + 5);
-                doc.text(`₹${book.price}`, 145, currentY + 5);
-                doc.text(`₹${amount}`, 170, currentY + 5);
+                doc.text(`Rs.${book.price}`, 145, currentY + 5);
+                doc.text(`Rs.${amount}`, 170, currentY + 5);
                 
                 currentY += 8;
             });
@@ -676,54 +679,56 @@
             doc.setFont(undefined, 'bold');
             doc.rect(20, currentY, 170, 8);
             doc.text('TOTAL', 120, currentY + 5);
-            doc.text(`₹${totalAmount}`, 170, currentY + 5);
+            doc.text(`Rs.${totalAmount}`, 170, currentY + 5);
             
             // Footer
             doc.setFont(undefined, 'normal');
-            doc.setFontSize(8);
+            doc.setFontSize(12);
             doc.text('Thank you for your business!', 105, 270, { align: 'center' });
             doc.text('This is a computer generated invoice.', 105, 275, { align: 'center' });
         }
 
         function generatePackingSlipPage(doc, order, orderNumber) {
             // Header
-            doc.setFontSize(20);
+            doc.setFontSize(30);
             doc.setFont(undefined, 'bold');
-            doc.text('ARAVALI PUBLICATION', 105, 20, { align: 'center' });
+            doc.text('ARAVALI PUBLICATION', 105, 40, { align: 'center' });
             
-            doc.setFontSize(16);
-            doc.text('PACKING SLIP', 105, 30, { align: 'center' });
+            doc.setFontSize(24);
+            doc.text('PACKING SLIP', 105, 55, { align: 'center' });
             
             // Packing slip details
-            doc.setFontSize(10);
+            doc.setFontSize(15);
             doc.setFont(undefined, 'normal');
-            doc.text(`Packing Slip #: PS-${order.orderId || order._id}`, 20, 45);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 52);
-            doc.text(`Order ID: ${order.orderId || order._id}`, 20, 59);
+            doc.text(`Packing Slip #: PS-${order.orderId || order._id}`, 20, 75);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 85);
+            doc.text(`Order ID: ${order.orderId || order._id}`, 20, 95);
             
             // Shipping details
             doc.setFont(undefined, 'bold');
-            doc.text('SHIP TO:', 20, 75);
+            doc.text('SHIP TO:', 20, 110);
             doc.setFont(undefined, 'normal');
-            doc.text(order.deliveryDetails.fullName, 20, 82);
-            doc.text(order.deliveryDetails.address, 20, 89);
-            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, 20, 96);
-            doc.text(`PIN: ${order.deliveryDetails.pincode}`, 20, 103);
-            doc.text(`Phone: ${order.deliveryDetails.mobile}`, 20, 110);
+            doc.text(order.deliveryDetails.fullName, 20, 120);
+            doc.text(order.deliveryDetails.address, 20, 130);
+            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, 20, 140);
+            doc.text(`PIN: ${order.deliveryDetails.pincode}`, 20, 150);
+            doc.text(`Phone: ${order.deliveryDetails.mobile}`, 20, 160);
             
             // Shipping from
             doc.setFont(undefined, 'bold');
-            doc.text('SHIP FROM:', 120, 75);
+            doc.text('SHIP FROM:', 120, 110);
             doc.setFont(undefined, 'normal');
-            doc.text('ARAVALI PUBLICATION', 120, 82);
-            doc.text('Plot number 1, Rajeev Nagar, Vidhyadhar Nagar Sector 3, Jaipur 302038', 120, 89);
-            doc.text('Phone: 9358087121, 9982934869', 120, 96);
+            doc.text('ARAVALI PUBLICATION', 120, 120);
+            doc.text('Plot number 1, Rajeev Nagar,', 120, 130);
+            doc.text('Vidhyadhar Nagar Sector 3,', 120, 140);
+            doc.text('Jaipur 302038', 120, 150);
+            doc.text('Phone: 9358087121, 9982934869', 120, 160);
             
             // Package details
-            const packageStartY = 125;
+            const packageStartY = 180;
             
             doc.setFont(undefined, 'bold');
-            doc.text('PACKAGE DETAILS:', 20, 120);
+            doc.text('PACKAGE DETAILS:', 20, 175);
             
             // Calculate total weight
             let totalWeight = 0;
