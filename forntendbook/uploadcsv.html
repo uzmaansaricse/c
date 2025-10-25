@@ -249,55 +249,149 @@
         return Swal.fire('Invalid File Type','Please upload a CSV or Excel file (.csv, .xlsx, .xls)','error');
       }
 
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        return Swal.fire('File Too Large','Please upload a file smaller than 10MB','error');
+      // Validate file size (max 5MB for production servers)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        return Swal.fire({
+          title: 'File Too Large',
+          html: `File size: ${(file.size / 1024 / 1024).toFixed(2)}MB<br>Maximum allowed: 5MB<br><br>Please reduce the file size or split into smaller files.`,
+          icon: 'error'
+        });
       }
 
       // Show progress bar
       progress.style.display = 'block';
       pbar.style.width = '0%';
 
-      // Simulate upload progress
-      await new Promise(r => {
-        let pct = 0;
-        const id = setInterval(() => {
-          pct += 10;
-          pbar.style.width = pct + '%';
-          if (pct >= 100) { clearInterval(id); r(); }
-        }, 50);
+      try {
+        // Read and parse file
+        const data = await readFile(file);
+        const rows = parseCSV(data);
+        
+        if (rows.length === 0) {
+          throw new Error('No valid data found in file');
+        }
+
+        // Process in chunks
+        await processInChunks(rows);
+        
+      } catch (error) {
+        console.error('Upload error:', error);
+        progress.style.display = 'none';
+        Swal.fire('Upload Error', error.message, 'error');
+      }
+    }
+
+    // Read file content
+    function readFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsText(file);
       });
+    }
+
+    // Parse CSV data
+    function parseCSV(data) {
+      const lines = data.split('\n').filter(line => line.trim());
+      const rows = [];
+      
+      for (let i = 1; i < lines.length; i++) { // Skip header
+        const cols = lines[i].split(',').map(col => col.trim());
+        if (cols.length >= 2 && cols[0] && cols[1]) {
+          rows.push({
+            qrCode: cols[0],
+            serialNumber: cols[1]
+          });
+        }
+      }
+      return rows;
+    }
+
+    // Process data in chunks
+    async function processInChunks(rows) {
+      const CHUNK_SIZE = 100; // Process 100 records at a time
+      const totalChunks = Math.ceil(rows.length / CHUNK_SIZE);
+      let processedChunks = 0;
+      let totalInserted = 0;
+      let totalDuplicates = 0;
+      let errors = [];
+
+      for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+        const chunk = rows.slice(i, i + CHUNK_SIZE);
+        
+        try {
+          const result = await uploadChunk(chunk, processedChunks + 1, totalChunks);
+          
+          if (result.success) {
+            totalInserted += result.inserted || 0;
+            totalDuplicates += result.duplicates || 0;
+          } else {
+            errors.push(`Chunk ${processedChunks + 1}: ${result.message}`);
+          }
+          
+        } catch (error) {
+          errors.push(`Chunk ${processedChunks + 1}: ${error.message}`);
+        }
+        
+        processedChunks++;
+        
+        // Update progress
+        const progressPercent = (processedChunks / totalChunks) * 100;
+        pbar.style.width = progressPercent + '%';
+        
+        // Small delay to reduce server load
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
 
       progress.style.display = 'none';
 
-      // Send to backend
-      const form = new FormData();
-      form.append('file', file);
-      
-      try {
-        let res = await fetch('/api/csvupload', { method:'POST', body: form });
-        
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        }
-        
-        let data = await res.json();
-        
-        if (data.success || data.message === 'CSV uploaded successfully') {
-          Swal.fire('Success!', `File uploaded successfully! ${data.successfulInserts || data.inserted || 0} records added.`, 'success');
-          loadQRStats();
-        } else if (data.message === 'CSV uploaded with some duplicates') {
-          Swal.fire('Partial Success', `${data.successfulInserts || data.inserted || 0} new records added. ${data.duplicates || 0} duplicates were skipped.`, 'warning');
-          loadQRStats();
-        } else if (data.message === 'All entries already exist in database') {
-          Swal.fire('Info', 'All entries in the file already exist in the database.', 'info');
+      // Show final results
+      if (errors.length === 0) {
+        if (totalDuplicates > 0) {
+          Swal.fire('Partial Success', `${totalInserted} new records added. ${totalDuplicates} duplicates were skipped.`, 'warning');
         } else {
-          Swal.fire('Error', data.message || 'Upload failed', 'error');
+          Swal.fire('Success!', `File uploaded successfully! ${totalInserted} records added.`, 'success');
         }
-      } catch (error) {
-        console.error('Upload error:', error);
-        Swal.fire('Network Error', `Failed to upload file: ${error.message}. Please check your connection and backend server.`, 'error');
+      } else {
+        Swal.fire({
+          title: 'Upload Completed with Errors',
+          html: `${totalInserted} records added successfully.<br>${errors.length} chunks had errors.<br><br>First few errors:<br>${errors.slice(0, 3).join('<br>')}`,
+          icon: 'warning'
+        });
       }
+      
+      loadQRStats();
+    }
+
+    // Upload single chunk
+    async function uploadChunk(chunk, chunkNum, totalChunks) {
+      const form = new FormData();
+      
+      // Convert chunk to CSV format
+      const csvData = 'Qr Details,SL No Below Qr Code\n' + 
+        chunk.map(row => `${row.qrCode},${row.serialNumber}`).join('\n');
+      
+      const blob = new Blob([csvData], { type: 'text/csv' });
+      form.append('file', blob, `chunk_${chunkNum}.csv`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout per chunk
+      
+      const response = await fetch('/api/csvupload', {
+        method: 'POST',
+        body: form,
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json();
     }
 
     // Load QR statistics
