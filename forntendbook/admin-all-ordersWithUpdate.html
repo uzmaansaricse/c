@@ -445,7 +445,7 @@
             orders.forEach(order => {
                 const row = document.createElement("tr");
                 const isSelected = selectedOrders.has(order._id);
-                const canSelect = order.status === 'Unshipped' && order.paymentId; // Only unshipped orders with payment
+                const canSelect = order.status === 'Unshipped'; // Enable checkbox for Unshipped orders
                 
                 if (isSelected) {
                     row.classList.add('selected-row');
@@ -624,8 +624,8 @@
             
             // Company details (right side)
             doc.text('ARAVALI PUBLICATION', 140, 45);
-            doc.text('Address: [Company Address]', 140, 52);
-            doc.text('Phone: 8146785679', 140, 59);
+            doc.text('Plot number 1, Rajeev Nagar, Vidhyadhar Nagar Sector 3, Jaipur 302038', 140, 52);
+            doc.text('Phone: 9358087121, 9982934869', 140, 59);
             doc.text('Email: ancp012@gmail.com', 140, 66);
             
             // Customer details
@@ -716,8 +716,8 @@
             doc.text('SHIP FROM:', 120, 75);
             doc.setFont(undefined, 'normal');
             doc.text('ARAVALI PUBLICATION', 120, 82);
-            doc.text('[Warehouse Address]', 120, 89);
-            doc.text('Phone: 8146785679', 120, 96);
+            doc.text('Plot number 1, Rajeev Nagar, Vidhyadhar Nagar Sector 3, Jaipur 302038', 120, 89);
+            doc.text('Phone: 9358087121, 9982934869', 120, 96);
             
             // Package details
             const packageStartY = 125;
@@ -725,18 +725,16 @@
             doc.setFont(undefined, 'bold');
             doc.text('PACKAGE DETAILS:', 20, 120);
             
-            // Calculate total weight and quantity
-            let totalQuantity = 0;
+            // Calculate total weight
             let totalWeight = 0;
             
             order.books.forEach(book => {
-                totalQuantity += book.quantity;
                 // Assuming average book weight of 0.5kg, or use book.weight if available
                 const bookWeight = book.weight || 0.5;
                 totalWeight += bookWeight * book.quantity;
             });
             
-            // Package info table
+            // Package info table - only total weight
             doc.rect(20, packageStartY, 170, 8);
             doc.text('Package Information', 25, packageStartY + 5);
             
@@ -744,65 +742,7 @@
             
             doc.rect(20, currentY, 170, 8);
             doc.setFont(undefined, 'normal');
-            doc.text(`Total Items: ${totalQuantity} books`, 25, currentY + 5);
-            
-            currentY += 8;
-            doc.rect(20, currentY, 170, 8);
             doc.text(`Total Weight: ${totalWeight.toFixed(2)} kg`, 25, currentY + 5);
-            
-            currentY += 8;
-            doc.rect(20, currentY, 170, 8);
-            doc.text(`Package Value: ₹${order.totalPrice}`, 25, currentY + 5);
-            
-            // Packing verification
-            currentY += 20;
-            doc.setFont(undefined, 'bold');
-            doc.text('PACKING VERIFICATION:', 20, currentY);
-            
-            currentY += 10;
-            doc.setFont(undefined, 'normal');
-            doc.text('☐ Items counted and verified', 20, currentY);
-            currentY += 7;
-            doc.text('☐ Package weight confirmed', 20, currentY);
-            currentY += 7;
-            doc.text('☐ Address label attached', 20, currentY);
-            currentY += 7;
-            doc.text('☐ Invoice copy included', 20, currentY);
-            currentY += 7;
-            doc.text('☐ Package sealed properly', 20, currentY);
-            
-            // Instructions
-            currentY += 20;
-            doc.setFont(undefined, 'bold');
-            doc.text('PACKING INSTRUCTIONS:', 20, currentY);
-            doc.setFont(undefined, 'normal');
-            currentY += 7;
-            doc.text('• Handle with care - Books inside', 20, currentY);
-            currentY += 7;
-            doc.text('• Check weight matches label', 20, currentY);
-            currentY += 7;
-            doc.text('• Use appropriate packaging material', 20, currentY);
-            currentY += 7;
-            doc.text('• Seal package securely', 20, currentY);
-            
-            // Signature section
-            currentY += 20;
-            doc.setFont(undefined, 'bold');
-            doc.text('PACKED BY:', 20, currentY);
-            doc.text('DATE & TIME:', 120, currentY);
-            
-            currentY += 10;
-            doc.setFont(undefined, 'normal');
-            doc.line(20, currentY, 80, currentY); // Signature line
-            doc.line(120, currentY, 180, currentY); // Date line
-            
-            currentY += 5;
-            doc.text('Signature', 20, currentY);
-            doc.text('Date & Time', 120, currentY);
-            
-            // Footer
-            doc.setFontSize(8);
-            doc.text('This is a computer generated packing slip.', 105, 270, { align: 'center' });
         }
 
         async function updateOrderStatus(orderId, status) {
