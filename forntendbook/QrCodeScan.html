@@ -141,7 +141,10 @@
     <h2>Check Authenticity of the Book</h2>
     
     <div style="background-color: #e7f3ff; border: 1px solid #b3d9ff; color: #0066cc; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center;">
-        <strong>Note:</strong> You can scan the book only once for checking authenticity. Next time it's marked as duplicate book.
+        <strong>Note:</strong> Please scan the book only <b>ONCE</b> for checking authenticity/originality of the book. 
+    <br>Please do not scan the hologram again.
+</div>
+        
     </div>
     
     <button onclick="startScanner()">📱 Check Authenticity of the Book</button>
@@ -220,7 +223,7 @@
 
                 if (data.success) {
                     // First time scan - valid
-                    showResult(`✅ Book is Authenticated!<br><strong>Serial Number:</strong> ${data.serialNumber}`, "success");
+                    showResult(`✅ This book has been successfully verified, it is a original copy. Please do not scan the book again!<br><strong>Serial Number:</strong> ${data.serialNumber}`, "success");
                     addToHistory(qrCode, "Authenticated", data.serialNumber);
                 } else {
                     if (data.status === "already_scanned") {
