@@ -80,8 +80,9 @@
         
         .result-warning {
             background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
+            border: 1px solid #e8e2cc;
+            
+            color: #ff0000;
         }
         
         .manual-entry {
@@ -137,9 +138,9 @@
     </style>
 </head>
 <body>
-    <h2>Scan Your Book's QR Code</h2>
+    <h2>Check Authenticity of the Book</h2>
     
-    <button onclick="startScanner()">📱 Scan QR Code</button>
+    <button onclick="startScanner()">📱 Check Authenticity of the Book</button>
 
     <div id="scanner-container">
         Click "Scan QR Code" to start scanning
@@ -215,23 +216,22 @@
 
                 if (data.success) {
                     // First time scan - valid
-                    showResult(`✅ Book is Authenticated!<br><strong>Serial Number:</strong> ${data.serialNumber}<br><strong>Status:</strong> First Scan Verified`, "success");
-                    addToHistory(qrCode, "Authenticated - First Scan", data.serialNumber);
+                    showResult(`✅ Book is Authenticated!<br><strong>Serial Number:</strong> ${data.serialNumber}`, "success");
+                    addToHistory(qrCode, "Authenticated", data.serialNumber);
                 } else {
                     if (data.status === "already_scanned") {
                         // Already scanned - duplicate
-                        const firstScanDate = new Date(data.firstScanDate).toLocaleDateString();
-                        showResult(`⚠️ Duplicate Scan Detected!<br><strong>Serial Number:</strong> ${data.serialNumber}<br><strong>First Authenticated:</strong> ${firstScanDate}<br><strong>Status:</strong> Already Verified`, "warning");
-                        addToHistory(qrCode, "Duplicate Scan", data.serialNumber);
+                        showResult(`⚠️ Duplicate Book!<br>Please contact the publisher:<br><strong>Email:</strong> ancp012@gmail.com<br><strong>Phone:</strong> +919358087121, +919982934869`, "warning");
+                        addToHistory(qrCode, "Duplicate", data.serialNumber);
                     } else {
                         // Invalid QR code
-                        showResult(`❌ Invalid QR Code!<br><strong>Error:</strong> ${data.message}<br><strong>Status:</strong> Not Found in Database`, "error");
-                        addToHistory(qrCode, "Invalid QR Code", "N/A");
+                        showResult(`❌ Invalid QR Code!<br><strong>Error:</strong> ${data.message}`, "error");
+                        addToHistory(qrCode, "Invalid", "N/A");
                     }
                 }
             } catch (error) {
                 console.error("Validation error:", error);
-                showResult("❌ Connection Error!<br><strong>Error:</strong> Unable to validate QR Code<br><strong>Status:</strong> Check your internet connection", "error");
+                showResult("❌ Connection Error!<br><strong>Error:</strong> Unable to validate QR Code", "error");
                 addToHistory(qrCode, "Connection Error", "N/A");
             }
         }
@@ -246,8 +246,7 @@
             const historyItem = {
                 qrCode,
                 status,
-                serialNumber,
-                timestamp: new Date().toLocaleString()
+                serialNumber
             };
             
             scanHistory.unshift(historyItem);
@@ -270,7 +269,7 @@
                     div.className = "scan-item";
                     div.innerHTML = `
                         <strong>${item.qrCode}</strong> - ${item.status}<br>
-                        <small>Serial: ${item.serialNumber} | ${item.timestamp}</small>
+                        <small>Serial: ${item.serialNumber}</small>
                     `;
                     historyList.appendChild(div);
                 });
