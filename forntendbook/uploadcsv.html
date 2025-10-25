@@ -275,30 +275,28 @@
       form.append('file', file);
       
       try {
-        let res = await fetch('/api/upload-csv', { method:'POST', body: form });
+        let res = await fetch('/api/csvupload', { method:'POST', body: form });
+        
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+        
         let data = await res.json();
         
         if (data.success || data.message === 'CSV uploaded successfully') {
           Swal.fire('Success!', `File uploaded successfully! ${data.successfulInserts || data.inserted || 0} records added.`, 'success');
-          loadQRStats(); // Refresh statistics
+          loadQRStats();
         } else if (data.message === 'CSV uploaded with some duplicates') {
           Swal.fire('Partial Success', `${data.successfulInserts || data.inserted || 0} new records added. ${data.duplicates || 0} duplicates were skipped.`, 'warning');
           loadQRStats();
         } else if (data.message === 'All entries already exist in database') {
           Swal.fire('Info', 'All entries in the file already exist in the database.', 'info');
-        } else if (data.errors && data.errors.length > 0) {
-          let errorMsg = `Upload completed with ${data.errors.length} errors:\n`;
-          errorMsg += data.errors.slice(0, 5).join('\n'); // Show first 5 errors
-          if (data.errors.length > 5) {
-            errorMsg += `\n... and ${data.errors.length - 5} more errors`;
-          }
-          Swal.fire('Upload Errors', errorMsg, 'error');
         } else {
           Swal.fire('Error', data.message || 'Upload failed', 'error');
         }
       } catch (error) {
         console.error('Upload error:', error);
-        Swal.fire('Network Error', 'Failed to upload file. Please check your connection and ensure the backend server is running.', 'error');
+        Swal.fire('Network Error', `Failed to upload file: ${error.message}. Please check your connection and backend server.`, 'error');
       }
     }
 
@@ -306,7 +304,12 @@
     async function loadQRStats() {
       try {
         const limit = document.getElementById('trackingLimit').value;
-        const response = await fetch(`/api/qr-statistics?limit=${limit}&sortBy=scanCount`);
+        const response = await fetch(`/api/qr-stats?limit=${limit}&sortBy=scanCount`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
         
         if (data.success) {
@@ -318,24 +321,13 @@
           
           // Render QR codes table
           renderQRTable(data.qrCodes || []);
+        } else {
+          console.error('QR Stats API returned success: false', data);
+          Swal.fire('Error', data.message || 'Failed to load QR statistics', 'error');
         }
       } catch (error) {
         console.error('Error loading QR stats:', error);
-        // Try alternative endpoint
-        try {
-          const response = await fetch(`/api/qr-stats?limit=${limit || 100}`);
-          const data = await response.json();
-          if (data.success) {
-            document.getElementById('totalUploaded').textContent = data.stats.totalUploaded || 0;
-            document.getElementById('totalUnscanned').textContent = data.stats.totalUnscanned || 0;
-            document.getElementById('totalVerified').textContent = data.stats.totalVerified || 0;
-            document.getElementById('totalScanned').textContent = data.stats.totalScanned || 0;
-            renderQRTable(data.qrCodes || []);
-          }
-        } catch (err) {
-          console.error('Both endpoints failed:', err);
-          Swal.fire('Error', 'Failed to load QR statistics. Please check your connection.', 'error');
-        }
+        Swal.fire('Error', `Failed to load QR statistics: ${error.message}. Please check your connection and backend server.`, 'error');
       }
     }
 
@@ -394,18 +386,34 @@
 
       if (result.isConfirmed) {
         try {
-          const response = await fetch('/api/clear-qr-codes', { method: 'DELETE' });
+          const response = await fetch('/api/clear-all-qr', { method: 'DELETE' });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
           const data = await response.json();
           
           if (data.success) {
+            // Clear the display immediately
+            document.getElementById('totalUploaded').textContent = '0';
+            document.getElementById('totalUnscanned').textContent = '0';
+            document.getElementById('totalVerified').textContent = '0';
+            document.getElementById('totalScanned').textContent = '0';
+            document.getElementById('previewBody').innerHTML = '';
+            
             Swal.fire('Cleared!', `${data.deletedCount || 'All'} QR codes have been deleted.`, 'success');
-            loadQRStats(); // Refresh statistics
+            
+            // Refresh statistics after a short delay
+            setTimeout(() => {
+              loadQRStats();
+            }, 1000);
           } else {
             Swal.fire('Error', data.message || 'Failed to clear data', 'error');
           }
         } catch (error) {
           console.error('Clear data error:', error);
-          Swal.fire('Error', 'Network error occurred. Please check your connection and ensure the backend server is running.', 'error');
+          Swal.fire('Error', `Failed to clear data: ${error.message}. Please check your connection and backend server.`, 'error');
         }
       }
     };
