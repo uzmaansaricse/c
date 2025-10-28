@@ -362,6 +362,7 @@ import {
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import { Review } from "./models/Review Rating model.js";
 
 
  
@@ -658,6 +659,54 @@ app.put("/api/contact/:id", async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to update contact' });
+    }
+});
+
+app.delete("/api/contact/:id", async (req, res) => {
+    try {
+        const contacts = JSON.parse(await fs.promises.readFile(contactsFile, 'utf8'));
+        const filteredContacts = contacts.filter(c => c.id != req.params.id);
+        
+        if (contacts.length !== filteredContacts.length) {
+            await fs.promises.writeFile(contactsFile, JSON.stringify(filteredContacts, null, 2));
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, message: 'Contact not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to delete contact' });
+    }
+});
+
+// Review management endpoints
+app.get("/api/reviews", async (req, res) => {
+    try {
+        const reviews = await Review.find().sort({ createdAt: -1 });
+        res.json(reviews);
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch reviews' });
+    }
+});
+
+app.get("/api/reviews/:bookId", async (req, res) => {
+    try {
+        const reviews = await Review.find({ bookId: req.params.bookId }).sort({ createdAt: -1 });
+        res.json(reviews);
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch reviews' });
+    }
+});
+
+app.delete("/api/review/:id", async (req, res) => {
+    try {
+        const result = await Review.findByIdAndDelete(req.params.id);
+        if (result) {
+            res.json({ success: true, message: 'Review deleted successfully' });
+        } else {
+            res.status(404).json({ success: false, message: 'Review not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to delete review' });
     }
 });
 

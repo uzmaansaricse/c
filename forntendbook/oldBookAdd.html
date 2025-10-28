@@ -328,43 +328,11 @@ async function fetchOldBooks() {
                 </div>
                 <div class="book-title">${book.title}</div>
                 <div class="book-author">by ${book.author || 'Unknown'}</div>
-                <div class="book-price">
-                    ${
-                        book.offerPrice && book.offerPrice < book.price
-                        ? `<span class="original-price" style="text-decoration: line-through;">₹${book.price}</span> <span class="offer-price">₹${book.offerPrice}</span>`
-                        : `₹${book.price}`
-                    }
-                </div>
-                <button class="add-cart">Add to Cart</button>
-                <button class="go-cart" style="display: none;">Go to Cart</button>
+                <p style="color: #666; font-style: italic; margin: 10px 0;">Old Book - For Reference Only</p>
             `;
 
             bookCard.querySelector(".book-image").addEventListener("click", () => {
                 window.location.href = `/newbookDetelies.html?id=${book._id}`;
-            });
-
-            const addCartBtn = bookCard.querySelector(".add-cart");
-            const goCartBtn = bookCard.querySelector(".go-cart");
-
-            addCartBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                addToCart(book._id, book.title, book.bookImage, book.offerPrice || book.price);
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Added to Cart',
-                    text: `"${book.title}" has been added to your cart.`,
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-
-                addCartBtn.style.display = "none";
-                goCartBtn.style.display = "inline-block";
-            });
-
-            goCartBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                window.location.href = "Cart Page with Checkout.html";
             });
 
             oldBooksContainer.appendChild(bookCard);
@@ -395,32 +363,8 @@ function generateStars(rating) {
     return stars;
 }
 
-function addToCart(id, title, image, price) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    let existingItem = cart.find(item => item.id === id);
-
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        cart.push({ id, title, image, price, quantity: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartNotification();
-}
-
-function updateCartNotification() {
-    const cartBadge = document.querySelector("sup#cart-count");
-    if (!cartBadge) return;
-    let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-    const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    cartBadge.textContent = totalQuantity;
-    cartBadge.style.display = totalQuantity === 0 ? "none" : "inline-block";
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     fetchOldBooks();
-    updateCartNotification();
 });
     </script>
     <script src="script.js"></script>
