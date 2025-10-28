@@ -262,15 +262,7 @@
 // app.get('/BookReviews/:bookId', getReviewsByBook);
 
 
-// // vedio and text image
 
-// // ✅ Multer Setup (Memory Storage Fix)
-// const uploadFile = multer({ storage: multer.memoryStorage() });
-
-// app.post("/upload-content", uploadFile.single("file"), uploadContent);
-// app.get("/content", getAllContent);
-// app.delete("/content/:id", deleteContent);
-// app.put("/content/:id", updateContent);
 
 
 // // app.get("/api/user/orders", authMiddleware, getLoggedInUserOrders);

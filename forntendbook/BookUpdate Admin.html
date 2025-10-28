@@ -223,6 +223,21 @@
         margin-left: 0;
       }
     }
+
+    .category-toggle button {
+      padding: 8px 16px;
+      border: 2px solid #007bff;
+      background: #007bff;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .category-toggle button.old {
+      background: #dc3545;
+      border-color: #dc3545;
+    }
   </style>
     <script src="admin-auth.js"></script>
 </head>
@@ -277,10 +292,17 @@
       <input type="number" id="offerPrice" />
       <label>Description:</label>
       <textarea id="description" rows="3"></textarea>
-      <label>Category (New/Old/All):</label>
-      <input type="text" id="category" />
+      <label>Category:</label>
+      <div class="category-toggle">
+        <button type="button" id="categoryToggle" onclick="toggleCategory()">New Book</button>
+        <input type="hidden" id="category" value="New" />
+      </div>
       <label>ISBN:</label>
       <input type="text" id="isbn" />
+      <label>Year of Publish:</label>
+      <input type="number" id="yearOfPublish" min="1900" max="2030" />
+      <label>Edition:</label>
+      <input type="text" id="edition" />
       <label>Page Number:</label>
       <input type="number" id="pageNumber" />
       <label>Language:</label>
@@ -417,6 +439,21 @@
       }
     }
 
+    function toggleCategory() {
+      const toggle = document.getElementById('categoryToggle');
+      const category = document.getElementById('category');
+      
+      if (category.value === 'New') {
+        category.value = 'Old';
+        toggle.textContent = 'Old Book';
+        toggle.classList.add('old');
+      } else {
+        category.value = 'New';
+        toggle.textContent = 'New Book';
+        toggle.classList.remove('old');
+      }
+    }
+
     async function showUpdateForm(bookId) {
       const res = await fetch(`/api/book/${bookId}`);
       const data = await res.json();
@@ -430,8 +467,20 @@
       document.getElementById('price').value = book.price;
       document.getElementById('offerPrice').value = book.offerPrice || '';
       document.getElementById('description').value = book.description || '';
-      document.getElementById('category').value = book.category || '';
+      document.getElementById('category').value = book.category || 'New';
+      
+      // Update toggle button based on category
+      const toggle = document.getElementById('categoryToggle');
+      if (book.category === 'Old') {
+        toggle.textContent = 'Old Book';
+        toggle.classList.add('old');
+      } else {
+        toggle.textContent = 'New Book';
+        toggle.classList.remove('old');
+      }
       document.getElementById('isbn').value = book.isbn || '';
+      document.getElementById('yearOfPublish').value = book.yearOfPublish || '';
+      document.getElementById('edition').value = book.edition || '';
       document.getElementById('pageNumber').value = book.pageNumber || '';
       document.getElementById('language').value = book.language || '';
       document.getElementById('weight').value = book.weight ? String(book.weight).replace(/[^\d.]/g, '') : '';
@@ -462,6 +511,8 @@
       formData.append('description', document.getElementById('description').value);
       formData.append('category', document.getElementById('category').value);
       formData.append('isbn', document.getElementById('isbn').value);
+      formData.append('yearOfPublish', document.getElementById('yearOfPublish').value);
+      formData.append('edition', document.getElementById('edition').value);
       formData.append('pageNumber', document.getElementById('pageNumber').value);
       formData.append('language', document.getElementById('language').value);
       formData.append('weight', document.getElementById('weight').value);

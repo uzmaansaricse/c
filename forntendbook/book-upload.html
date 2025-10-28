@@ -269,6 +269,12 @@
                 <label for="isbn">ISBN</label>
                 <input type="text" id="isbn" placeholder="ISBN" required>
 
+                <label for="yearOfPublish">Year of Publish</label>
+                <input type="number" id="yearOfPublish" placeholder="Year of Publish" min="1900" max="2030">
+
+                <label for="edition">Edition</label>
+                <input type="text" id="edition" placeholder="Edition">
+
                 <label for="pageNumber">Page Number</label>
                 <input type="number" id="pageNumber" placeholder="Page Number" required>
 
@@ -322,6 +328,8 @@
     formData.append("description", document.getElementById("description").value);
     formData.append("category", document.getElementById("category").value);
     formData.append("isbn", document.getElementById("isbn").value);
+    formData.append("yearOfPublish", document.getElementById("yearOfPublish").value);
+    formData.append("edition", document.getElementById("edition").value);
     formData.append("pageNumber", document.getElementById("pageNumber").value);
     formData.append("language", document.getElementById("language").value);
     formData.append("weight", document.getElementById("weight").value);
@@ -525,6 +533,10 @@
 
             <input type="text" id="isbn" placeholder="ISBN" required>
 
+            <input type="number" id="yearOfPublish" placeholder="Year of Publish" min="1900" max="2030">
+
+            <input type="text" id="edition" placeholder="Edition">
+
             <input type="number" id="pageNumber" placeholder="Page Number" required>
             <input type="text" id="language" placeholder="Language" required>
             <input type="text" id="weight" placeholder="Weight (e.g., 500g or 1.2kg)" required>
@@ -563,6 +575,8 @@
             formData.append("description", document.getElementById("description").value);
             formData.append("category", document.getElementById("category").value);
             formData.append("isbn", document.getElementById("isbn").value);
+            formData.append("yearOfPublish", document.getElementById("yearOfPublish").value);
+            formData.append("edition", document.getElementById("edition").value);
             // Removed shippingDetails from FormData
             formData.append("pageNumber", document.getElementById("pageNumber").value);
             formData.append("language", document.getElementById("language").value);
