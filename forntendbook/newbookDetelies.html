@@ -540,10 +540,12 @@
                     <p><strong>Language:</strong> ${book.language}</p>
                     <p><strong>Weight:</strong> ${book.weight} gm</p>
                     
+                    ${book.category !== 'Old' ? `
                     <div class="book-price">
                         <span class="old-price" style="text-decoration: line-through;">₹${book.price}</span> 
                         <span class="offer-price">₹${book.offerPrice}</span>
                     </div>
+                    ` : ''}
                
     
                     <div class="bullet-points">
@@ -554,7 +556,10 @@
                             `).join('')}
                         </ul>
                     </div>
-                         <button id="addToCartBtn" class="add-cart">Add to cart</button>
+                         ${book.category === 'Old' ? 
+                            '<p style="color: #e74c3c; font-weight: bold; margin: 10px 0;">This is an old book and cannot be added to cart.</p>' : 
+                            '<button id="addToCartBtn" class="add-cart">Add to cart</button>'
+                         }
                 </div>
             `;
     
@@ -597,25 +602,28 @@ function updateSliderPosition() {
 prevButton.addEventListener('click', showPrevSlide);
 nextButton.addEventListener('click', showNextSlide);
 
-            // 👇 Always enabled Buy Now button
-            document.getElementById("addToCartBtn").addEventListener("click", function () {
-                addToCart(book._id || book.id, book.title, book.bookImages[0], book.offerPrice);
-                // Hide Add to Cart, show Go to Cart            // changes isha
-                this.style.display = "none";
-                let goCartBtn = document.getElementById("goToCartBtn");
-                if (!goCartBtn) {
-                    goCartBtn = document.createElement("button");
-                    goCartBtn.id = "goToCartBtn";
-                    goCartBtn.textContent = "Go to Cart";
-                    goCartBtn.className = "go-cart blue-btn";
-                    this.parentNode.appendChild(goCartBtn);
-                    goCartBtn.addEventListener("click", function() {
-                        window.location.href = "Cart Page with Checkout.html";
-                    });
-                } else {
-                    goCartBtn.style.display = "inline-block";
-                }
-            });
+            // 👇 Only add cart functionality for non-old books
+            const addToCartBtn = document.getElementById("addToCartBtn");
+            if (addToCartBtn && book.category !== 'Old') {
+                addToCartBtn.addEventListener("click", function () {
+                    addToCart(book._id || book.id, book.title, book.bookImages[0], book.offerPrice);
+                    // Hide Add to Cart, show Go to Cart            // changes isha
+                    this.style.display = "none";
+                    let goCartBtn = document.getElementById("goToCartBtn");
+                    if (!goCartBtn) {
+                        goCartBtn = document.createElement("button");
+                        goCartBtn.id = "goToCartBtn";
+                        goCartBtn.textContent = "Go to Cart";
+                        goCartBtn.className = "go-cart blue-btn";
+                        this.parentNode.appendChild(goCartBtn);
+                        goCartBtn.addEventListener("click", function() {
+                            window.location.href = "Cart Page with Checkout.html";
+                        });
+                    } else {
+                        goCartBtn.style.display = "inline-block";
+                    }
+                });
+            }
     
             const reviewsContainer = document.getElementById("reviewsContainer");
             const reviews = await fetchReviews(bookId);

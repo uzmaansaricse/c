@@ -318,6 +318,7 @@
           </div>
           <div class="book-title">${book.title}</div>
           <div class="book-author">by ${book.author}</div>
+          ${book.category !== 'Old' ? `
           <div class="book-price">
             ${
               book.offerPrice && book.offerPrice < book.price
@@ -325,8 +326,12 @@
                 : `₹${book.price}`
             }
           </div>
-          <button class="add-cart">Add to Cart</button>
-          <button class="go-cart" style="display: none;">Go to Cart</button>
+          ` : ''}
+          ${book.category === 'Old' ? 
+            '<p style="color: #e74c3c; font-size: 12px; text-align: center; margin: 10px 0;">Old Book - Not Available for Cart</p>' : 
+            `<button class="add-cart">Add to Cart</button>
+            <button class="go-cart" style="display: none;">Go to Cart</button>`
+          }
         `;
 
         bookCard.querySelector(".book-image").addEventListener("click", () => {
@@ -336,30 +341,34 @@
         const addCartBtn = bookCard.querySelector(".add-cart");
         const goCartBtn = bookCard.querySelector(".go-cart");
 
-        addCartBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const finalPrice = book.offerPrice && book.offerPrice < book.price ? book.offerPrice : book.price;
-          addToCart(book._id, book.title, book.bookImage, finalPrice);
+        if (addCartBtn && book.category !== 'Old') {
+          addCartBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const finalPrice = book.offerPrice && book.offerPrice < book.price ? book.offerPrice : book.price;
+            addToCart(book._id, book.title, book.bookImage, finalPrice);
 
-          Swal.fire({
-            icon: 'success',
-            title: 'Added to Cart!',
-            text: `${book.title} has been added.`,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
+            Swal.fire({
+              icon: 'success',
+              title: 'Added to Cart!',
+              text: `${book.title} has been added.`,
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
+            });
+
+            addCartBtn.style.display = "none";
+            goCartBtn.style.display = "inline-block"; 
           });
+        }
 
-          addCartBtn.style.display = "none";
-          goCartBtn.style.display = "inline-block"; 
-        });
-
-        goCartBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          window.location.href = "Cart Page with Checkout.html";
-        });
+        if (goCartBtn) {
+          goCartBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            window.location.href = "Cart Page with Checkout.html";
+          });
+        }
 
         booksContainer.appendChild(bookCard);
       });

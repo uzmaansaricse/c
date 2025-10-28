@@ -5183,18 +5183,13 @@ export const validateQR = async (req, res) => {
   try {
     const { qrCode } = req.params;
 
-    // Search by both QR code and serial number
-    const qrRecord = await Qurexcel.findOne({
-      $or: [
-        { qrCode: qrCode },
-        { serialNumber: qrCode }
-      ]
-    });
+    // Search only by QR code, not serial number
+    const qrRecord = await Qurexcel.findOne({ qrCode: qrCode });
 
     if (!qrRecord) {
       return res.json({
         success: false,
-        message: "Invalid QR Code or Serial Number - not found in database",
+        message: "Invalid QR Code - not found in database",
         status: "invalid"
       });
     }
@@ -5210,7 +5205,6 @@ export const validateQR = async (req, res) => {
       return res.json({
         success: true,
         message: "Book is Authenticated - First scan",
-        serialNumber: qrRecord.serialNumber,
         qrCode: qrRecord.qrCode,
         status: "authenticated",
         scanCount: 1
@@ -5225,7 +5219,6 @@ export const validateQR = async (req, res) => {
       return res.json({
         success: false,
         message: "Duplicate scan detected",
-        serialNumber: qrRecord.serialNumber,
         qrCode: qrRecord.qrCode,
         status: "already_scanned",
         scanCount: qrRecord.scanCount,

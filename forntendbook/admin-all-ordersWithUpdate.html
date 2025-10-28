@@ -231,7 +231,7 @@
 
         <div class="filter-section">
             <label for="searchInput">Search:</label>
-            <input type="text" id="searchInput" placeholder="Order ID" oninput="fetchOrders()">
+            <input type="text" id="searchInput" placeholder="Search by Order ID, Customer Name, or Tracking ID" oninput="fetchOrders()">
 
             <label for="statusFilter">Order Status:</label>
             <select id="statusFilter" onchange="fetchOrders()">
@@ -298,8 +298,8 @@
                         <th>Order ID</th>
                         <th>Book Title</th>
                         <th>Quantity</th>
-                        <th>Book Price</th>
                         <th>Total Price</th>
+                        <th>Payment Status</th>
                         <th>Phone Number</th>
                         <th>Address</th>
                         <th>Tracking ID</th>
@@ -332,10 +332,17 @@
             let filtered = orders;
 
             if (search) {
-                filtered = filtered.filter(order =>
-                    order._id.toLowerCase().includes(search) ||
-                    (order.trackingId && order.trackingId.toLowerCase().includes(search))
-                );
+                filtered = filtered.filter(order => {
+                    const orderId = (order.orderId || order._id || '').toString().toLowerCase();
+                    const customerName = (order.deliveryDetails?.fullName || '').toLowerCase();
+                    const trackingId = (order.trackingId || '').toLowerCase();
+                    const internalId = (order._id || '').toString().toLowerCase();
+                    
+                    return orderId.includes(search) || 
+                           customerName.includes(search) || 
+                           trackingId.includes(search) || 
+                           internalId.includes(search);
+                });
             }
 
             if (status) {
@@ -442,53 +449,74 @@
             const table = document.getElementById("orderTable");
             table.innerHTML = '';
 
+            // Group orders by orderId
+            const groupedOrders = {};
             orders.forEach(order => {
+                const orderId = order.orderId || order._id;
+                if (!groupedOrders[orderId]) {
+                    groupedOrders[orderId] = [];
+                }
+                groupedOrders[orderId].push(order);
+            });
+
+            // Render grouped orders
+            Object.keys(groupedOrders).forEach(orderId => {
+                const orderGroup = groupedOrders[orderId];
+                const firstOrder = orderGroup[0];
+                const totalQuantity = orderGroup.reduce((sum, order) => sum + (order.bookQuantity || 1), 0);
+                const totalAmount = orderGroup.reduce((sum, order) => sum + (order.bookTotal || order.bookPrice || 0), 0);
+                const bookTitles = orderGroup.map(order => order.bookTitle).join(', ');
+                
                 const row = document.createElement("tr");
-                const isSelected = selectedOrders.has(order._id);
-                const canSelect = order.status === 'Unshipped'; // Enable checkbox for Unshipped orders
+                const isSelected = selectedOrders.has(firstOrder._id);
+                const canSelect = firstOrder.status === 'Unshipped';
                 
                 if (isSelected) {
                     row.classList.add('selected-row');
                 }
 
+                // Determine payment status based on Razorpay payment ID
+                const paymentStatus = firstOrder.paymentId ? 'Success' : 'Failed';
+                const paymentStatusColor = paymentStatus === 'Success' ? '#28a745' : '#dc3545';
+
                 row.innerHTML = `
                     <td class="checkbox-cell">
                         <input type="checkbox" 
                                class="order-checkbox" 
-                               data-order-id="${order._id}"
+                               data-order-id="${firstOrder._id}"
                                ${isSelected ? 'checked' : ''}
                                ${canSelect ? '' : 'disabled'}
-                               onchange="toggleOrderSelection('${order._id}')">
+                               onchange="toggleOrderSelection('${firstOrder._id}')">
                     </td>
                     <td>
-                        <button class="action-btn" onclick="window.open('order-details.html?id=${order._id}','_blank')">View</button>
+                        <button class="action-btn" onclick="window.open('order-details.html?id=${firstOrder._id}','_blank')">View</button>
                     </td>
-                    <td>${order.deliveryDetails.fullName}</td>
+                    <td>${firstOrder.deliveryDetails.fullName}</td>
                     <td>
-                        <select id="status-${order._id}" style="min-width:100px">
-                            <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
-                            <option value="Unshipped" ${order.status === "Unshipped" ? "selected" : ""}>Unshipped</option>
-                            <option value="Shipped" ${order.status === "Shipped" ? "selected" : ""}>Shipped</option>
-                            <option value="Delivered" ${order.status === "Delivered" ? "selected" : ""}>Delivered</option>
-                            <option value="Cancelled" ${order.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
-                            <option value="Refunded" ${order.status === "Refunded" ? "selected" : ""}>Refunded</option>
+                        <select id="status-${firstOrder._id}" style="min-width:100px">
+                            <option value="Pending" ${firstOrder.status === "Pending" ? "selected" : ""}>Pending</option>
+                            <option value="Unshipped" ${firstOrder.status === "Unshipped" ? "selected" : ""}>Unshipped</option>
+                            <option value="Shipped" ${firstOrder.status === "Shipped" ? "selected" : ""}>Shipped</option>
+                            <option value="Delivered" ${firstOrder.status === "Delivered" ? "selected" : ""}>Delivered</option>
+                            <option value="Cancelled" ${firstOrder.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+                            <option value="Refunded" ${firstOrder.status === "Refunded" ? "selected" : ""}>Refunded</option>
                         </select>
                     </td>
                     <td>
-                        <button class="action-btn" onclick="updateOrder('${order._id}')">Update</button>
-                        <div><small>${order.userEmail ? order.userEmail : (order.deliveryDetails && order.deliveryDetails.email ? order.deliveryDetails.email : 'No Email')}</small></div>
+                        <button class="action-btn" onclick="updateOrder('${firstOrder._id}')">Update</button>
+                        <div><small>${firstOrder.userEmail ? firstOrder.userEmail : (firstOrder.deliveryDetails && firstOrder.deliveryDetails.email ? firstOrder.deliveryDetails.email : 'No Email')}</small></div>
                     </td>
-                    <td>${formatDate(order.createdAt)}</td>
-                    <td>${order.orderId || order._id}</td>
-                    <td>${order.bookTitle}</td>
-                    <td>${order.bookQuantity}</td>
-                    <td>₹${order.bookPrice}</td>
-                    <td>₹${order.bookTotal}</td>
-                    <td>${order.deliveryDetails.mobile}</td>
-                    <td>${order.deliveryDetails.address}, ${order.deliveryDetails.city}, ${order.deliveryDetails.state} - ${order.deliveryDetails.pincode}</td>
+                    <td>${formatDate(firstOrder.createdAt)}</td>
+                    <td>${orderId}</td>
+                    <td>${bookTitles}</td>
+                    <td>${totalQuantity}</td>
+                    <td>₹${totalAmount}</td>
+                    <td style="color: ${paymentStatusColor}; font-weight: bold;">${paymentStatus}</td>
+                    <td>${firstOrder.deliveryDetails.mobile}</td>
+                    <td>${firstOrder.deliveryDetails.address}, ${firstOrder.deliveryDetails.city}, ${firstOrder.deliveryDetails.state} - ${firstOrder.deliveryDetails.pincode}</td>
                     <td>
-                        <input type="text" id="tracking-${order._id}" placeholder="Enter message" value="${order.trackingId || ''}" style="width:90px"/>
-                        <button class="action-btn" onclick="saveTrackingId('${order._id}')">Send</button>
+                        <input type="text" id="tracking-${firstOrder._id}" placeholder="Enter message" value="${firstOrder.trackingId || ''}" style="width:90px"/>
+                        <button class="action-btn" onclick="saveTrackingId('${firstOrder._id}')">Send</button>
                     </td>
                 `;
                 table.appendChild(row);

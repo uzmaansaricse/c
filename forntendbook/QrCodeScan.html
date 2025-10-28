@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f4f4f9;
@@ -33,7 +33,7 @@
             transition: background-color 0.3s ease;
             display: block;
             margin: 0 auto 20px;
-            width: 200px;
+            width: 250px;
         }
         
         button:hover {
@@ -44,8 +44,9 @@
             border: 2px dashed #2c6e31;
             padding: 20px;
             margin: 20px auto;
-            max-width: 400px;
-            height: 250px;
+            width: 100%;
+            max-width: 500px;
+            min-height: 400px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -53,6 +54,20 @@
             font-style: italic;
             text-align: center;
             border-radius: 8px;
+            background: white;
+        }
+
+        #scanner-container video {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+
+        #scanner-container canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 500px;
         }
         
         #result {
@@ -81,12 +96,11 @@
         .result-warning {
             background-color: #fff3cd;
             border: 1px solid #e8e2cc;
-            
             color: #ff0000;
         }
         
         .manual-entry {
-            max-width: 400px;
+            max-width: 500px;
             margin: 30px auto;
             padding: 20px;
             border: 2px solid #2c6e31;
@@ -135,6 +149,13 @@
             border-left: 4px solid #2c6e31;
             background: #f8f9fa;
         }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            #scanner-container { min-height: 300px; }
+            .manual-entry input { width: 60%; }
+            .manual-entry button { width: 35%; }
+        }
     </style>
 </head>
 <body>
@@ -142,20 +163,18 @@
     
     <div style="background-color: #e7f3ff; border: 1px solid #b3d9ff; color: #0066cc; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center;">
         <strong>Note:</strong> Please scan the book only <b>ONCE</b> for checking authenticity/originality of the book. 
-    <br>Please do not scan the hologram again.
-</div>
-        
+        <br>Please do not scan the hologram again.
     </div>
     
-    <button onclick="startScanner()">📱 Check Authenticity of the Book</button>
+    <button onclick="startScanner()">Check Authenticity/Originality of the Book</button>
 
     <div id="scanner-container">
-        Click "Scan QR Code" to start scanning
+        Click "Check Authenticity/Originality of the Book" to start scanning
     </div>
 
     <div class="manual-entry">
-        <h3>Or Enter Code Manually</h3>
-        <input type="text" id="manual-code" placeholder="Enter QR code or Serial Number" onkeypress="handleEnterKey(event)">
+        <h3>Or enter QR Code manually</h3>
+        <input type="text" id="manual-code" placeholder="Enter QR code" onkeypress="handleEnterKey(event)">
         <button onclick="validateManualCode()">✓ Verify</button>
     </div>
 
@@ -168,21 +187,43 @@
 
     <script>
         let scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
+        let currentScanner = null;
         
-        function startScanner() {
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        async function startScanner() {
             document.getElementById("scanner-container").innerHTML = "";
             
-            let scanner = new Html5QrcodeScanner(
-                "scanner-container", 
-                { fps: 10, qrbox: 250 }
-            );
+            try {
+                // Get camera constraints based on device type
+                const constraints = isMobileDevice() ? 
+                    { facingMode: "environment" } : // Back camera for mobile
+                    { facingMode: "user" }; // Front camera for desktop/laptop
 
-            scanner.render(success, error);
+                const config = {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0,
+                    videoConstraints: constraints
+                };
+
+                currentScanner = new Html5QrcodeScanner("scanner-container", config);
+                currentScanner.render(success, error);
+
+            } catch (err) {
+                console.error("Scanner initialization error:", err);
+                document.getElementById("scanner-container").innerHTML = "Camera access failed. Please use manual entry.";
+            }
 
             async function success(qrCode) {
                 document.getElementById("result").innerText = "Validating...";
-                scanner.clear();
-                document.getElementById("scanner-container").innerHTML = "Click 'Scan QR Code' to start scanning";
+                if (currentScanner) {
+                    currentScanner.clear();
+                    currentScanner = null;
+                }
+                document.getElementById("scanner-container").innerHTML = "Click 'Check Authenticity/Originality of the Book' to start scanning";
                 
                 await validateQRCode(qrCode);
             }
@@ -202,7 +243,7 @@
             const manualCode = document.getElementById("manual-code").value.trim();
             
             if (!manualCode) {
-                showResult("⚠️ Please enter a QR code or Serial Number", "warning");
+                showResult("⚠️ Please enter a QR code", "warning");
                 return;
             }
 
@@ -223,23 +264,23 @@
 
                 if (data.success) {
                     // First time scan - valid
-                    showResult(`✅ This book has been successfully verified, it is a original copy. Please do not scan the book again!<br><strong>Serial Number:</strong> ${data.serialNumber}`, "success");
-                    addToHistory(qrCode, "Authenticated", data.serialNumber);
+                    showResult(`✅ This book has been successfully verified, it is an original copy. Please do not scan the book again!`, "success");
+                    addToHistory(qrCode, "Authenticated");
                 } else {
                     if (data.status === "already_scanned") {
                         // Already scanned - duplicate
                         showResult(`⚠️ Duplicate Book!<br>Please contact the publisher:<br><strong>Email:</strong> ancp012@gmail.com<br><strong>Phone:</strong> +919358087121, +919982934869`, "warning");
-                        addToHistory(qrCode, "Duplicate", data.serialNumber);
+                        addToHistory(qrCode, "Duplicate");
                     } else {
                         // Invalid QR code
                         showResult(`❌ Invalid QR Code!<br><strong>Error:</strong> ${data.message}`, "error");
-                        addToHistory(qrCode, "Invalid", "N/A");
+                        addToHistory(qrCode, "Invalid");
                     }
                 }
             } catch (error) {
                 console.error("Validation error:", error);
                 showResult("❌ Connection Error!<br><strong>Error:</strong> Unable to validate QR Code", "error");
-                addToHistory(qrCode, "Connection Error", "N/A");
+                addToHistory(qrCode, "Connection Error");
             }
         }
 
@@ -249,11 +290,11 @@
             resultDiv.className = `result-${type}`;
         }
 
-        function addToHistory(qrCode, status, serialNumber) {
+        function addToHistory(qrCode, status) {
             const historyItem = {
                 qrCode,
                 status,
-                serialNumber
+                timestamp: new Date().toLocaleString()
             };
             
             scanHistory.unshift(historyItem);
@@ -276,7 +317,7 @@
                     div.className = "scan-item";
                     div.innerHTML = `
                         <strong>${item.qrCode}</strong> - ${item.status}<br>
-                        <small>Serial: ${item.serialNumber}</small>
+                        <small>${item.timestamp}</small>
                     `;
                     historyList.appendChild(div);
                 });
@@ -287,6 +328,13 @@
         window.onload = function() {
             updateHistoryDisplay();
         };
+
+        // Clean up scanner on page unload
+        window.addEventListener('beforeunload', function() {
+            if (currentScanner) {
+                currentScanner.clear();
+            }
+        });
     </script>
 </body>
 </html>

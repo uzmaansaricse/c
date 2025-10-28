@@ -541,8 +541,11 @@
                     bookCard.innerHTML = `
                     <img src="${book.bookImage}" alt="${book.title}" width="150">
                     <h3 class="book-title">${book.title}</h3>
-                    <p>₹${book.offerPrice} <s>₹${book.price}</s></p>
-                    <button class="buy-btn" onclick="addToCart('${book._id}', '${book.title}', '${book.offerPrice}', '${book.bookImage}')">Add to Cart</button>
+                    ${book.category !== 'Old' ? `<p>₹${book.offerPrice} <s>₹${book.price}</s></p>` : ''}
+                    ${book.category === 'Old' ? 
+                        '<p style="color: #e74c3c; font-size: 12px;">Old Book - Not Available for Cart</p>' : 
+                        `<button class="buy-btn" onclick="addToCart('${book._id}', '${book.title}', '${book.offerPrice}', '${book.bookImage}')">Add to Cart</button>`
+                    }
                 `;
 
                     bookList.appendChild(bookCard);
@@ -693,15 +696,19 @@ async function fetchNewBooks() {
         <div class="book-title">${book.title}</div>
         <div class="book-author">by ${book.author || 'Unknown'}</div>
         <div class="book-price">
+          ${book.category !== 'Old' ? `
           ${
             book.offerPrice && book.offerPrice < book.price
             ? `<span class="original-price ${isInCart ? 'cart-added' : 'cart-not-added'}" style="text-decoration: line-through;">₹${book.price}</span> <span class="offer-price ${isInCart ? 'cart-added' : 'cart-not-added'}">₹${book.offerPrice}</span>`
             : `<span class="offer-price ${isInCart ? 'cart-added' : 'cart-not-added'}">₹${book.price}</span>`
-          
           }
+          ` : ''}
         </div>
-        <button class="add-cart ${isInCart ? 'hidden' : ''}" data-id="${book._id}">Add to Cart</button>
-        <button class="go-cart ${isInCart ? '' : 'hidden'}" data-id="${book._id}" style="display: ${isInCart ? 'inline-block' : 'none'};">Go to Cart</button>
+        ${book.category === 'Old' ? 
+            '<p style="color: #e74c3c; font-size: 12px; text-align: center; margin: 10px 0;">Old Book - Not Available for Cart</p>' : 
+            `<button class="add-cart ${isInCart ? 'hidden' : ''}" data-id="${book._id}">Add to Cart</button>
+            <button class="go-cart ${isInCart ? '' : 'hidden'}" data-id="${book._id}" style="display: ${isInCart ? 'inline-block' : 'none'};">Go to Cart</button>`
+        }
       `;
 
       bookCard.querySelector(".book-image").addEventListener("click", () => {
@@ -711,26 +718,30 @@ async function fetchNewBooks() {
       const addCartBtn = bookCard.querySelector(".add-cart");
       const goCartBtn = bookCard.querySelector(".go-cart");
 
-      addCartBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const finalPrice = book.offerPrice && book.offerPrice < book.price ? book.offerPrice : book.price;
-        addToCart(book._id, book.title, book.bookImage, finalPrice);
+      if (addCartBtn && book.category !== 'Old') {
+        addCartBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const finalPrice = book.offerPrice && book.offerPrice < book.price ? book.offerPrice : book.price;
+          addToCart(book._id, book.title, book.bookImage, finalPrice);
 
-        Swal.fire({
-          icon: 'success',
-          title: 'Added to Cart',
-          text: `"${book.title}" has been added to your cart.`,
-          showConfirmButton: false,
-          timer: 1500
+          Swal.fire({
+            icon: 'success',
+            title: 'Added to Cart',
+            text: `"${book.title}" has been added to your cart.`,
+            showConfirmButton: false,
+            timer: 1500
+          });
+
+          updateCartButtons(book._id, bookCard);
         });
+      }
 
-        updateCartButtons(book._id, bookCard);
-      });
-
-      goCartBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        window.location.href = "Cart Page with Checkout.html";
-      });
+      if (goCartBtn) {
+        goCartBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          window.location.href = "Cart Page with Checkout.html";
+        });
+      }
 
       newBooksContainer.appendChild(bookCard);
     });
@@ -789,11 +800,13 @@ async function fetchOldBooks() {
         <div class="book-title">${book.title}</div>
         <div class="book-author">by ${book.author || 'Unknown'}</div>
         <div class="book-price">
+          ${book.category !== 'Old' ? `
           ${
             book.offerPrice && book.offerPrice < book.price
             ? `<span class="original-price ${isInCart ? 'cart-added' : 'cart-not-added'}" style="text-decoration: line-through;">₹${book.price}</span> <span class="offer-price ${isInCart ? 'cart-added' : 'cart-not-added'}">₹${book.offerPrice}</span>`
             : `<span class="offer-price ${isInCart ? 'cart-added' : 'cart-not-added'}">₹${book.price}</span>`
           }
+          ` : ''}
         </div>
         <button class="add-cart" data-id="${book._id}" disabled style="background-color: #ccc; cursor: not-allowed;">Not for Sale</button>
       `;

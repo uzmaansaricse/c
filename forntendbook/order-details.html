@@ -136,6 +136,7 @@
               <p>Address: ${order.deliveryDetails?.address || '-'}, ${order.deliveryDetails?.city || ''} ${order.deliveryDetails?.state || ''} ${order.deliveryDetails?.pincode || ''}</p>
               <p>Email: <a href="mailto:${order.deliveryDetails?.email || order.userEmail || ''}" id="email-link">${order.deliveryDetails?.email || order.userEmail || '-'}</a></p>
               <p>Phone: ${order.deliveryDetails?.mobile || '-'}</p>
+              <p>Payment Status: <span style="color: ${order.paymentId ? '#28a745' : '#dc3545'}; font-weight: bold;">${order.paymentId ? 'Success' : 'Failed'}</span></p>
             </div>
           </div>
         </div>
