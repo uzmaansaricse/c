@@ -363,6 +363,7 @@ import {
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import { Review } from "./models/Review Rating model.js";
+import { Contact } from "./models/Contact.js";
 
 
  
@@ -601,79 +602,66 @@ app.post("/api/update-order-status", pendingUpdateAutoDelete);
 app.post("/api/reviewRating", addReview);
 
 // Contact form routes
-const contactsFile = path.join(__dirname, 'contacts.json');
-
-// Initialize contacts file
-const initContactsFile = async () => {
-    try {
-        await fs.promises.access(contactsFile);
-    } catch {
-        await fs.promises.writeFile(contactsFile, JSON.stringify([]));
-    }
-};
-
 app.post("/api/contact", async (req, res) => {
     try {
         const { name, email, message } = req.body;
         
-        const contact = {
-            id: Date.now(),
+        const contact = new Contact({
             name,
             email,
             message,
-            timestamp: new Date().toISOString(),
             status: 'new'
-        };
+        });
 
-        const contacts = JSON.parse(await fs.promises.readFile(contactsFile, 'utf8'));
-        contacts.push(contact);
-        await fs.promises.writeFile(contactsFile, JSON.stringify(contacts, null, 2));
-
+        await contact.save();
         res.json({ success: true, message: 'Message sent successfully!' });
     } catch (error) {
+        console.error('Error saving contact:', error);
         res.status(500).json({ success: false, message: 'Failed to send message' });
     }
 });
 
 app.get("/api/contacts", async (req, res) => {
     try {
-        const contacts = JSON.parse(await fs.promises.readFile(contactsFile, 'utf8'));
+        const contacts = await Contact.find().sort({ createdAt: -1 });
         res.json(contacts);
     } catch (error) {
-        res.json([]);
+        console.error('Error fetching contacts:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch contacts' });
     }
 });
 
 app.put("/api/contact/:id", async (req, res) => {
     try {
         const { status } = req.body;
-        const contacts = JSON.parse(await fs.promises.readFile(contactsFile, 'utf8'));
-        const contact = contacts.find(c => c.id == req.params.id);
+        const contact = await Contact.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        );
         
         if (contact) {
-            contact.status = status;
-            await fs.promises.writeFile(contactsFile, JSON.stringify(contacts, null, 2));
             res.json({ success: true });
         } else {
             res.status(404).json({ success: false, message: 'Contact not found' });
         }
     } catch (error) {
+        console.error('Error updating contact:', error);
         res.status(500).json({ success: false, message: 'Failed to update contact' });
     }
 });
 
 app.delete("/api/contact/:id", async (req, res) => {
     try {
-        const contacts = JSON.parse(await fs.promises.readFile(contactsFile, 'utf8'));
-        const filteredContacts = contacts.filter(c => c.id != req.params.id);
+        const contact = await Contact.findByIdAndDelete(req.params.id);
         
-        if (contacts.length !== filteredContacts.length) {
-            await fs.promises.writeFile(contactsFile, JSON.stringify(filteredContacts, null, 2));
+        if (contact) {
             res.json({ success: true });
         } else {
             res.status(404).json({ success: false, message: 'Contact not found' });
         }
     } catch (error) {
+        console.error('Error deleting contact:', error);
         res.status(500).json({ success: false, message: 'Failed to delete contact' });
     }
 });
@@ -759,8 +747,6 @@ app.post("/api/update-order-payment", async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to update order payment' });
     }
 });
-
-initContactsFile();
 
 
 // show review ony

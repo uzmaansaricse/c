@@ -158,16 +158,16 @@
                     <div class="message-header">
                         <div>
                             <strong>${msg.name}</strong> (${msg.email})
-                            <br><small>${new Date(msg.timestamp).toLocaleString()}</small>
+                            <br><small>${new Date(msg.createdAt).toLocaleString()}</small>
                         </div>
                         <span class="status ${msg.status}">${msg.status.toUpperCase()}</span>
                     </div>
                     <div class="message-content">${msg.message}</div>
                     <div class="actions">
-                        <button class="btn-reply" onclick="replyToMessage(${msg.id}, '${msg.email}', '${msg.name}')">Reply</button>
-                        ${msg.status === 'new' ? `<button class="btn-read" onclick="updateStatus(${msg.id}, 'read')">Mark as Read</button>` : ''}
-                        ${msg.status !== 'resolved' ? `<button class="btn-resolve" onclick="updateStatus(${msg.id}, 'resolved')">Mark as Resolved</button>` : ''}
-                        <button class="btn-delete" onclick="deleteMessage(${msg.id})">Delete</button>
+                        <button class="btn-reply" onclick="replyToMessage('${msg._id}', '${msg.email}', '${msg.name}')">Reply</button>
+                        ${msg.status === 'new' ? `<button class="btn-read" onclick="updateStatus('${msg._id}', 'read')">Mark as Read</button>` : ''}
+                        ${msg.status !== 'resolved' ? `<button class="btn-resolve" onclick="updateStatus('${msg._id}', 'resolved')">Mark as Resolved</button>` : ''}
+                        <button class="btn-delete" onclick="deleteMessage('${msg._id}')">Delete</button>
                     </div>
                 </div>
             `).join('');
