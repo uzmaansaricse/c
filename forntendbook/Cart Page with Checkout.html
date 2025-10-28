@@ -471,13 +471,13 @@ th {
 
     <div id="delivery-form" class="delivery-form">
         <h2>Enter Delivery Details</h2>
-        <label>Full Name: <input type="text" id="fullName" required></label><br>
-        <label>Mobile: <input type="text" id="mobile" required></label><br>
-        <label>Email: required for tracking update <input type="email" id="email" required></label><br> 
-        <label>Address: <input type="text" id="address" required></label><br>
-        <label>City: <input type="text" id="city" required></label><br>
-        <label>State: <input type="text" id="state" required></label><br>
-        <label>Pincode: <input type="text" id="pincode" required></label><br>
+        <label>Full Name: <input type="text" id="fullName" required minlength="2" maxlength="50"></label><br>
+        <label>Mobile: <input type="tel" id="mobile" required pattern="[0-9]{10}" maxlength="10" placeholder="Enter 10-digit mobile number"></label><br>
+        <label>Email: required for tracking update <input type="email" id="email" required placeholder="Enter valid email address"></label><br> 
+        <label>Address: <input type="text" id="address" required minlength="10" maxlength="200"></label><br>
+        <label>City: <input type="text" id="city" required minlength="2" maxlength="50"></label><br>
+        <label>State: <input type="text" id="state" required minlength="2" maxlength="50"></label><br>
+        <label>Pincode: <input type="text" id="pincode" required pattern="[0-9]{6}" maxlength="6" placeholder="Enter 6-digit pincode"></label><br>
         <button id="pay-now">Proceed to Payment</button>
     </div>
 
@@ -861,8 +861,63 @@ document.getElementById("checkout").addEventListener("click", function () {
 
     function validateDeliveryForm() {
         let details = getDeliveryDetails();
-        return details.fullName && details.mobile && details.email && details.address && details.city && details.state && details.pincode;
+        
+        // Check if all fields are filled
+        if (!details.fullName || !details.mobile || !details.email || !details.address || !details.city || !details.state || !details.pincode) {
+            alert("Please fill in all required fields.");
+            return false;
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(details.email)) {
+            alert("Please enter a valid email address.");
+            return false;
+        }
+        
+        // Validate mobile number (exactly 10 digits)
+        const mobileRegex = /^[0-9]{10}$/;
+        if (!mobileRegex.test(details.mobile)) {
+            alert("Please enter a valid 10-digit mobile number.");
+            return false;
+        }
+        
+        // Validate pincode (6 digits)
+        const pincodeRegex = /^[0-9]{6}$/;
+        if (!pincodeRegex.test(details.pincode)) {
+            alert("Please enter a valid 6-digit pincode.");
+            return false;
+        }
+        
+        return true;
     }
+
+    // Add real-time input validation
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile number validation - only allow numbers and limit to 10 digits
+        document.getElementById('mobile').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+        });
+        
+        // Pincode validation - only allow numbers and limit to 6 digits
+        document.getElementById('pincode').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+        });
+        
+        // Name validation - only allow letters and spaces
+        document.getElementById('fullName').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+        });
+        
+        // City and State validation - only allow letters and spaces
+        document.getElementById('city').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+        });
+        
+        document.getElementById('state').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+        });
+    });
 
     function removeItem(index) {
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
