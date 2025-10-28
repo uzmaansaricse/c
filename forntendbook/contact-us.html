@@ -190,7 +190,6 @@
       <li class="nav-item">
         <i class="fa-solid fa-book-open"></i> Books
         <ul class="dropdown">
-          <li><a href="AllBookShow.html">All Book</a></li>
           <li><a href="newBookAdd.html">New Book</a></li>
           <li><a href="oldBookAdd.html">Old Book</a></li>
         </ul>
@@ -217,7 +216,7 @@
     <li class="nav-item profile-dropdown-container" id="profile-dropdown-section" style="display: none;">
       <a href="#" class="nav-link profile-dropdown-toggle">
         <i class="fas fa-user-circle profile-icon"></i>
-        <span class="profile-username">Profile</span>
+        <span class="profile-username">Profile/Orders</span>
       </a>
       <ul class="dropdown-menu profile-dropdown-menu">
         <li><a href="My profile.html">My Profile</a></li>
@@ -276,12 +275,12 @@
         <h2 class="about-h2">Contact Us - Aravali Publication</h2>
         <p class="bio">Aravali Publication is dedicated to providing high-quality educational books for students and professionals. Our mission is to promote knowledge through well-researched and accessible materials.</p>
 
-        <div class="contact-form">
-            <input type="text" placeholder="Your Name" required>
-            <input type="email" placeholder="Your E-mail">
-            <textarea rows="5" placeholder="Your Message" required></textarea>
+        <form class="contact-form" id="contactForm">
+            <input type="text" id="name" placeholder="Your Name" required>
+            <input type="email" id="email" placeholder="Your E-mail" required>
+            <textarea rows="5" id="message" placeholder="Your Message" required></textarea>
             <button type="submit">Send Message</button>
-        </div>
+        </form>
 
         <div class="contact-details">
             <div class="contact-item">
@@ -302,7 +301,7 @@
             </div>
         </div>
 
-        <iframe class="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.902145229894!2d90.41251811532102!3d23.7508544945935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b85a11b1a75b%3A0xabe2d5f2df5e8d7a!2sDhaka%2C%20Bangladesh!5e0!3m2!1sen!2sbd!4v1604336678265!5m2!1sen!2sbd" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+        <!-- <iframe class="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.902145229894!2d90.41251811532102!3d23.7508544945935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b85a11b1a75b%3A0xabe2d5f2df5e8d7a!2sDhaka%2C%20Bangladesh!5e0!3m2!1sen!2sbd!4v1604336678265!5m2!1sen!2sbd" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe> -->
     </div>
    <footer class="footer">
         <div class="footer-container">
@@ -450,6 +449,47 @@
             });
         });
     </script>
+
+  <script>
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+
+      if (!name || !email || !message) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      const formData = { name, email, message };
+
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Message sent successfully!');
+          document.getElementById('contactForm').reset();
+        } else {
+          alert(result.message || 'Failed to send message. Please try again.');
+        }
+      } catch (error) {
+        console.error('Contact form error:', error);
+        alert('Error sending message. Please check if the server is running and try again.');
+      }
+    });
+  </script>
     <script src="script.js"></script>
 </body>
 </html>

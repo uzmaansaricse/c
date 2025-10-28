@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Messages - Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .message-card { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .message-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .status { padding: 5px 10px; border-radius: 3px; color: white; font-size: 12px; }
+        .status.new { background: #e74c3c; }
+        .status.read { background: #f39c12; }
+        .status.resolved { background: #27ae60; }
+        .message-content { background: #f9f9f9; padding: 10px; border-radius: 3px; margin: 10px 0; }
+        .actions button { margin: 5px; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; }
+        .btn-read { background: #f39c12; color: white; }
+        .btn-resolve { background: #27ae60; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Contact Messages</h1>
+        <div id="messagesContainer"></div>
+    </div>
+
+    <script>
+        async function loadMessages() {
+            try {
+                const response = await fetch('/api/contacts');
+                const messages = await response.json();
+                
+                const container = document.getElementById('messagesContainer');
+                container.innerHTML = messages.map(msg => `
+                    <div class="message-card">
+                        <div class="message-header">
+                            <div>
+                                <strong>${msg.name}</strong> (${msg.email})
+                                <br><small>${new Date(msg.timestamp).toLocaleString()}</small>
+                            </div>
+                            <span class="status ${msg.status}">${msg.status.toUpperCase()}</span>
+                        </div>
+                        <div class="message-content">${msg.message}</div>
+                        <div class="actions">
+                            ${msg.status === 'new' ? `<button class="btn-read" onclick="updateStatus(${msg.id}, 'read')">Mark as Read</button>` : ''}
+                            ${msg.status !== 'resolved' ? `<button class="btn-resolve" onclick="updateStatus(${msg.id}, 'resolved')">Mark as Resolved</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        async function updateStatus(id, status) {
+            try {
+                await fetch(`/api/contact/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                loadMessages();
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+
+        loadMessages();
+        setInterval(loadMessages, 30000); // Refresh every 30 seconds
+    </script>
+</body>
+</html>
