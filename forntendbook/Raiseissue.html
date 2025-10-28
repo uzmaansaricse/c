@@ -180,19 +180,19 @@
     <p class="description">Fill out the form below to report your issue. We’ll get back to you shortly.</p>
     <form id="issueForm">
       <label for="name">Name (required)</label>
-      <input type="text" id="name" name="name" required />
+      <input type="text" id="name" name="name" required minlength="2" maxlength="50" placeholder="Enter your full name" />
 
-      <label for="email">Email (required )</label>
-      <input type="email" id="email" name="email" required />
+      <label for="email">Email (required)</label>
+      <input type="email" id="email" name="email" required placeholder="Enter your email address" />
 
-      <label for="phone">Phone Number (required )</label>
-      <input type="text" id="phone" name="phone" required />
+      <label for="phone">Phone Number (optional)</label>
+      <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10" placeholder="Enter 10-digit phone number" />
 
       <label for="orderId">Order ID (optional)</label>
-      <input type="text" id="orderId" name="orderId"  />
+      <input type="text" id="orderId" name="orderId" placeholder="Enter your order ID if applicable" />
 
       <label for="category">Issue Category (optional)</label>
-      <select id="category" name="category" >
+      <select id="category" name="category">
         <option value="">Select Category</option>
         <option value="Wrong Item Received">Wrong Item Received</option>
         <option value="Late Delivery">Late Delivery</option>
@@ -201,17 +201,15 @@
         <option value="Other">Other</option>
       </select>
 
-    
       <label for="contactMethod">Preferred Contact Method (optional)</label>
-      <select id="contactMethod" name="contactMethod" >
+      <select id="contactMethod" name="contactMethod">
         <option value="">Select Method</option>
         <option value="Email">Email</option>
         <option value="Phone">Phone</option>
       </select>
 
-    
       <label for="issue">Your Issue (required)</label>
-      <textarea id="issue" name="issue" rows="5" required ></textarea>
+      <textarea id="issue" name="issue" rows="5" required minlength="10" maxlength="1000" placeholder="Describe your issue in detail..."></textarea>
 
       <button type="submit">Submit Issue</button>
     </form>
@@ -243,29 +241,82 @@
     //   }
     // });
 
+    // Real-time input validation
+    document.addEventListener('DOMContentLoaded', function() {
+      // Phone number validation - only allow numbers and limit to 10 digits
+      document.getElementById('phone').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+      });
+      
+      // Name validation - only allow letters and spaces
+      document.getElementById('name').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+      });
+    });
+
     // Issue form submission
     document.getElementById("issueForm").addEventListener("submit", async function(e) {
       e.preventDefault();
-      const formData = new FormData(this);
+      
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const orderId = document.getElementById("orderId").value.trim();
+      const category = document.getElementById("category").value;
+      const contactMethod = document.getElementById("contactMethod").value;
+      const issue = document.getElementById("issue").value.trim();
 
-      if (!formData.get("name") || !formData.get("email") || !formData.get("phone") ||
-          !formData.get("orderId") || !formData.get("category") || !formData.get("priority") ||
-          !formData.get("contactMethod") || !formData.get("issue")) {
-        Swal.fire("Error", "Please fill out all required fields.", "error");
+      // Validation
+      if (!name || !email || !issue) {
+        Swal.fire("Error", "Please fill out all required fields (Name, Email, and Issue).", "error");
         return;
       }
 
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        Swal.fire("Error", "Please enter a valid email address.", "error");
+        return;
+      }
+
+      // Phone validation (if provided)
+      if (phone) {
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(phone)) {
+          Swal.fire("Error", "Please enter a valid 10-digit phone number.", "error");
+          return;
+        }
+      }
+
+      // Create message for contact system
+      let message = `Issue: ${issue}`;
+      if (orderId) message += `\nOrder ID: ${orderId}`;
+      if (category) message += `\nCategory: ${category}`;
+      if (phone) message += `\nPhone: ${phone}`;
+      if (contactMethod) message += `\nPreferred Contact: ${contactMethod}`;
+
       try {
-        const res = await fetch("/user/raise-issue", {
+        const response = await fetch("/api/contact", {
           method: "POST",
-          body: formData
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            message: message
+          })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message);
-        Swal.fire("Success", "Your issue has been submitted.", "success");
-        this.reset();
+
+        const result = await response.json();
+        
+        if (result.success) {
+          Swal.fire("Success", "Your issue has been submitted successfully! We'll get back to you soon.", "success");
+          document.getElementById("issueForm").reset();
+        } else {
+          Swal.fire("Error", "Failed to submit issue. Please try again.", "error");
+        }
       } catch (error) {
-        Swal.fire("Error", error.message, "error");
+        console.error("Error submitting issue:", error);
+        Swal.fire("Error", "Network error. Please check your connection and try again.", "error");
       }
     });
   </script>

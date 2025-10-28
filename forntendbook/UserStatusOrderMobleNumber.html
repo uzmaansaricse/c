@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>User Order Status</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     html, body {
       margin: 0;
@@ -268,6 +270,7 @@
               <th>Total Price</th>
               <th>Status</th>
               <th>Order placed Date</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -381,15 +384,36 @@
             "Cancelled": "Order has been cancelled.",
             "Refunded": "Order has been refunded.",
             "Paid": "Order payment has been received.",
-            "Incomplete": "Order payment is incomplete."
+            "Incomplete": "Order payment is incomplete.",
+            "Payment Failed": "Payment failed. Click 'Retry Payment' to complete your order."
           };
           statusTd.textContent = statusDescriptions[order.status] || 'Unknown Status';
+          if (order.status === 'Payment Failed') {
+            statusTd.style.color = '#e74c3c';
+            statusTd.style.fontWeight = 'bold';
+          }
           tr.appendChild(statusTd);     
 
           // Created At
           const createdAtTd = document.createElement('td');
           createdAtTd.textContent = new Date(order.createdAt).toLocaleDateString() || 'N/A';
           tr.appendChild(createdAtTd);
+
+          // Action column
+          const actionTd = document.createElement('td');
+          if (order.status === 'Payment Failed') {
+            const retryBtn = document.createElement('button');
+            retryBtn.textContent = 'Retry Payment';
+            retryBtn.style.cssText = 'background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;';
+            retryBtn.onclick = (e) => {
+              e.stopPropagation();
+              retryPayment(order._id, order.totalPrice);
+            };
+            actionTd.appendChild(retryBtn);
+          } else {
+            actionTd.textContent = '-';
+          }
+          tr.appendChild(actionTd);
 
           // Add click handler on row to open b.html with order id as query param
           tr.addEventListener('click', () => {
@@ -399,6 +423,94 @@
           tbody.appendChild(tr);
         });
       });
+    }
+
+    // Retry payment function
+    async function retryPayment(orderId, amount) {
+      try {
+        // Get Razorpay key
+        const keyResponse = await fetch('/api/get-razorpay-key');
+        const keyData = await keyResponse.json();
+        
+        // Create new Razorpay order
+        const orderResponse = await fetch('/api/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: amount * 100 }) // Convert to paise
+        });
+        const orderData = await orderResponse.json();
+
+        if (orderData.orderId) {
+          const rzp = new Razorpay({
+            key: keyData.key,
+            amount: orderData.amount,
+            currency: "INR",
+            order_id: orderData.orderId,
+            handler: function (response) {
+              // Payment success: update order with payment ID
+              updateOrderPayment(orderId, response.razorpay_payment_id);
+            },
+            modal: {
+              ondismiss: function () {
+                Swal.fire({
+                  icon: "info",
+                  title: "Payment Cancelled",
+                  text: "You can retry payment anytime from your orders page."
+                });
+              }
+            }
+          });
+          rzp.open();
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Unable to initiate payment. Please try again."
+          });
+        }
+      } catch (error) {
+        console.error('Retry payment error:', error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Something went wrong. Please try again."
+        });
+      }
+    }
+
+    // Update order with successful payment
+    async function updateOrderPayment(orderId, paymentId) {
+      try {
+        const response = await fetch('/api/update-order-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, paymentId })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          Swal.fire({
+            icon: "success",
+            title: "Payment Successful!",
+            text: "Your order has been confirmed."
+          }).then(() => {
+            fetchUserOrders(); // Refresh orders list
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Payment received but order update failed. Please contact support."
+          });
+        }
+      } catch (error) {
+        console.error('Order update error:', error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Payment received but order update failed. Please contact support."
+        });
+      }
     }
 
     // On page load, fetch and display user orders

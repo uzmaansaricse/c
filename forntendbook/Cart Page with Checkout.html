@@ -764,8 +764,8 @@ document.getElementById("checkout").addEventListener("click", function () {
                 },
                 modal: {
                     ondismiss: function () {
-                        // Payment failed: update order status to Incomplete
-                        handlePaymentFailure(dbOrderId);
+                        // Payment failed: save order details for repayment
+                        handlePaymentFailure(dbOrderId, deliveryDetails, cart, totalAmount);
                     }
                 }
             });
@@ -981,14 +981,46 @@ document.getElementById("checkout").addEventListener("click", function () {
 }
 
 // Razorpay payment failure handler
-function handlePaymentFailure(orderId) {
-    fetch(`/api/admin/mark-incomplete/${orderId}`, {
+function handlePaymentFailure(orderId, deliveryDetails, cart, totalAmount) {
+    // Save order details for repayment
+    const failedOrderData = {
+        orderId: orderId,
+        deliveryDetails: deliveryDetails,
+        cart: cart,
+        totalAmount: totalAmount,
+        status: 'Payment Failed',
+        createdAt: new Date().toISOString()
+    };
+
+    // Save to backend as failed order
+    fetch(`/api/save-failed-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: "Payment failed or not completed" })
+        body: JSON.stringify(failedOrderData)
     })
     .then(res => res.json())
     .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: "error",
+                title: "Payment Failed",
+                text: "Your order details have been saved. You can retry payment from your orders page.",
+                confirmButtonText: "Go to Orders"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "UserStatusOrderMobleNumber.html";
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Payment Failed",
+                text: "Your order was not completed. Please try again."
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Error saving failed order:", error);
         Swal.fire({
             icon: "error",
             title: "Payment Failed",
