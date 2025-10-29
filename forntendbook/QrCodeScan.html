@@ -249,15 +249,16 @@
                 // Force back camera only
                 const constraints = { facingMode: "environment" };
 
-                const config = {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0,
-                    videoConstraints: constraints
-                };
-
-                currentScanner = new Html5QrcodeScanner("scanner-container", config);
-                currentScanner.render(success, error);
+                currentScanner = new Html5Qrcode("scanner-container");
+                await currentScanner.start(
+                    constraints,
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    success,
+                    error
+                );
 
             } catch (err) {
                 console.error("Scanner initialization error:", err);
@@ -267,7 +268,7 @@
             async function success(qrCode) {
                 document.getElementById("result").innerText = "Validating...";
                 if (currentScanner) {
-                    currentScanner.clear();
+                    await currentScanner.stop();
                     currentScanner = null;
                 }
                 document.getElementById("scanner-container").innerHTML = "Click 'Check Authenticity/Originality of the Book' to start scanning";
