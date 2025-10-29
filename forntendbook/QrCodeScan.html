@@ -150,6 +150,42 @@
             background: #f8f9fa;
         }
 
+        .image-upload {
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 2px solid #2c6e31;
+            border-radius: 8px;
+            text-align: center;
+            background: white;
+        }
+
+        .image-upload h3 {
+            color: #2c6e31;
+            margin-bottom: 15px;
+        }
+
+        .image-upload input[type="file"] {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .uploaded-image {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .uploaded-image img {
+            max-width: 100%;
+            max-height: 300px;
+            border: 2px solid #2c6e31;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
         @media (max-width: 768px) {
             body { padding: 10px; }
             #scanner-container { min-height: 300px; }
@@ -178,12 +214,25 @@
         <button onclick="validateManualCode()">✓ Verify</button>
     </div>
 
+    <div class="image-upload">
+        <h3>Or upload QR Code image</h3>
+        <input type="file" id="qr-image" accept="image/*" onchange="handleImageUpload(event)">
+        <button onclick="scanUploadedImage()">📷 Scan Image</button>
+        <div class="uploaded-image" id="uploaded-image-container" style="display: none;">
+            <p><strong>Uploaded Image:</strong></p>
+            <img id="uploaded-image" alt="Uploaded QR Code">
+        </div>
+    </div>
+
     <div id="result">Scan result will appear here...</div>
 
     <div class="scan-history" id="scanHistory" style="display: none;">
         <h3>Recent Scans</h3>
         <div id="historyList"></div>
     </div>
+
+    <!-- Hidden div for image scanning -->
+    <div id="temp-scanner" style="display: none;"></div>
 
     <script>
         let scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
@@ -197,10 +246,8 @@
             document.getElementById("scanner-container").innerHTML = "";
             
             try {
-                // Get camera constraints based on device type
-                const constraints = isMobileDevice() ? 
-                    { facingMode: "environment" } : // Back camera for mobile
-                    { facingMode: "user" }; // Front camera for desktop/laptop
+                // Force back camera only
+                const constraints = { facingMode: "environment" };
 
                 const config = {
                     fps: 10,
@@ -302,6 +349,49 @@
             localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
             
             updateHistoryDisplay();
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('uploaded-image');
+                    const container = document.getElementById('uploaded-image-container');
+                    
+                    img.src = e.target.result;
+                    container.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function scanUploadedImage() {
+            const fileInput = document.getElementById('qr-image');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showResult("⚠️ Please select an image first", "warning");
+                return;
+            }
+
+            try {
+                showResult("🔍 Scanning uploaded image...", "warning");
+                
+                const html5QrCode = new Html5Qrcode("temp-scanner");
+                const qrCodeMessage = await html5QrCode.scanFile(file, true);
+                
+                showResult("🔍 Validating code...", "warning");
+                await validateQRCode(qrCodeMessage);
+                
+                // Clear the file input
+                fileInput.value = '';
+                document.getElementById('uploaded-image-container').style.display = 'none';
+                
+            } catch (err) {
+                console.error("Image scan error:", err);
+                showResult("❌ Could not detect QR code in the image. Please try a clearer image or use camera scan.", "error");
+            }
         }
 
         function updateHistoryDisplay() {
