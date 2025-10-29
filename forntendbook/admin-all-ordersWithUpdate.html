@@ -637,54 +637,60 @@
         }
 
         function generateInvoicePage(doc, order, orderNumber) {
+            // Set proper margins for A4 page (210x297mm)
+            const margin = 15; // 15mm margin on all sides
+            const pageWidth = 210;
+            const pageHeight = 297;
+            const contentWidth = pageWidth - (2 * margin);
+            
             // Header
             doc.setFontSize(30);
             doc.setFont(undefined, 'bold');
-            doc.text('ARAVALI PUBLICATION', 105, 40, { align: 'center' });
+            doc.text('ARAVALI PUBLICATION', pageWidth/2, margin + 25, { align: 'center' });
             
             doc.setFontSize(24);
-            doc.text('INVOICE', 105, 55, { align: 'center' });
+            doc.text('INVOICE', pageWidth/2, margin + 40, { align: 'center' });
             
             // Invoice details
             doc.setFontSize(15);
             doc.setFont(undefined, 'normal');
-            doc.text(`Invoice #: INV-${order.orderId || order._id}`, 20, 75);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 85);
-            doc.text(`Order ID: ${order.orderId || order._id}`, 20, 95);
+            doc.text(`Invoice #: INV-${order.orderId || order._id}`, margin, margin + 60);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, margin, margin + 70);
+            doc.text(`Order ID: ${order.orderId || order._id}`, margin, margin + 80);
             
             // Company details (right side)
-            doc.text('ARAVALI PUBLICATION', 140, 75);
-            doc.text('Plot number 1, Rajeev Nagar,', 140, 85);
-            doc.text('Vidhyadhar Nagar Sector 3,', 140, 95);
-            doc.text('Jaipur 302038', 140, 105);
-            doc.text('Phone: 9358087121', 140, 115);
-            doc.text(' 9982934869', 140, 125);
-            doc.text('Email: ancp012@gmail.com', 140, 135);
+           
+            doc.text('ARAVALI PUBLICATION', margin + 105, margin + 60);
+            doc.text('Plot number 1, Rajeev Nagar,', margin + 105, margin + 70);
+            doc.text('Vidhyadhar Nagar Sector 3,', margin + 105, margin + 80);
+            doc.text('Jaipur 302038', margin + 105, margin + 90);
+            doc.text('Phone: 9351324018', margin + 105, margin + 100);
+            doc.text('Email: ancp012@gmail.com', margin + 105, margin + 120);
             
             // Customer details
             doc.setFont(undefined, 'bold');
-            doc.text('BILL TO:', 20, 140);
+            doc.text('BILL TO:', margin, margin + 125);
             doc.setFont(undefined, 'normal');
-            doc.text(order.deliveryDetails.fullName, 20, 150);
-            doc.text(order.deliveryDetails.address, 20, 160);
-            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, 20, 170);
-            doc.text(`PIN: ${order.deliveryDetails.pincode}`, 20, 180);
-            doc.text(`Phone: ${order.deliveryDetails.mobile}`, 20, 190);
+            doc.text(order.deliveryDetails.fullName, margin, margin + 135);
+            doc.text(order.deliveryDetails.address, margin, margin + 145);
+            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, margin, margin + 155);
+            doc.text(`PIN: ${order.deliveryDetails.pincode}`, margin, margin + 165);
+            doc.text(`Phone: ${order.deliveryDetails.mobile}`, margin, margin + 175);
             if (order.deliveryDetails.email) {
-                doc.text(`Email: ${order.deliveryDetails.email}`, 20, 200);
+                doc.text(`Email: ${order.deliveryDetails.email}`, margin, margin + 185);
             }
             
             // Items table
-            const tableStartY = 220;
+            const tableStartY = margin + 205;
             
             // Table headers
             doc.setFont(undefined, 'bold');
-            doc.rect(20, tableStartY, 170, 8);
-            doc.text('S.No', 25, tableStartY + 5);
-            doc.text('Description', 45, tableStartY + 5);
-            doc.text('Qty', 120, tableStartY + 5);
-            doc.text('Rate', 140, tableStartY + 5);
-            doc.text('Amount', 165, tableStartY + 5);
+            doc.rect(margin, tableStartY, contentWidth, 8);
+            doc.text('S.No', margin + 5, tableStartY + 5);
+            doc.text('Description', margin + 25, tableStartY + 5);
+            doc.text('Qty', margin + 100, tableStartY + 5);
+            doc.text('Rate', margin + 120, tableStartY + 5);
+            doc.text('Amount', margin + 145, tableStartY + 5);
             
             // Table rows
             doc.setFont(undefined, 'normal');
@@ -695,89 +701,142 @@
                 const amount = book.price * book.quantity;
                 totalAmount += amount;
                 
-                doc.rect(20, currentY, 170, 8);
-                doc.text((index + 1).toString(), 25, currentY + 5);
-                doc.text(book.title.substring(0, 30), 45, currentY + 5);
-                doc.text(book.quantity.toString(), 125, currentY + 5);
-                doc.text(`Rs.${book.price}`, 145, currentY + 5);
-                doc.text(`Rs.${amount}`, 170, currentY + 5);
+                doc.rect(margin, currentY, contentWidth, 8);
+                doc.text((index + 1).toString(), margin + 5, currentY + 5);
+                doc.text(book.title.substring(0, 30), margin + 25, currentY + 5);
+                doc.text(book.quantity.toString(), margin + 105, currentY + 5);
+                doc.text(`Rs.${book.price}`, margin + 125, currentY + 5);
+                doc.text(`Rs.${amount}`, margin + 150, currentY + 5);
                 
                 currentY += 8;
             });
             
             // Total
             doc.setFont(undefined, 'bold');
-            doc.rect(20, currentY, 170, 8);
-            doc.text('TOTAL', 120, currentY + 5);
-            doc.text(`Rs.${totalAmount}`, 170, currentY + 5);
+            doc.rect(margin, currentY, contentWidth, 8);
+            doc.text('TOTAL', margin + 100, currentY + 5);
+            doc.text(`Rs.${totalAmount}`, margin + 150, currentY + 5);
             
             // Footer
             doc.setFont(undefined, 'normal');
             doc.setFontSize(12);
-            doc.text('Thank you for your business!', 105, 270, { align: 'center' });
-            doc.text('This is a computer generated invoice.', 105, 275, { align: 'center' });
+            doc.text('Thank you for your business!', pageWidth/2, pageHeight - 30, { align: 'center' });
+            doc.text('This is a computer generated invoice.', pageWidth/2, pageHeight - 20, { align: 'center' });
         }
 
         function generatePackingSlipPage(doc, order, orderNumber) {
+            // Set proper margins for A4 page (210x297mm)
+            const margin = 15; // 15mm margin on all sides
+            const pageWidth = 210;
+            const pageHeight = 297;
+            const contentWidth = pageWidth - (2 * margin);
+            
             // Header
             doc.setFontSize(30);
             doc.setFont(undefined, 'bold');
-            doc.text('ARAVALI PUBLICATION', 105, 40, { align: 'center' });
+            doc.text('ARAVALI PUBLICATION', pageWidth/2, margin + 25, { align: 'center' });
             
             doc.setFontSize(24);
-            doc.text('PACKING SLIP', 105, 55, { align: 'center' });
+            doc.text('PACKING SLIP', pageWidth/2, margin + 40, { align: 'center' });
             
             // Packing slip details
             doc.setFontSize(15);
             doc.setFont(undefined, 'normal');
-            doc.text(`Packing Slip #: PS-${order.orderId || order._id}`, 20, 75);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 85);
-            doc.text(`Order ID: ${order.orderId || order._id}`, 20, 95);
+            doc.text(`Packing Slip #: PS-${order.orderId || order._id}`, margin, margin + 60);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, margin, margin + 70);
+            doc.text(`Order ID: ${order.orderId || order._id}`, margin, margin + 80);
             
             // Shipping details
             doc.setFont(undefined, 'bold');
-            doc.text('SHIP TO:', 20, 110);
+            doc.text('SHIP TO:', margin, margin + 95);
             doc.setFont(undefined, 'normal');
-            doc.text(order.deliveryDetails.fullName, 20, 120);
-            doc.text(order.deliveryDetails.address, 20, 130);
-            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, 20, 140);
-            doc.text(`PIN: ${order.deliveryDetails.pincode}`, 20, 150);
-            doc.text(`Phone: ${order.deliveryDetails.mobile}`, 20, 160);
+            doc.text(order.deliveryDetails.fullName, margin, margin + 105);
+            doc.text(order.deliveryDetails.address, margin, margin + 115);
+            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, margin, margin + 125);
+            doc.text(`PIN: ${order.deliveryDetails.pincode}`, margin, margin + 135);
+            doc.text(`Phone: ${order.deliveryDetails.mobile}`, margin, margin + 145);
             
             // Shipping from
             doc.setFont(undefined, 'bold');
-            doc.text('SHIP FROM:', 120, 110);
+            doc.text('SHIP FROM:', margin + 100, margin + 95);
             doc.setFont(undefined, 'normal');
-            doc.text('ARAVALI PUBLICATION', 120, 120);
-            doc.text('Plot number 1, Rajeev Nagar,', 120, 130);
-            doc.text('Vidhyadhar Nagar Sector 3,', 120, 140);
-            doc.text('Jaipur 302038', 120, 150);
-            doc.text('Phone: 9358087121, 9982934869', 120, 160);
-            
+            doc.text('ARAVALI PUBLICATION', margin + 100, margin + 105);
+            doc.text('Plot number 1, Rajeev Nagar,', margin + 100, margin + 115);
+            doc.text('Vidhyadhar Nagar Sector 3,', margin + 100, margin + 125);
+            doc.text('Jaipur 302038', margin + 100, margin + 135);
+            doc.text('Phone: 9351324018', margin + 100, margin + 145);
+        
             // Package details
-            const packageStartY = 180;
+            const packageStartY = margin + 165;
             
             doc.setFont(undefined, 'bold');
-            doc.text('PACKAGE DETAILS:', 20, 175);
+            doc.text('PACKAGE DETAILS:', margin, margin + 160);
             
             // Calculate total weight
             let totalWeight = 0;
             
             order.books.forEach(book => {
-                // Assuming average book weight of 0.5kg, or use book.weight if available
                 const bookWeight = book.weight || 0.5;
                 totalWeight += bookWeight * book.quantity;
             });
             
-            // Package info table - only total weight
-            doc.rect(20, packageStartY, 170, 8);
-            doc.text('Package Information', 25, packageStartY + 5);
+            // Package info table
+            doc.rect(margin, packageStartY, contentWidth, 8);
+            doc.text('Package Information', margin + 5, packageStartY + 5);
             
             let currentY = packageStartY + 8;
             
-            doc.rect(20, currentY, 170, 8);
+            doc.rect(margin, currentY, contentWidth, 8);
             doc.setFont(undefined, 'normal');
-            doc.text(`Total Weight: ${totalWeight.toFixed(2)} kg`, 25, currentY + 5);
+            doc.text(`Total Weight: ${totalWeight.toFixed(2)} kg`, margin + 5, currentY + 5);
+            currentY += 8;
+            
+            doc.rect(margin, currentY, contentWidth, 8);
+            doc.text(`Total Items: ${order.books.reduce((sum, book) => sum + book.quantity, 0)}`, margin + 5, currentY + 5);
+            currentY += 15;
+            
+            // Items list
+            doc.setFont(undefined, 'bold');
+            doc.text('ITEMS IN THIS PACKAGE:', margin, currentY);
+            currentY += 10;
+            
+            // Items table headers
+            doc.rect(margin, currentY, contentWidth, 8);
+            doc.text('S.No', margin + 5, currentY + 5);
+            doc.text('Book Title', margin + 25, currentY + 5);
+            doc.text('Quantity', margin + 120, currentY + 5);
+            doc.text('Weight', margin + 150, currentY + 5);
+            currentY += 8;
+            
+            // Items table rows
+            doc.setFont(undefined, 'normal');
+            order.books.forEach((book, index) => {
+                const bookWeight = book.weight || 0.5;
+                const totalBookWeight = bookWeight * book.quantity;
+                
+                doc.rect(margin, currentY, contentWidth, 8);
+                doc.text((index + 1).toString(), margin + 5, currentY + 5);
+                doc.text(book.title.substring(0, 35), margin + 25, currentY + 5);
+                doc.text(book.quantity.toString(), margin + 125, currentY + 5);
+                doc.text(`${totalBookWeight.toFixed(2)} kg`, margin + 155, currentY + 5);
+                currentY += 8;
+            });
+            
+            // Special instructions
+            currentY += 10;
+            doc.setFont(undefined, 'bold');
+            doc.text('SPECIAL INSTRUCTIONS:', margin, currentY);
+            currentY += 10;
+            doc.setFont(undefined, 'normal');
+            doc.text('• Handle with care', margin + 5, currentY);
+            currentY += 8;
+            doc.text('• Keep books dry and away from moisture', margin + 5, currentY);
+            currentY += 8;
+            doc.text('• Verify contents before accepting delivery', margin + 5, currentY);
+            
+            // Footer
+       
+            
         }
 
         async function updateOrderStatus(orderId, status) {
