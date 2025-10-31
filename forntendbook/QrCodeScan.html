@@ -198,7 +198,7 @@
     <h2>Check Authenticity of the Book</h2>
     
     <div style="background-color: #e7f3ff; border: 1px solid #b3d9ff; color: #0066cc; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center;">
-        <strong>Note:</strong> Please scan the book only <b>ONCE</b> for checking authenticity/originality of the book. 
+        <strong>Note:</strong> Please scan the qr code on hologram present on the front page of the book.....(same)
         <br>Please do not scan the hologram again.
     </div>
     
@@ -209,7 +209,21 @@
     </div>
 
     <div class="manual-entry">
-        <h3>Or enter QR Code manually</h3>
+        <h3>
+        <p style="font-size: 14px; color: #666; margin: 10px 0; line-height: 1.4;">
+            Enter QR code obtained by scanning the hologram image (present on front page of the book) using other scanning apps (like your mobile phone's camera app or some other app)
+        </p>
+        </h3>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #007bff;">
+            <h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">Instructions to obtain QR code manually:</h4>
+            <ol style="margin: 0; padding-left: 20px; color: #555; font-size: 14px; line-height: 1.5;">
+                <li>Open your normal camera app and scan the hologram image</li>
+                <li>If camera app is able read the QR code then copy it and enter that code here to verify the authenticity of the book</li>
+                <li>If camera app is not able to scan the QR code, then you may use other third party app (available on play store or app store) to read QR code and paste it here to verify the authenticity of the book</li>
+            </ol>
+        </div>
+        
         <input type="text" id="manual-code" placeholder="Enter QR code" onkeypress="handleEnterKey(event)">
         <button onclick="validateManualCode()">✓ Verify</button>
     </div>
@@ -317,7 +331,7 @@
                 } else {
                     if (data.status === "already_scanned") {
                         // Already scanned - duplicate
-                        showResult(`⚠️ Duplicate Book!<br>Please contact the publisher:<br><strong>Email:</strong> ancp012@gmail.com<br><strong>Phone:</strong> 9351324018`, "warning");
+                        showResult(`⚠️ Duplicate Book!<br>Please contact the publisher:<br><strong>Email:</strong> ancp012@gmail.com<br><strong> Whatsapp no:</strong> 9351324018`, "warning");
                         addToHistory(qrCode, "Duplicate");
                     } else {
                         // Invalid QR code

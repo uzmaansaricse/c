@@ -16,38 +16,43 @@
     <style>
 
       
-        .slider-container {
-            width: 70%;
-            overflow: hidden;
-            margin: auto;
-            position: relative;
-            border-radius: 10px;
-          
-        }
-
-        .news-slider {
+        .news-container {
             display: flex;
-            transition: transform 1s ease-in-out;
-        }
-
-        .news-slide {
-            flex: 1;
-            min-width: 100%;
-            text-align: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
             padding: 20px;
-            box-sizing: border-box;
         }
 
-        img,
-        video {
-            max-width: 100%;
-            height: auto;
+        .content-item {
+            border: 1px solid #ddd;
+            padding: 15px;
             border-radius: 10px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 350px;
         }
 
-        video {
-            display: block;
-            margin: auto;
+        .content-item img,
+        .content-item video {
+            width: 300px;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .content-item p {
+            margin: 10px 0;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .content-item a {
+            color: #007777;
+            font-weight: bold;
+            text-decoration: none;
         }
         
         .original-price {
@@ -79,6 +84,22 @@
         
         .hidden {
             display: none !important;
+        }
+        
+        /* Ensure complete title display */
+        .book-title {
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            margin: 10px 0 8px !important;
+            color: #1a1a1a !important;
+            line-height: 1.3 !important;
+            min-height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            display: block !important;
         }
     </style>
 
@@ -213,17 +234,25 @@
 
 
         <div class="row station-container">
-            <!-- Left Side: News Box -->
+            <!-- Left Side: News Box with Carousel -->
             <div class="mainbpx-main">
                 <h2>Latest News</h2>
-                <div class="slider-container">
-                    <div class="news-slider" id="news-slider"></div>
+                <div class="news-slider-wrapper">
+                    <div class="news-slider">
+                        <div class="news-slides" id="news-container">
+                            <!-- News content will be displayed here -->
+                        </div>
+                        <div class="news-navigation">
+                            <i class="fas fa-chevron-left" onclick="prevNewsSlide()"></i>
+                            <i class="fas fa-chevron-right" onclick="nextNewsSlide()"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Right Side: QR Scanner Image & Button -->
             <div class="scanner-container">
-                <h1>Check your book’s originality/authenticity. </h1>
+                <h1>Check your book's originality/authenticity. </h1>
                 <a href="QrCodeScan.html">
                     <img src="./img/scanning-qr-code.jpg" alt="Scan QR Code" class="scanner-img">
                 </a>
@@ -577,26 +606,27 @@
             try {
                 const response = await fetch("/content");
                 const contentList = await response.json();
-                const newsslider = document.getElementById("news-slider");
+                const newsContainer = document.getElementById("news-container");
 
-                newsslider.innerHTML = "";
+                newsContainer.innerHTML = "";
+
                 contentList.forEach(content => {
-                    let slide = document.createElement("div");
-                    slide.classList.add("news-slide");
+                    let wrapper = document.createElement("div");
+                    wrapper.classList.add("content-item");
 
                     if (content.filePath) {
                         if (content.type.includes("image")) {
                             let img = document.createElement("img");
                             img.src = content.filePath;
-                            slide.appendChild(img);
+                            wrapper.appendChild(img);
                         } else if (content.type.includes("video")) {
                             let video = document.createElement("video");
                             video.src = content.filePath;
                             video.controls = true;
-                            video.autoplay = true;
+                            video.autoplay = false;
                             video.loop = false;
                             video.muted = true;
-                            slide.appendChild(video);
+                            wrapper.appendChild(video);
                         }
                     }
 
@@ -606,46 +636,20 @@
                             link.href = content.content;
                             link.target = "_blank";
                             link.innerText = content.content;
-                            slide.appendChild(link);
+                            wrapper.appendChild(link);
                         } else {
                             let text = document.createElement("p");
                             text.innerText = content.content;
-                            slide.appendChild(text);
+                            wrapper.appendChild(text);
                         }
                     }
 
-                    newsslider.appendChild(slide);
+                    newsContainer.appendChild(wrapper);
                 });
 
-                startSlider();
             } catch (error) {
                 console.error("Error fetching latest content:", error);
             }
-        }
-
-        function startSlider() {
-            let index = 0;
-            const newsslider = document.getElementById("news-slider");
-            const slides = document.querySelectorAll(".news-slide");
-            const totalSlides = slides.length;
-
-            function nextSlide() {
-                let currentSlide = slides[index];
-                let video = currentSlide.querySelector("video");
-                let delay = 12000;
-
-                if (video) {
-                    delay = video.duration * 1000 || 5000;
-                }
-
-                setTimeout(() => {
-                    index = (index + 1) % totalSlides;
-                    newsslider.style.transform = `translateX(-${index * 100}%)`;
-                    nextSlide();
-                }, delay);
-            }
-
-            nextSlide();
         }
 
         fetchLatestContent();

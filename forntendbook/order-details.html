@@ -137,19 +137,22 @@
               <p>Email: <a href="mailto:${order.deliveryDetails?.email || order.userEmail || ''}" id="email-link">${order.deliveryDetails?.email || order.userEmail || '-'}</a></p>
               <p>Phone: ${order.deliveryDetails?.mobile || '-'}</p>
               <p>Payment Status: <span style="color: ${order.paymentId ? '#28a745' : '#dc3545'}; font-weight: bold;">${order.paymentId ? 'Success' : 'Failed'}</span></p>
+              ${order.paymentId ? `<p>Payment ID: <span style="color: #007bff; font-weight: bold;">${order.paymentId}</span></p>` : ''}
             </div>
           </div>
         </div>
         <div class="section">
           <h3>TrackFree - Delivery Tracker</h3>
           <label>Courier Name</label>
-          <select id="courierSelect">
-            <option value="India Post" ${order.courier === 'India Post' ? ' selected' : ''}>India Post</option>
-            <option value="Delhivery" ${order.courier === 'Delhivery' ? ' selected' : ''}>Delhivery</option>
-            <option value="Blue Dart" ${order.courier === 'Blue Dart' ? ' selected' : ''}>Blue Dart</option>
-          </select>
+          <input type="text" id="courierSelect" list="courierOptions" value="${order.courier || ''}" placeholder="Select or enter courier name" />
+          <datalist id="courierOptions">
+            <option value="India Post">India Post</option>
+            <option value="Delhivery">Delhivery</option>
+            <option value="Blue Dart">Blue Dart</option>
+          </datalist>
           <label>Tracking Number</label>
           <input type="text" id="trackingInput" value="${order.trackingId || ''}" />
+          ${order.trackingId ? '<p style="color: #28a745; font-weight: bold; margin-top: 10px;">Email sent successfully to the user</p>' : ''}
           <button class="button" onclick="updateTracking('${order._id}')">Update Tracking</button>
         </div>
         <div class="section">
@@ -232,17 +235,19 @@
     }
 
     async function updateTracking(orderId) {
-      let courier = document.getElementById('courierSelect').value;
+      const courier = document.getElementById('courierSelect').value.trim();
       const trackingId = document.getElementById('trackingInput').value;
       const deliveryName = currentOrder.deliveryDetails?.fullName || "Customer";
       const email = currentOrder.deliveryDetails?.email || currentOrder.userEmail;
+      
       if (!email) {
         Swal.fire("Error", "No email found for this order.", "error");
         return;
       }
 
-      if (!courier || courier.trim() === "") {
-        courier = "India Post"; // default courier if none selected
+      if (!courier) {
+        Swal.fire("Error", "Please enter courier name.", "error");
+        return;
       }
 
       const subject = `Dispatched! Your Aravali Publication order has been dispatched`;
@@ -268,31 +273,23 @@
     async function refundOrder(orderId) {
       try {
         const confirm = await Swal.fire({
-          title: 'Are you sure?',
-          text: "This will mark the order as refunded.",
-          icon: 'warning',
+          title: 'Redirect to Razorpay?',
+          text: "You will be redirected to Razorpay dashboard for refund processing.",
+          icon: 'info',
           showCancelButton: true,
-          confirmButtonText: 'Yes, refund it!',
+          confirmButtonText: 'Yes, go to Razorpay!',
           cancelButtonText: 'Cancel'
         });
         if (!confirm.isConfirmed) return;
 
-        const res = await fetch(`/admin/order/${orderId}/refund`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" }
-        });
-        if (!res.ok) throw new Error("Failed to refund order");
-        Swal.fire({
-          icon: 'success',
-          title: 'Order Refunded',
-          text: 'Order has been marked as refunded.'
-        });
-        loadOrder();
+        // Redirect to Razorpay dashboard
+        window.open('https://accounts.razorpay.com/auth/?redirecturl=https%3A%2F%2Fdashboard.razorpay.com&auth_intent=login&x-country-code=IN', '_blank');
+        
       } catch (error) {
         Swal.fire({
           icon: "error",
-          title: "Refund Error",
-          text: error.message || "Could not refund order."
+          title: "Redirect Error",
+          text: error.message || "Could not redirect to Razorpay."
         });
       }
     }

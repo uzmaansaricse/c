@@ -271,6 +271,7 @@
         <th>Title</th>
         <th>Author</th>
         <th>Price (₹)</th>
+        <th>Category</th>
         <th>Action</th>
         <th>Delete</th>
       </tr>
@@ -374,6 +375,7 @@
           <td>${book.title}</td>
           <td>${book.author}</td>
           <td>${book.price}</td>
+          <td><span style="color: ${book.category === 'Old' ? '#dc3545' : '#007bff'}; font-weight: bold;">${book.category || 'New'}</span></td>
           <td><button onclick="showUpdateForm('${book._id}')">View</button></td>
           <td><button style="background:#e74c3c;" onclick="deleteBook('${book._id}')">Delete</button></td>
         `;

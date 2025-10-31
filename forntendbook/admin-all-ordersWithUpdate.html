@@ -293,6 +293,7 @@
                             <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="order-checkbox">
                         </th>
                         <th>Details</th>
+                        <th>Payment Status</th>
                         <th>Name</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -301,7 +302,6 @@
                         <th>Book Title</th>
                         <th>Quantity</th>
                         <th>Total Price</th>
-                        <th>Payment Status</th>
                         <th>Phone Number</th>
                         <th>Address</th>
                         <th>Tracking ID</th>
@@ -493,6 +493,7 @@
                     <td>
                         <button class="action-btn" onclick="window.open('order-details.html?id=${firstOrder._id}','_blank')">View</button>
                     </td>
+                    <td style="color: ${paymentStatusColor}; font-weight: bold;">${paymentStatus}</td>
                     <td>${firstOrder.deliveryDetails.fullName}</td>
                     <td>
                         <select id="status-${firstOrder._id}" style="min-width:100px">
@@ -513,7 +514,6 @@
                     <td>${bookTitles}</td>
                     <td>${totalQuantity}</td>
                     <td>₹${totalAmount}</td>
-                    <td style="color: ${paymentStatusColor}; font-weight: bold;">${paymentStatus}</td>
                     <td>${firstOrder.deliveryDetails.mobile}</td>
                     <td>${firstOrder.deliveryDetails.address}, ${firstOrder.deliveryDetails.city}, ${firstOrder.deliveryDetails.state} - ${firstOrder.deliveryDetails.pincode}</td>
                     <td>
