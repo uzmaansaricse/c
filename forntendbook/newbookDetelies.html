@@ -504,6 +504,10 @@
             const response = await fetch(`/BookDetails/${bookId}`);
             const data = await response.json();
             const book = data.book;
+            
+            console.log("📖 Book data received:", book);
+            console.log("📅 yearOfPublish:", book.yearOfPublish, "Type:", typeof book.yearOfPublish);
+            console.log("📚 edition:", book.edition, "Type:", typeof book.edition);
     
             if (!book || Object.keys(book).length === 0) {
                 alert("Book not found!");
@@ -536,8 +540,8 @@
                         <p><strong>Author:</strong> ${book.author}</p>
                     <p><strong>Description:</strong> ${book.description}</p>
                     <p><strong>ISBN:</strong> ${book.isbn}</p>
-                    <p><strong>Year of Publish:</strong> ${book.yearOfPublish || 'N/A'}</p>
-                    <p><strong>Edition:</strong> ${book.edition || 'N/A'}</p>
+                    ${book.yearOfPublish ? `<p><strong>Year of Publish:</strong> ${book.yearOfPublish}</p>` : ''}
+                    ${book.edition ? `<p><strong>Edition:</strong> ${book.edition}</p>` : ''}
                     <p><strong>Pages:</strong> ${book.pageNumber}</p>
                     <p><strong>Language:</strong> ${book.language}</p>
                     <p><strong>Weight:</strong> ${book.weight} gm</p>

@@ -13,7 +13,9 @@ const bookSchema = new mongoose.Schema({
     isbn: { type: String, required: true },
     pageNumber: { type: Number, required: true },
     language: { type: String, required: true },
-    weight: { type: String, required: true }
+    weight: { type: String, required: true },
+    yearOfPublish: { type: Number }, // Year of publication
+    edition: { type: String } // Edition of the book
 }, { timestamps: true });
 
 

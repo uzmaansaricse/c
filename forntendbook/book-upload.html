@@ -328,8 +328,19 @@
     formData.append("description", document.getElementById("description").value);
     formData.append("category", document.getElementById("category").value);
     formData.append("isbn", document.getElementById("isbn").value);
-    formData.append("yearOfPublish", document.getElementById("yearOfPublish").value);
-    formData.append("edition", document.getElementById("edition").value);
+    
+    // Only add yearOfPublish if it has a value
+    const yearOfPublish = document.getElementById("yearOfPublish").value;
+    if (yearOfPublish && yearOfPublish.trim() !== "") {
+      formData.append("yearOfPublish", yearOfPublish);
+    }
+    
+    // Only add edition if it has a value
+    const edition = document.getElementById("edition").value;
+    if (edition && edition.trim() !== "") {
+      formData.append("edition", edition);
+    }
+    
     formData.append("pageNumber", document.getElementById("pageNumber").value);
     formData.append("language", document.getElementById("language").value);
     formData.append("weight", document.getElementById("weight").value);

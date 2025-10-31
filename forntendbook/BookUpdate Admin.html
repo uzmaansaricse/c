@@ -513,8 +513,15 @@
       formData.append('description', document.getElementById('description').value);
       formData.append('category', document.getElementById('category').value);
       formData.append('isbn', document.getElementById('isbn').value);
-      formData.append('yearOfPublish', document.getElementById('yearOfPublish').value);
-      formData.append('edition', document.getElementById('edition').value);
+      
+      // Always send yearOfPublish and edition (even if empty) so backend can remove them if needed
+      const yearValue = document.getElementById('yearOfPublish').value || '';
+      const editionValue = document.getElementById('edition').value || '';
+      console.log('📤 Sending yearOfPublish:', yearValue);
+      console.log('📤 Sending edition:', editionValue);
+      formData.append('yearOfPublish', yearValue);
+      formData.append('edition', editionValue);
+      
       formData.append('pageNumber', document.getElementById('pageNumber').value);
       formData.append('language', document.getElementById('language').value);
       formData.append('weight', document.getElementById('weight').value);

@@ -2678,7 +2678,9 @@ const addBook = async (req, res) => {
             language,
             weight,
             bulletPoints, // from frontend, string or array
-            mainImageIndex // from frontend, default = 0
+            mainImageIndex, // from frontend, default = 0
+            yearOfPublish, // Year of publication
+            edition // Edition of the book
         } = req.body;
 
         // ✅ Validate file uploads
@@ -2735,7 +2737,9 @@ const addBook = async (req, res) => {
             isbn,
             pageNumber,
             language,
-            weight
+            weight,
+            yearOfPublish: yearOfPublish ? Number(yearOfPublish) : undefined,
+            edition: edition || undefined
         });
 
         await newBook.save();
@@ -2890,6 +2894,8 @@ const getBookDetails = async (req, res) => {
             pageNumber: book.pageNumber,
             language: book.language,
             weight: book.weight,
+            yearOfPublish: book.yearOfPublish, // ✅ Include year of publish
+            edition: book.edition, // ✅ Include edition
             bookImages: book.bookImages || [], // ✅ all images for slider
             mainImageIndex: book.mainImageIndex || 0, // ✅ so you can show main one first if needed
             bulletPoints: book.bulletPoints || [], // ✅ for frontend display
@@ -3012,6 +3018,8 @@ const getAllBooks = async (req, res) => {
                     pageNumber: book.pageNumber,
                     language: book.language,
                     weight: book.weight,
+                    yearOfPublish: book.yearOfPublish, // ✅ Include year of publish
+                    edition: book.edition, // ✅ Include edition
                     averageRating: avgRating.toFixed(1),
                     totalReviews: reviews.length,
                     reviews: formattedReviews
@@ -3062,7 +3070,9 @@ const singlegetbook = async (req, res) => {
             // shippingDetails,
             pageNumber,
             language,
-            weight
+            weight,
+            yearOfPublish, // ✅ Include year of publish
+            edition // ✅ Include edition
         } = book;
 
         res.status(200).json({
@@ -3080,7 +3090,9 @@ const singlegetbook = async (req, res) => {
                 // shippingDetails,
                 pageNumber,
                 language,
-                weight
+                weight,
+                yearOfPublish, // ✅ Include year of publish
+                edition // ✅ Include edition
             }
         });
 
@@ -3095,8 +3107,9 @@ export {singlegetbook}
 // book update ......... Admin
 const updateBook = async (req, res) => {
     try {
-        // console.log(req.body); // For debugging
-        // debugger
+        console.log("📥 Received update request for book");
+        console.log("📋 Full req.body:", req.body);
+        
         const { bookId } = req.params;
         const {
             title,
@@ -3112,10 +3125,16 @@ const updateBook = async (req, res) => {
             weight,
             bulletPoints,
             mainImageIndex,
-            bookImages
+            bookImages,
+            yearOfPublish,
+            edition
         } = req.body;
+        
+        console.log("📅 yearOfPublish received:", yearOfPublish, "Type:", typeof yearOfPublish);
+        console.log("📚 edition received:", edition, "Type:", typeof edition);
 
         const updateData = {};
+        const unsetData = {}; // Fields to remove from database
 
         if (title) updateData.title = title;
         if (author) updateData.author = author;
@@ -3129,6 +3148,36 @@ const updateBook = async (req, res) => {
         if (pageNumber) updateData.pageNumber = Number(pageNumber);
         if (language) updateData.language = language;
         if (weight) updateData.weight = weight;
+        
+        // Handle yearOfPublish: only set if it has a valid value, otherwise remove it
+        if (yearOfPublish !== undefined && yearOfPublish !== null) {
+            const yearStr = String(yearOfPublish).trim();
+            if (yearStr !== '' && yearStr !== 'undefined' && yearStr !== 'null') {
+                const yearNum = Number(yearStr);
+                if (!isNaN(yearNum) && yearNum > 0) {
+                    updateData.yearOfPublish = yearNum;
+                    console.log("✅ Setting yearOfPublish to:", yearNum);
+                } else {
+                    unsetData.yearOfPublish = ""; // Remove the field if invalid
+                    console.log("🗑️ Removing yearOfPublish (invalid number)");
+                }
+            } else {
+                unsetData.yearOfPublish = ""; // Remove the field if empty
+                console.log("🗑️ Removing yearOfPublish from database (empty)");
+            }
+        }
+        
+        // Handle edition: only set if it has a valid value, otherwise remove it
+        if (edition !== undefined && edition !== null) {
+            const editionStr = String(edition).trim();
+            if (editionStr !== '' && editionStr !== 'undefined' && editionStr !== 'null') {
+                updateData.edition = editionStr;
+                console.log("✅ Setting edition to:", editionStr);
+            } else {
+                unsetData.edition = ""; // Remove the field if empty
+                console.log("🗑️ Removing edition from database (empty)");
+            }
+        }
 
         // Bullet points handling
         if (bulletPoints) {
@@ -3183,11 +3232,26 @@ const updateBook = async (req, res) => {
         //     return res.status(400).json({ message: "Shipping Details must be '4-5 Days', '5-7 Days', or '7-10 Days'" });
         // }
 
-        const updatedBook = await Book.findByIdAndUpdate(bookId, { $set: updateData }, { new: true });
+        // Build update query with both $set and $unset
+        const updateQuery = {};
+        if (Object.keys(updateData).length > 0) {
+            updateQuery.$set = updateData;
+        }
+        if (Object.keys(unsetData).length > 0) {
+            updateQuery.$unset = unsetData;
+        }
+
+        console.log("📋 Update Query:", JSON.stringify(updateQuery, null, 2));
+
+        const updatedBook = await Book.findByIdAndUpdate(bookId, updateQuery, { new: true });
 
         if (!updatedBook) {
             return res.status(404).json({ message: "Book not found" });
         }
+
+        console.log("✅ Book updated successfully");
+        console.log("📅 Updated yearOfPublish:", updatedBook.yearOfPublish);
+        console.log("📚 Updated edition:", updatedBook.edition);
 
         res.status(200).json({ message: "Book updated successfully", book: updatedBook });
 
