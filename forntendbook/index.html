@@ -16,12 +16,36 @@
     <style>
 
       
-        .news-container {
+        /* News Slider Wrapper */
+        .news-slider-wrapper {
+            width: 100%;
+            height: 100%;
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+            align-items: center;
             justify-content: center;
-            padding: 20px;
+        }
+
+        .news-slider {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .news-slides {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .news-slide {
+            flex: 0 0 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .content-item {
@@ -31,15 +55,24 @@
             background: white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             text-align: center;
-            max-width: 350px;
+            max-width: 100%;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .content-item img,
         .content-item video {
-            width: 300px;
+            max-width: 280px;
+            max-height: 180px;
+            width: auto;
             height: auto;
             border-radius: 5px;
             margin-bottom: 10px;
+            object-fit: contain;
         }
 
         .content-item p {
@@ -53,6 +86,31 @@
             color: #007777;
             font-weight: bold;
             text-decoration: none;
+            word-break: break-all;
+        }
+
+        .news-navigation {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .news-navigation i {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            pointer-events: all;
+            transition: background 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .news-navigation i:hover {
+            background: rgba(0, 0, 0, 0.8);
         }
         
         .original-price {
@@ -601,7 +659,11 @@
 
 
 
-        // news box
+        // News Slider Variables
+        let currentNewsIndex = 0;
+        let newsIntervalId = null;
+
+        // news box with carousel
         async function fetchLatestContent() {
             try {
                 const response = await fetch("/content");
@@ -610,15 +672,32 @@
 
                 newsContainer.innerHTML = "";
 
+                if (!contentList || contentList.length === 0) {
+                    newsContainer.innerHTML = `
+                        <div class="news-slide">
+                            <div class="content-item">
+                                <p style="color: #666;">No news available at the moment.</p>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
                 contentList.forEach(content => {
-                    let wrapper = document.createElement("div");
-                    wrapper.classList.add("content-item");
+                    // Create slide wrapper
+                    let slideWrapper = document.createElement("div");
+                    slideWrapper.classList.add("news-slide");
+
+                    // Create content item
+                    let contentItem = document.createElement("div");
+                    contentItem.classList.add("content-item");
 
                     if (content.filePath) {
                         if (content.type.includes("image")) {
                             let img = document.createElement("img");
                             img.src = content.filePath;
-                            wrapper.appendChild(img);
+                            img.alt = "News Image";
+                            contentItem.appendChild(img);
                         } else if (content.type.includes("video")) {
                             let video = document.createElement("video");
                             video.src = content.filePath;
@@ -626,7 +705,7 @@
                             video.autoplay = false;
                             video.loop = false;
                             video.muted = true;
-                            wrapper.appendChild(video);
+                            contentItem.appendChild(video);
                         }
                     }
 
@@ -636,21 +715,79 @@
                             link.href = content.content;
                             link.target = "_blank";
                             link.innerText = content.content;
-                            wrapper.appendChild(link);
+                            contentItem.appendChild(link);
                         } else {
                             let text = document.createElement("p");
                             text.innerText = content.content;
-                            wrapper.appendChild(text);
+                            contentItem.appendChild(text);
                         }
                     }
 
-                    newsContainer.appendChild(wrapper);
+                    slideWrapper.appendChild(contentItem);
+                    newsContainer.appendChild(slideWrapper);
                 });
+
+                // Start the news slider
+                startNewsSlider();
 
             } catch (error) {
                 console.error("Error fetching latest content:", error);
+                const newsContainer = document.getElementById("news-container");
+                newsContainer.innerHTML = `
+                    <div class="news-slide">
+                        <div class="content-item">
+                            <p style="color: #e74c3c;">Failed to load news content.</p>
+                        </div>
+                    </div>
+                `;
             }
         }
+
+        function showNewsSlide(index) {
+            const slides = document.querySelectorAll(".news-slide");
+            const totalSlides = slides.length;
+
+            if (totalSlides === 0) return;
+
+            if (index >= totalSlides) {
+                currentNewsIndex = 0;
+            } else if (index < 0) {
+                currentNewsIndex = totalSlides - 1;
+            } else {
+                currentNewsIndex = index;
+            }
+
+            const newsContainer = document.getElementById("news-container");
+            if (newsContainer) {
+                newsContainer.style.transform = `translateX(-${currentNewsIndex * 100}%)`;
+            }
+        }
+
+        function nextNewsSlide() {
+            showNewsSlide(currentNewsIndex + 1);
+        }
+
+        function prevNewsSlide() {
+            showNewsSlide(currentNewsIndex - 1);
+        }
+
+        function startNewsSlider() {
+            if (newsIntervalId) clearInterval(newsIntervalId);
+            newsIntervalId = setInterval(nextNewsSlide, 5000); // 5 seconds interval
+        }
+
+        // Pause slider on hover
+        document.addEventListener("DOMContentLoaded", () => {
+            const newsSlider = document.querySelector(".news-slider");
+            if (newsSlider) {
+                newsSlider.addEventListener("mouseenter", () => {
+                    if (newsIntervalId) clearInterval(newsIntervalId);
+                });
+                newsSlider.addEventListener("mouseleave", () => {
+                    startNewsSlider();
+                });
+            }
+        });
 
         fetchLatestContent();
 

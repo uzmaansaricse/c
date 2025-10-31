@@ -395,15 +395,22 @@ body {
     flex: 1; /* Equal width */
     max-width: 600px;
     min-width: 300px;
-    height: 350px; /* Same height */
+    height: 380px; /* Same height */
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     text-align: center;
     background: linear-gradient(to bottom, rgb(209 138 117 / 22%), rgba(88, 54, 42, 0.16));
     padding: 30px;
     border-radius: 15px;
+}
+
+.mainbpx-main {
+    justify-content: flex-start;
+}
+
+.scanner-container {
+    justify-content: center;
 }
 
 .scanner-container h1 {
@@ -413,6 +420,7 @@ body {
 }
 .mainbpx-main h2 {
     color: white;
+    margin-bottom: 15px;
 }
 
 /* === News Content Styling === */
