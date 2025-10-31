@@ -6,6 +6,7 @@
   <title>User Order Status</title>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -268,6 +269,7 @@
               <th>Book Name</th>
               <th>Quantity</th>
               <th>Total Price</th>
+              <th>Payment Status</th>
               <th>Status</th>
               <th>Order placed Date</th>
               <th>Action</th>
@@ -326,36 +328,46 @@
       if (!orders || orders.length === 0) {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        td.colSpan = 6;
+        td.colSpan = 8;
         td.textContent = 'No orders found.';
         tr.appendChild(td);
         tbody.appendChild(tr);
         return;
       }
 
+      // Group orders by order ID to avoid duplicates
+      const groupedOrders = {};
       orders.forEach(order => {
+        const orderId = order.orderId || order._id;
+        if (!groupedOrders[orderId]) {
+          groupedOrders[orderId] = order;
+        }
+      });
+
+      // Display grouped orders
+      Object.values(groupedOrders).forEach(order => {
         // Flatten order by books
-        order.books.forEach(bookItem => {
+        order.books.forEach((bookItem, bookIndex) => {
           const tr = document.createElement('tr');
 
           // Book Image with click handler to open newbookDetelies.html with book id
           const bookImageTd = document.createElement('td');
           const img = document.createElement('img');
-          img.src = bookItem.bookImage || '';
-          img.alt = bookItem.bookName || 'Book Image';
+          img.src = bookItem.bookImage || bookItem.image || '';
+          img.alt = bookItem.bookName || bookItem.title || 'Book Image';
           img.style.width = '50px';
           img.style.height = 'auto';
           img.style.cursor = 'pointer';
           img.addEventListener('click', (e) => {
             e.stopPropagation();
-            window.open(`newbookDetelies.html?id=${bookItem.bookId}`, '_blank');
+            window.open(`newbookDetelies.html?id=${bookItem.bookId || bookItem.id}`, '_blank');
           });
           bookImageTd.appendChild(img);
           tr.appendChild(bookImageTd);
 
           // Book Name
           const bookNameTd = document.createElement('td');
-          bookNameTd.textContent = bookItem.bookName || 'N/A';
+          bookNameTd.textContent = bookItem.bookName || bookItem.title || 'N/A';
           tr.appendChild(bookNameTd);
 
           // Quantity
@@ -367,14 +379,22 @@
           const totalPriceTd = document.createElement('td');
           const price = bookItem.price || 0;
           const quantity = bookItem.quantity || 0;
-          totalPriceTd.textContent = (price * quantity).toFixed(2);
+          totalPriceTd.textContent = '₹' + (price * quantity).toFixed(2);
           tr.appendChild(totalPriceTd);
 
-          // Status
+          // Payment Status
+          const paymentStatusTd = document.createElement('td');
+          const hasPayment = order.paymentId && order.paymentId.trim() !== '';
+          paymentStatusTd.textContent = hasPayment ? 'Success' : 'Failed';
+          paymentStatusTd.style.color = hasPayment ? '#28a745' : '#e74c3c';
+          paymentStatusTd.style.fontWeight = 'bold';
+          tr.appendChild(paymentStatusTd);
+
+          // Order Status
           const statusTd = document.createElement('td');
           const statusDescriptions = {
             "Processing": "Processing your order.",
-           "Pending": "Order is not yet confirmed/placed.",
+            "Pending": "Order is not yet confirmed/placed.",
             "Unshipped": "Order is confirmed/placed. It will be shipped and dispatched soon.",
             "Shipped": "Order is processed, ready to be handed over to courier service.",
             "Dispatched": "Order is dispatched to courier.",
@@ -387,8 +407,8 @@
             "Incomplete": "Order payment is incomplete.",
             "Payment Failed": "Payment failed. Click 'Retry Payment' to complete your order."
           };
-          statusTd.textContent = statusDescriptions[order.status] || 'Unknown Status';
-          if (order.status === 'Payment Failed') {
+          statusTd.textContent = statusDescriptions[order.status] || order.status || 'Unknown Status';
+          if (order.status === 'Payment Failed' || !hasPayment) {
             statusTd.style.color = '#e74c3c';
             statusTd.style.fontWeight = 'bold';
           }
@@ -401,7 +421,25 @@
 
           // Action column
           const actionTd = document.createElement('td');
-          if (order.status === 'Payment Failed') {
+          actionTd.style.display = 'flex';
+          actionTd.style.gap = '5px';
+          actionTd.style.flexDirection = 'column';
+          actionTd.style.alignItems = 'center';
+
+          // Show invoice button only for successful payments (orders with paymentId)
+          if (hasPayment && bookIndex === 0) {
+            const invoiceBtn = document.createElement('button');
+            invoiceBtn.textContent = '📄 Invoice';
+            invoiceBtn.style.cssText = 'background: #ff6b35; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; margin-bottom: 3px;';
+            invoiceBtn.onclick = (e) => {
+              e.stopPropagation();
+              downloadInvoice(order);
+            };
+            actionTd.appendChild(invoiceBtn);
+          }
+
+          // Show retry payment button for failed orders
+          if (!hasPayment || order.status === 'Payment Failed') {
             const retryBtn = document.createElement('button');
             retryBtn.textContent = 'Retry Payment';
             retryBtn.style.cssText = 'background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;';
@@ -410,8 +448,11 @@
               retryPayment(order._id, order.totalPrice);
             };
             actionTd.appendChild(retryBtn);
-          } else {
+          }
+
+          if (actionTd.children.length === 0) {
             actionTd.textContent = '-';
+            actionTd.style.display = 'table-cell';
           }
           tr.appendChild(actionTd);
 
@@ -511,6 +552,131 @@
           text: "Payment received but order update failed. Please contact support."
         });
       }
+    }
+
+    // Download Invoice Function
+    function downloadInvoice(order) {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Generate invoice page
+        generateInvoicePage(doc, order);
+        
+        // Save the PDF
+        const fileName = `Invoice_${order.orderId || order._id}_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(fileName);
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Invoice Downloaded!',
+          text: 'Your invoice has been downloaded successfully.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error) {
+        console.error('Error generating invoice:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to generate invoice. Please try again.'
+        });
+      }
+    }
+
+    // Generate Invoice Page
+    function generateInvoicePage(doc, order) {
+      // Set proper margins for A4 page (210x297mm)
+      const margin = 15; // 15mm margin on all sides
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const contentWidth = pageWidth - (2 * margin);
+      
+      // Header
+      doc.setFontSize(30);
+      doc.setFont(undefined, 'bold');
+      doc.text('ARAVALI PUBLICATION', pageWidth/2, margin + 25, { align: 'center' });
+      
+      doc.setFontSize(24);
+      doc.text('INVOICE', pageWidth/2, margin + 40, { align: 'center' });
+      
+      // Invoice details
+      doc.setFontSize(15);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Invoice #: INV-${order.orderId || order._id}`, margin, margin + 60);
+      doc.text(`Date: ${new Date().toLocaleDateString()}`, margin, margin + 70);
+      doc.text(`Order ID: ${order.orderId || order._id}`, margin, margin + 80);
+      
+      // Company details (right side)
+      doc.text('ARAVALI PUBLICATION', margin + 105, margin + 60);
+      doc.text('Plot number 1, Rajeev Nagar,', margin + 105, margin + 70);
+      doc.text('Vidhyadhar Nagar Sector 3,', margin + 105, margin + 80);
+      doc.text('Jaipur 302038', margin + 105, margin + 90);
+      doc.text('Phone: 9351324018', margin + 105, margin + 100);
+      doc.text('Email: ancp012@gmail.com', margin + 105, margin + 110);
+      
+      // Customer details
+      doc.setFont(undefined, 'bold');
+      doc.text('BILL TO:', margin, margin + 125);
+      doc.setFont(undefined, 'normal');
+      doc.text(order.deliveryDetails.fullName, margin, margin + 135);
+      doc.text(order.deliveryDetails.address, margin, margin + 145);
+      doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, margin, margin + 155);
+      doc.text(`PIN: ${order.deliveryDetails.pincode}`, margin, margin + 165);
+      doc.text(`Phone: ${order.deliveryDetails.mobile}`, margin, margin + 175);
+      if (order.deliveryDetails.email) {
+        doc.text(`Email: ${order.deliveryDetails.email}`, margin, margin + 185);
+      }
+      
+      // Items table
+      const tableStartY = margin + 200;
+      
+      // Table headers
+      doc.setFont(undefined, 'bold');
+      doc.rect(margin, tableStartY, contentWidth, 8);
+      doc.text('S.No', margin + 5, tableStartY + 5);
+      doc.text('Description', margin + 25, tableStartY + 5);
+      doc.text('Qty', margin + 100, tableStartY + 5);
+      doc.text('Rate', margin + 120, tableStartY + 5);
+      doc.text('Amount', margin + 145, tableStartY + 5);
+      
+      // Table rows
+      doc.setFont(undefined, 'normal');
+      let currentY = tableStartY + 8;
+      let totalAmount = 0;
+      
+      order.books.forEach((book, index) => {
+        const amount = book.price * book.quantity;
+        totalAmount += amount;
+        
+        doc.rect(margin, currentY, contentWidth, 8);
+        doc.text((index + 1).toString(), margin + 5, currentY + 5);
+        const bookTitle = book.title || book.bookName || 'Book';
+        doc.text(bookTitle.substring(0, 30), margin + 25, currentY + 5);
+        doc.text(book.quantity.toString(), margin + 105, currentY + 5);
+        doc.text(`Rs.${book.price}`, margin + 125, currentY + 5);
+        doc.text(`Rs.${amount}`, margin + 150, currentY + 5);
+        
+        currentY += 8;
+      });
+      
+      // Total
+      doc.setFont(undefined, 'bold');
+      doc.rect(margin, currentY, contentWidth, 8);
+      doc.text('TOTAL', margin + 100, currentY + 5);
+      doc.text(`Rs.${totalAmount}`, margin + 150, currentY + 5);
+      
+      // Payment Status
+      currentY += 15;
+      doc.setFontSize(13);
+      doc.text('Payment Status: PAID', margin, currentY);
+      doc.text(`Payment ID: ${order.paymentId || 'N/A'}`, margin, currentY + 10);
+      
+      // Footer
+      doc.setFont(undefined, 'normal');
+      doc.setFontSize(12);
+      doc.text('Thank you for your business!', pageWidth/2, pageHeight - 30, { align: 'center' });
+      doc.text('This is a computer generated invoice.', pageWidth/2, pageHeight - 20, { align: 'center' });
     }
 
     // On page load, fetch and display user orders

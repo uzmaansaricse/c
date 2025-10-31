@@ -691,35 +691,44 @@ app.delete("/api/review/:id", async (req, res) => {
 });
 
 // Save failed order for repayment
-app.post("/api/save-failed-order", async (req, res) => {
+app.post("/api/save-failed-order", authMiddleware, async (req, res) => {
     try {
         const { orderId, deliveryDetails, cart, totalAmount } = req.body;
         
+        // Get user email from authenticated user
+        const userId = req.user?.userId;
+        const userEmail = req.user?.email;
+        
         // Create order with failed payment status
         const order = new Order({
-            orderId: orderId,
+            orderId: orderId || `ORD-${Date.now()}`,
+            userId: userId,
+            userEmail: userEmail,
             books: cart.map(item => ({
                 bookId: item.id,
                 title: item.title,
+                image: item.image,
                 price: item.price,
                 quantity: item.quantity
             })),
             totalPrice: totalAmount,
             deliveryDetails: deliveryDetails,
             status: 'Payment Failed',
-            paymentId: null // No payment ID for failed payments
+            paymentId: null, // No payment ID for failed payments
+            createdAt: new Date()
         });
 
         await order.save();
-        res.json({ success: true, message: 'Failed order saved for repayment' });
+        console.log('Failed order saved:', order._id);
+        res.json({ success: true, message: 'Failed order saved for repayment', orderId: order._id });
     } catch (error) {
         console.error('Error saving failed order:', error);
-        res.status(500).json({ success: false, message: 'Failed to save order' });
+        res.status(500).json({ success: false, message: 'Failed to save order', error: error.message });
     }
 });
 
 // Update order payment after successful retry
-app.post("/api/update-order-payment", async (req, res) => {
+app.post("/api/update-order-payment", authMiddleware, async (req, res) => {
     try {
         const { orderId, paymentId } = req.body;
         
@@ -728,15 +737,22 @@ app.post("/api/update-order-payment", async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
+        // Verify order belongs to the authenticated user
+        if (order.userId && order.userId.toString() !== req.user.userId.toString()) {
+            return res.status(403).json({ success: false, message: 'Unauthorized access' });
+        }
+
         // Update order with payment details
         order.paymentId = paymentId;
         order.status = 'Unshipped'; // Change from 'Payment Failed' to 'Unshipped'
+        order.updatedAt = new Date();
         await order.save();
 
-        res.json({ success: true, message: 'Order payment updated successfully' });
+        console.log('Order payment updated successfully:', orderId);
+        res.json({ success: true, message: 'Order payment updated successfully', order: order });
     } catch (error) {
         console.error('Error updating order payment:', error);
-        res.status(500).json({ success: false, message: 'Failed to update order payment' });
+        res.status(500).json({ success: false, message: 'Failed to update order payment', error: error.message });
     }
 });
 

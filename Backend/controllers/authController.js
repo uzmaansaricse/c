@@ -3908,7 +3908,7 @@ const getUserOrders = async (req, res) => {
 
         // Populate book details for each book in orders
         let orders = await Order.find(query)
-            .select("status createdAt updatedAt books totalPrice deliveryDetails")
+            .select("orderId status createdAt updatedAt books totalPrice deliveryDetails paymentId")
             .populate({
                 path: "books.bookId",
                 select: "title bookImages mainImageIndex"
@@ -3918,7 +3918,8 @@ const getUserOrders = async (req, res) => {
         console.log("Orders found:", orders.length);
 
         // Filter out "Pending" orders if a "Paid" order exists for the same user and book
-        const paidOrders = orders.filter(order => order.status === "Paid");
+        // BUT keep "Payment Failed" orders so users can retry payment
+        const paidOrders = orders.filter(order => order.status === "Paid" || order.status === "Unshipped" || order.status === "Shipped" || order.status === "Delivered");
         const paidOrderBookIds = new Set();
         paidOrders.forEach(order => {
             order.books.forEach(bookItem => {
@@ -3929,8 +3930,11 @@ const getUserOrders = async (req, res) => {
         });
 
         orders = orders.filter(order => {
+            // Always show Payment Failed orders so users can retry
+            if (order.status === "Payment Failed") return true;
+            // Show all non-pending orders
             if (order.status !== "Pending") return true;
-            // Check if any book in this pending order is in paidOrderBookIds
+            // For pending orders, check if any book in this pending order is in paidOrderBookIds
             return !order.books.some(bookItem => bookItem.bookId && paidOrderBookIds.has(bookItem.bookId.toString()));
         });
 
@@ -3950,13 +3954,16 @@ const getUserOrders = async (req, res) => {
             });
             return {
                 _id: order._id,
+                orderId: order.orderId || order._id,
                 status: order.status,
                 createdAt: order.createdAt,
                 updatedAt: order.updatedAt,
                 totalPrice: order.totalPrice,
+                paymentId: order.paymentId || null, // Include payment ID to check if payment was successful
                 deliveryDetails: {
                     fullName: order.deliveryDetails?.fullName || "N/A",
                     mobile: order.deliveryDetails?.mobile || "N/A",
+                    email: order.deliveryDetails?.email || "",
                     address: order.deliveryDetails?.address || "",
                     city: order.deliveryDetails?.city || "",
                     state: order.deliveryDetails?.state || "",

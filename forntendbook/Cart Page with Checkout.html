@@ -762,10 +762,29 @@ document.getElementById("checkout").addEventListener("click", function () {
                 },
                 modal: {
                     ondismiss: function () {
-                        // Payment failed: save order details for repayment
-                        handlePaymentFailure(dbOrderId, deliveryDetails, cart, totalAmount);
+                        // Payment cancelled or failed: save order details for repayment
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Payment Not Completed",
+                            text: "Your order has been saved. You can complete the payment from your orders page.",
+                            confirmButtonText: "Go to Orders",
+                            showCancelButton: true,
+                            cancelButtonText: "Stay Here"
+                        }).then((result) => {
+                            // Save failed order regardless of user choice
+                            handlePaymentFailure(dbOrderId, deliveryDetails, cart, totalAmount);
+                            
+                            if (result.isConfirmed) {
+                                window.location.href = "UserStatusOrderMobleNumber.html";
+                            }
+                        });
                     }
                 }
+            });
+            rzp.on('payment.failed', function (response) {
+                // Explicit payment failure
+                console.error('Payment failed:', response.error);
+                handlePaymentFailure(dbOrderId, deliveryDetails, cart, totalAmount);
             });
             rzp.open();
         } else {
@@ -990,40 +1009,28 @@ function handlePaymentFailure(orderId, deliveryDetails, cart, totalAmount) {
         createdAt: new Date().toISOString()
     };
 
+    const token = localStorage.getItem('token');
+
     // Save to backend as failed order
-    fetch(`/api/save-failed-order`, {
+    fetch(`${API_BASE}/api/save-failed-order`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify(failedOrderData)
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            Swal.fire({
-                icon: "error",
-                title: "Payment Failed",
-                text: "Your order details have been saved. You can retry payment from your orders page.",
-                confirmButtonText: "Go to Orders"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "UserStatusOrderMobleNumber.html";
-                }
-            });
+            console.log('Failed order saved successfully for retry');
+            // Don't show alert here as we already showed one in ondismiss
         } else {
-            Swal.fire({
-                icon: "error",
-                title: "Payment Failed",
-                text: "Your order was not completed. Please try again."
-            });
+            console.error('Failed to save order:', data.message);
         }
     })
     .catch(error => {
         console.error("Error saving failed order:", error);
-        Swal.fire({
-            icon: "error",
-            title: "Payment Failed",
-            text: "Your order was not completed. Please try again."
-        });
     });
 }
 </script>
