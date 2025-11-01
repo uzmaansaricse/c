@@ -82,7 +82,7 @@ export const sendOrderConfirmationEmail = async (email, fullName, order) => {
           <h2>Confirmed! Your Aravali Publication Order Confirmation</h2>
           <p>Hello <b>${fullName}</b>,</p>
           <p>Thank you for shopping on <a href="https://aravalipublication.com" target="_blank">Aravali Publication</a>. We are happy to provide you with the latest and newest edition of our books.</p>
-          <h3>ORDER #${order._id}</h3>
+          <h3>ORDER #${order.orderId}</h3>
           <p>Once your order has been dispatched, you will receive a tracking ID.</p>
           <p>Here's a summary of your purchase!</p>
           <table style="width: 100%; border-collapse: collapse; border: 1px solid #000;">
