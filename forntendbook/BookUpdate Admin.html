@@ -311,8 +311,8 @@
       <input type="text" id="language" />
       <label>Weight (kg):</label>
       <input type="number" id="weight" />
-      <label>Bullet Points (Separate with comma):</label>
-      <textarea id="bulletPoints" rows="2"></textarea>
+      <label>Bullet Points (Separate with double comma):</label>
+      <textarea id="bulletPoints" rows="2" placeholder="Enter bullet points separated by double comma (,,) e.g., Point 1,, Point 2,, Point 3"></textarea>
       <input type="hidden" id="mainImageIndex" />
       <label>Book Images (Upload 1-5 images to replace, or leave blank to keep old):</label>
       <small style="color: #4caf50; font-weight: 600; display: block; margin: 5px 0;">
@@ -487,7 +487,7 @@
       document.getElementById('pageNumber').value = book.pageNumber || '';
       document.getElementById('language').value = book.language || '';
       document.getElementById('weight').value = book.weight ? String(book.weight).replace(/[^\d.]/g, '') : '';
-      document.getElementById('bulletPoints').value = book.bulletPoints?.join(', ') || '';
+      document.getElementById('bulletPoints').value = book.bulletPoints?.join(',, ') || '';
       document.getElementById('mainImageIndex').value = book.mainImageIndex || 0;
       const urls = book.bookImages ? [...book.bookImages] : [];
       renderImagePreview(urls);

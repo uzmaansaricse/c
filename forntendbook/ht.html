@@ -170,8 +170,8 @@
         <input type="text" id="weight" />
 
         <!-- Bullet Points -->
-        <label>Bullet Points (separate with commas):</label>
-        <textarea id="bulletPoints" rows="3"></textarea>
+        <label>Bullet Points (separate with double commas):</label>
+        <textarea id="bulletPoints" rows="3" placeholder="Enter bullet points separated by double comma (,,) e.g., Point 1,, Point 2,, Point 3"></textarea>
 
         <label>Image Preview:</label>
         <img id="previewImage" src="" alt="Book Image" />
@@ -220,7 +220,7 @@
       document.getElementById('pageNumber').value = book.pageNumber;
       document.getElementById('language').value = book.language;
       document.getElementById('weight').value = book.weight;
-      document.getElementById('bulletPoints').value = book.bulletPoints ? book.bulletPoints.join(', ') : '';
+      document.getElementById('bulletPoints').value = book.bulletPoints ? book.bulletPoints.join(',, ') : '';
       document.getElementById('previewImage').src = book.bookImage;
     }
 
@@ -470,8 +470,8 @@ mear wala
       <input type="text" id="language" />
       <label>Weight (kg):</label>
       <input type="number" id="weight" />
-      <label>Bullet Points (comma से अलग करें):</label>
-      <textarea id="bulletPoints" rows="2"></textarea>
+      <label>Bullet Points (double comma से अलग करें):</label>
+      <textarea id="bulletPoints" rows="2" placeholder="Point 1,, Point 2,, Point 3"></textarea>
       <label>Main Image Index:</label>
       <input type="number" id="mainImageIndex" />
       <label>Image URLs (comma से अलग करें):</label>
@@ -524,7 +524,7 @@ mear wala
       document.getElementById('pageNumber').value = book.pageNumber || '';
       document.getElementById('language').value = book.language || '';
       document.getElementById('weight').value = book.weight || '';
-      document.getElementById('bulletPoints').value = book.bulletPoints?.join(', ') || '';
+      document.getElementById('bulletPoints').value = book.bulletPoints?.join(',, ') || '';
       document.getElementById('mainImageIndex').value = book.mainImageIndex || 0;
       document.getElementById('bookImages').value = book.bookImages?.join(', ') || '';
     }

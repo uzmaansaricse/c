@@ -2693,10 +2693,10 @@ const addBook = async (req, res) => {
         const bookImages = req.files.map(file => file.path);
         console.log("✅ Images stored in sequential order:", bookImages);
 
-        // ✅ Handle bulletPoints
+        // ✅ Handle bulletPoints (Split by double comma)
         let bulletArray = [];
         if (typeof bulletPoints === 'string') {
-            bulletArray = bulletPoints.split(',').map(p => p.trim());
+            bulletArray = bulletPoints.split(',,').map(p => p.trim()).filter(p => p.length > 0);
         } else if (Array.isArray(bulletPoints)) {
             bulletArray = bulletPoints;
         }
@@ -3179,13 +3179,13 @@ const updateBook = async (req, res) => {
             }
         }
 
-        // Bullet points handling
+        // Bullet points handling (Split by double comma)
         if (bulletPoints) {
             if (Array.isArray(bulletPoints)) {
                 updateData.bulletPoints = bulletPoints;
             } else {
                 updateData.bulletPoints = bulletPoints
-                    .split(',')
+                    .split(',,')
                     .map(pt => pt.trim())
                     .filter(pt => pt.length > 0);
             }

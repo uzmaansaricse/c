@@ -346,7 +346,7 @@
     formData.append("language", document.getElementById("language").value);
     formData.append("weight", document.getElementById("weight").value);
 
-    // — bulletPoints as comma-separated string (for backend compatibility)
+    // — bulletPoints as double comma-separated string (for backend compatibility)
     const bulletPointsArr = [
       document.getElementById("bulletPoint1").value,
       document.getElementById("bulletPoint2").value,
@@ -355,7 +355,7 @@
       document.getElementById("bulletPoint5").value
     ].filter(Boolean);
     if (bulletPointsArr.length > 0) {
-      formData.append("bulletPoints", bulletPointsArr.join(","));
+      formData.append("bulletPoints", bulletPointsArr.join(",,"));
     }
 
     // ✅ SEQUENTIAL IMAGE UPLOAD - Upload images in exact order (1,2,3,4,5)
