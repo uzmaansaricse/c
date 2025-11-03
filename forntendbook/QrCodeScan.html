@@ -187,11 +187,111 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
+        /* Modal Popup Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.4s ease;
+            position: relative;
+        }
+
+        .modal-icon {
+            font-size: 60px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-message {
+            font-size: 18px;
+            line-height: 1.6;
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .modal-success .modal-icon { color: #28a745; }
+        .modal-success .modal-message { color: #155724; }
+
+        .modal-warning .modal-icon { color: #ffc107; }
+        .modal-warning .modal-message { color: #856404; }
+
+        .modal-error .modal-icon { color: #dc3545; }
+        .modal-error .modal-message { color: #721c24; }
+
+        .modal-close-btn {
+            background-color: #2c6e31;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: background-color 0.3s ease;
+            width: auto;
+        }
+
+        .modal-close-btn:hover {
+            background-color: #1e4a22;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { 
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
         @media (max-width: 768px) {
             body { padding: 10px; }
             #scanner-container { min-height: 300px; }
             .manual-entry input { width: 60%; }
             .manual-entry button { width: 35%; }
+            
+            .modal-content {
+                padding: 20px;
+                width: 85%;
+            }
+            
+            .modal-icon {
+                font-size: 50px;
+            }
+            
+            .modal-message {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -199,7 +299,8 @@
     <h2>Check Authenticity of the Book</h2>
     
     <div style="background-color: #e7f3ff; border: 1px solid #b3d9ff; color: #0066cc; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center;">
-        <strong>Note:</strong> Please scan the qr code on hologram present on the front page of the book.....(same)
+        <strong>Note:</strong> Please scan the QR code on hologram present on the front page of the book only ONCE for checking the authenticity/originality of the book.
+
         <br>Please do not scan the hologram again.
     </div>
     
@@ -220,7 +321,7 @@
             <h4 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">Instructions to obtain QR code manually:</h4>
             <ol style="margin: 0; padding-left: 20px; color: #555; font-size: 14px; line-height: 1.5;">
                 <li>Open your normal camera app and scan the hologram image</li>
-                <li>If camera app is able read the QR code then copy it and enter that code here to verify the authenticity of the book</li>
+                <li>If camera app is able to read the QR code then copy it and enter that code here to verify the authenticity of the book</li>
                 <li>If camera app is not able to scan the QR code, then you may use other third party app (available on play store or app store) to read QR code and paste it here to verify the authenticity of the book</li>
             </ol>
         </div>
@@ -248,6 +349,15 @@
 
     <!-- Hidden div for image scanning -->
     <div id="temp-scanner" style="display: none;"></div>
+
+    <!-- Modal Popup -->
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal-content" id="modalContent">
+            <div class="modal-icon" id="modalIcon"></div>
+            <div class="modal-message" id="modalMessage"></div>
+            <button class="modal-close-btn" onclick="closeModal()">OK</button>
+        </div>
+    </div>
 
     <script>
         let scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
@@ -327,22 +437,30 @@
 
                 if (data.success) {
                     // First time scan - valid
-                    showResult(`✅ This book has been successfully verified, it is an original copy. Please do not scan the book again!`, "success");
+                    const message = `✅ This book has been successfully verified, it is an original copy. Please do not scan the book again!`;
+                    showResult(message, "success");
+                    showModal(message, "success", "✅");
                     addToHistory(qrCode, "Authenticated");
                 } else {
                     if (data.status === "already_scanned") {
                         // Already scanned - duplicate
-                        showResult(`⚠️ Duplicate Book!<br>Please contact the publisher:<br><strong>Email:</strong> ancp012@gmail.com<br><strong> Whatsapp no:</strong> 9351324018`, "warning");
+                        const message = `⚠️ Duplicate Book!<br>Please contact the publisher:<br><strong>Email:</strong> ancp012@gmail.com<br><strong> Whatsapp no:</strong> 9351324018`;
+                        showResult(message, "warning");
+                        showModal(message, "warning", "⚠️");
                         addToHistory(qrCode, "Duplicate");
                     } else {
                         // Invalid QR code
-                        showResult(`❌ Invalid QR Code!<br><strong>Error:</strong> ${data.message}`, "error");
+                        const message = `❌ Invalid QR Code!<br><strong>Error:</strong> ${data.message}`;
+                        showResult(message, "error");
+                        showModal(message, "error", "❌");
                         addToHistory(qrCode, "Invalid");
                     }
                 }
             } catch (error) {
                 console.error("Validation error:", error);
-                showResult("❌ Connection Error!<br><strong>Error:</strong> Unable to validate QR Code", "error");
+                const message = "❌ Connection Error!<br><strong>Error:</strong> Unable to validate QR Code";
+                showResult(message, "error");
+                showModal(message, "error", "❌");
                 addToHistory(qrCode, "Connection Error");
             }
         }
@@ -352,6 +470,45 @@
             resultDiv.innerHTML = message;
             resultDiv.className = `result-${type}`;
         }
+
+        function showModal(message, type, icon) {
+            const modal = document.getElementById("resultModal");
+            const modalContent = document.getElementById("modalContent");
+            const modalIcon = document.getElementById("modalIcon");
+            const modalMessage = document.getElementById("modalMessage");
+
+            // Set icon
+            modalIcon.innerHTML = icon;
+
+            // Set message
+            modalMessage.innerHTML = message;
+
+            // Set modal type class
+            modalContent.className = `modal-content modal-${type}`;
+
+            // Show modal
+            modal.classList.add("show");
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("resultModal");
+            modal.classList.remove("show");
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById("resultModal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
 
         function addToHistory(qrCode, status) {
             const historyItem = {
