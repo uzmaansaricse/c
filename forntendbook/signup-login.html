@@ -112,12 +112,12 @@
     <h2>Login</h2>
     <div class="subtitle">Welcome to Aravali Publication</div>
     <div id="step1">
-      <input type="text" id="identifier" placeholder="Enter Mobile Number or Email" />
+      <input type="email" id="identifier" placeholder="Enter Email Address" />
       <button onclick="checkUserType()">Continue</button>
     </div>
 
     <div id="step2-otp" class="hidden">
-      <p>Enter OTP sent to your phone/email</p>
+      <p>Enter OTP sent to your email</p>
       <input type="text" id="otp" maxlength="6" placeholder="Enter OTP" />
       <button onclick="verifyOtp()">Verify</button>
       <button onclick="resendOtp()">Resend OTP</button>
@@ -170,9 +170,17 @@
     async function checkUserType() {
       identifierValue = document.getElementById('identifier').value.trim();
       if (!identifierValue) {
-        document.getElementById('msg').innerText = "Please enter mobile number or email.";
+        document.getElementById('msg').innerText = "Please enter your email address.";
         return;
       }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(identifierValue)) {
+        document.getElementById('msg').innerText = "Please enter a valid email address.";
+        return;
+      }
+      
       document.getElementById('msg').innerText = "Checking...";
       const res = await fetch('/api/auth/check-user-type', {
         method: 'POST',
