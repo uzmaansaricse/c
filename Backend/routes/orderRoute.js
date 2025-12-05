@@ -1,14 +1,27 @@
 import express from "express";
-import { getAllOrdersWithDeliveryDetails } from "../controllers/orderController.js";
+import {
+  createOrder,
+  verifyPayment,
+  razorpayWebhook,
+  getAllOrdersWithDeliveryDetails,
+  sendOrderConfirmationEmail
+} from "../controllers/orderController.js";
 import { updateTrackingId } from "../controllers/authController.js";
-import { Order } from "../models/Order Model.js"; // Correct import for named export from the actual file
+import { Order } from "../models/Order Model.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Update tracking ID
+// --- Secure Payment Routes ---
+router.post("/create-order", authMiddleware, createOrder); // Step 1: Create Order
+router.post("/verify-payment", authMiddleware, verifyPayment); // Step 2: Verify & Update
+router.post("/razorpay-webhook", razorpayWebhook); // Step 3: Webhook (No auth middleware!)
+
+// --- Admin Routes ---
+router.get("/admin/all-orders", getAllOrdersWithDeliveryDetails);
 router.patch("/order/:id/tracking", updateTrackingId);
 
-// Send order confirmation email
+// Send order confirmation email (Manual Trigger)
 router.post("/order/send-confirmation-email", async (req, res) => {
   const { orderId, email, fullName } = req.body;
   try {
@@ -23,8 +36,6 @@ router.post("/order/send-confirmation-email", async (req, res) => {
       order.deliveryDetails.email = order.userEmail;
     }
 
-    // Import and use sendOrderConfirmationEmail
-    const { sendOrderConfirmationEmail } = await import("../controllers/orderController.js");
     await sendOrderConfirmationEmail(email, fullName, order);
     res.json({ message: "Email sent" });
   } catch (err) {
@@ -32,7 +43,7 @@ router.post("/order/send-confirmation-email", async (req, res) => {
   }
 });
 
-// Get single order by ID for admin (for email sending, etc.)
+// Get single order by ID for admin
 router.get("/admin/order/:id", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
@@ -44,7 +55,6 @@ router.get("/admin/order/:id", async (req, res) => {
 
     if (!order) return res.status(404).json({ error: "Order not found" });
 
-    // Enrich deliveryDetails with email if missing
     if (!order.deliveryDetails) {
       order.deliveryDetails = {};
     }
@@ -66,7 +76,6 @@ router.get("/admin/incomplete-orders", async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    // Map books to include only required fields
     const orders = incompleteOrders.map(order => {
       const books = order.books.map(book => ({
         title: book.title,
@@ -89,8 +98,5 @@ router.get("/admin/incomplete-orders", async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch incomplete orders' });
   }
 });
-
-// New route to get all orders with delivery details for admin panel
-router.get("/admin/all-orders", getAllOrdersWithDeliveryDetails);
 
 export default router;

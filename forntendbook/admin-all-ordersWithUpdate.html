@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Admin Orders & Summary</title>
@@ -22,18 +23,22 @@
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
         }
+
         .sidebar h2 {
             text-align: center;
             margin-bottom: 20px;
             font-size: 22px;
         }
+
         .sidebar ul {
             list-style: none;
             padding: 0;
         }
+
         .sidebar ul li {
             margin: 10px 0;
         }
+
         .sidebar ul li a {
             display: block;
             padding: 12px 20px;
@@ -43,9 +48,11 @@
             transition: background-color 0.3s ease;
             border-radius: 5px;
         }
+
         .sidebar ul li a:hover {
             background-color: #3f8744;
         }
+
         .container {
             flex: 1;
             background: #ffffff;
@@ -56,6 +63,7 @@
             border: 2px solid #2c6e31;
             margin-left: 270px;
         }
+
         h1 {
             text-align: center;
             background: #2c6e31;
@@ -66,6 +74,7 @@
             font-size: 24px;
             margin-bottom: 20px;
         }
+
         .filter-section {
             display: flex;
             flex-wrap: wrap;
@@ -73,10 +82,14 @@
             margin-bottom: 20px;
             gap: 10px;
         }
+
         .filter-section label {
             font-weight: bold;
         }
-        .filter-section select, .filter-section input[type="date"], .filter-section input[type="text"] {
+
+        .filter-section select,
+        .filter-section input[type="date"],
+        .filter-section input[type="text"] {
             padding: 8px 10px;
             border: 2px solid #2c6e31;
             border-radius: 5px;
@@ -84,6 +97,7 @@
             max-width: 200px;
             outline: none;
         }
+
         .filter-section button {
             padding: 8px 15px;
             border-radius: 5px;
@@ -93,12 +107,15 @@
             font-weight: bold;
             cursor: pointer;
         }
+
         .filter-section button:hover {
             background: #3f8744;
         }
+
         .action-btn {
             margin: 2px 0;
         }
+
         .invoice-section {
             background: #f8f9fa;
             padding: 15px;
@@ -106,6 +123,7 @@
             margin-bottom: 20px;
             border: 2px solid #2c6e31;
         }
+
         .invoice-btn {
             background: #ff6b35;
             color: white;
@@ -116,16 +134,20 @@
             font-weight: bold;
             font-size: 16px;
         }
+
         .invoice-btn:hover {
             background: #e55a2b;
         }
+
         .invoice-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
+
         .table-responsive {
             overflow-x: auto;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -135,20 +157,25 @@
             overflow: hidden;
             margin-bottom: 40px;
         }
-        th, td {
+
+        th,
+        td {
             padding: 12px 15px;
             border-bottom: 1px solid #ddd;
             text-align: center;
             min-width: 120px;
         }
+
         th {
             background: #2c6e31;
             color: white;
             font-weight: bold;
         }
+
         td {
             color: #333;
         }
+
         select {
             padding: 8px;
             border: 2px solid #2c6e31;
@@ -156,9 +183,11 @@
             outline: none;
             cursor: pointer;
         }
+
         select:focus {
             border-color: #2c6e31;
         }
+
         button {
             background: #2c6e31;
             color: white;
@@ -169,27 +198,34 @@
             font-weight: bold;
             transition: background 0.3s;
         }
+
         button:hover {
             background: #3f8744;
         }
+
         tbody tr:hover {
             background-color: #f1f1f1;
         }
+
         .checkbox-cell {
             width: 50px;
         }
+
         .order-checkbox {
             transform: scale(1.2);
             cursor: pointer;
         }
+
         .selected-row {
             background-color: #e8f5e8 !important;
         }
+
         @media (max-width: 768px) {
             .container {
                 margin-left: 0;
                 padding: 10px;
             }
+
             .sidebar {
                 position: relative;
                 width: 100%;
@@ -205,28 +241,29 @@
     <div class="sidebar">
         <h2>Admin Dashboard</h2>
         <ul>
-         <li><a href="video and imag showAdmin.html"><i class="fa-solid fa-box"></i> News Box</a></li>
-        <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Banner</a></li>
-        <li><a href="manageusers.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
-        <li><a href="AdminPendingOrdersSavenday.html"><i class="fa-solid fa-clock"></i> Pending Orders</a></li>
-        <li><a href="admin-all-ordersWithUpdate.html"><i class="fa-solid fa-globe"></i> Manage Orders</a></li>
-        <li><a href="orderAdmin-analytics.html"><i class="fa-solid fa-chart-line"></i> Order Analytics</a></li>
-        <li><a href="book-upload.html"><i class="fa-solid fa-upload"></i> Book Upload</a></li>
-        <li><a href="BookUpdate Admin.html"><i class="fa-solid fa-pen-to-square"></i> Book Update/Delete</a></li>
-        <li><a href="uploadcsv.html"><i class="fa-solid fa-cloud-arrow-up"></i> Upload CSV</a></li>
-        <li><a href="admin-contacts.html"><i class="fa-solid fa-envelope"></i> Manage Contact Us</a></li>
-        <li><a href="admin-reviews.html"><i class="fa-solid fa-star"></i> Manage Book Review</a></li>
-          <li><a href="index.html"><i class="fa-solid fa-headset"></i>Back to Website</a></li>
-        <li><a href="Logout.html"><i class="fa-solid fa-headset"></i> Logout</a></li>
+            <li><a href="video and imag showAdmin.html"><i class="fa-solid fa-box"></i> News Box</a></li>
+            <li><a href="BenerAdmin.html"><i class="fa-solid fa-bars-progress"></i> Manage Banner</a></li>
+            <li><a href="manageusers.html"><i class="fa-solid fa-bars-progress"></i> Manage Users</a></li>
+            <li><a href="AdminPendingOrdersSavenday.html"><i class="fa-solid fa-clock"></i> Pending Orders</a></li>
+            <li><a href="admin-all-ordersWithUpdate.html"><i class="fa-solid fa-globe"></i> Manage Orders</a></li>
+            <li><a href="orderAdmin-analytics.html"><i class="fa-solid fa-chart-line"></i> Order Analytics</a></li>
+            <li><a href="book-upload.html"><i class="fa-solid fa-upload"></i> Book Upload</a></li>
+            <li><a href="BookUpdate Admin.html"><i class="fa-solid fa-pen-to-square"></i> Book Update/Delete</a></li>
+            <li><a href="uploadcsv.html"><i class="fa-solid fa-cloud-arrow-up"></i> Upload CSV</a></li>
+            <li><a href="admin-contacts.html"><i class="fa-solid fa-envelope"></i> Manage Contact Us</a></li>
+            <li><a href="admin-reviews.html"><i class="fa-solid fa-star"></i> Manage Book Review</a></li>
+            <li><a href="index.html"><i class="fa-solid fa-headset"></i>Back to Website</a></li>
+            <li><a href="Logout.html"><i class="fa-solid fa-headset"></i> Logout</a></li>
         </ul>
     </div>
 
     <div class="container">
         <h1>Admin Orders & Summary</h1>
-        
+
         <div class="invoice-section">
             <h3>Invoice Generation</h3>
-            <p>Select orders with status "Unshipped" and successful payment to generate invoices and mark as "Shipped"</p>
+            <p>Select orders with status "Unshipped" and successful payment to generate invoices and mark as "Shipped"
+            </p>
             <button id="generateInvoiceBtn" class="invoice-btn" onclick="generateInvoicesForSelected()" disabled>
                 Generate Invoice for Selected Orders (0)
             </button>
@@ -234,7 +271,8 @@
 
         <div class="filter-section">
             <label for="searchInput">Search:</label>
-            <input type="text" id="searchInput" placeholder="Search by Order ID, Customer Name, or Tracking ID" oninput="fetchOrders()">
+            <input type="text" id="searchInput" placeholder="Search by Order ID, Customer Name, or Tracking ID"
+                oninput="fetchOrders()">
 
             <label for="statusFilter">Order Status:</label>
             <select id="statusFilter" onchange="fetchOrders()">
@@ -285,7 +323,7 @@
                 <option value="asc">Date Asc</option>
             </select>
         </div>
-        
+
         <div class="table-responsive">
             <table>
                 <thead>
@@ -340,11 +378,11 @@
                     const customerName = (order.deliveryDetails?.fullName || '').toLowerCase();
                     const trackingId = (order.trackingId || '').toLowerCase();
                     const internalId = (order._id || '').toString().toLowerCase();
-                    
-                    return orderId.includes(search) || 
-                           customerName.includes(search) || 
-                           trackingId.includes(search) || 
-                           internalId.includes(search);
+
+                    return orderId.includes(search) ||
+                        customerName.includes(search) ||
+                        trackingId.includes(search) ||
+                        internalId.includes(search);
                 });
             }
 
@@ -362,10 +400,10 @@
                     const orderDate = new Date(order.createdAt);
                     const orderMonth = (orderDate.getMonth() + 1).toString().padStart(2, '0');
                     const orderYear = orderDate.getFullYear().toString();
-                    
+
                     const matchMonth = !month || orderMonth === month;
                     const matchYear = !year || orderYear === year;
-                    
+
                     return matchMonth && matchYear;
                 });
             }
@@ -400,15 +438,15 @@
         function populateYearDropdown(orders) {
             const yearSelect = document.getElementById("yearFilter");
             const years = new Set();
-            
+
             orders.forEach(order => {
                 const year = new Date(order.createdAt).getFullYear();
                 years.add(year);
             });
-            
+
             // Clear existing options except "All Years"
             yearSelect.innerHTML = '<option value="">All Years</option>';
-            
+
             // Add years in descending order
             Array.from(years).sort((a, b) => b - a).forEach(year => {
                 const option = document.createElement('option');
@@ -469,11 +507,11 @@
                 const totalQuantity = orderGroup.reduce((sum, order) => sum + (order.bookQuantity || 1), 0);
                 const totalAmount = orderGroup.reduce((sum, order) => sum + (order.bookTotal || order.bookPrice || 0), 0);
                 const bookTitles = orderGroup.map(order => order.bookTitle).join(', ');
-                
+
                 const row = document.createElement("tr");
                 const isSelected = selectedOrders.has(firstOrder._id);
                 const canSelect = firstOrder.status === 'Unshipped';
-                
+
                 if (isSelected) {
                     row.classList.add('selected-row');
                 }
@@ -551,7 +589,7 @@
         function toggleSelectAll() {
             const selectAllCheckbox = document.getElementById('selectAll');
             const orderCheckboxes = document.querySelectorAll('.order-checkbox:not(#selectAll):not(:disabled)');
-            
+
             if (selectAllCheckbox.checked) {
                 orderCheckboxes.forEach(checkbox => {
                     const orderId = checkbox.getAttribute('data-order-id');
@@ -626,10 +664,10 @@
 
                 // INVOICE PAGE
                 generateInvoicePage(doc, order, orderIndex + 1);
-                
+
                 // Add new page for packing slip
                 doc.addPage();
-                
+
                 // PACKING SLIP PAGE
                 generatePackingSlipPage(doc, order, orderIndex + 1);
             });
@@ -643,86 +681,124 @@
             const pageWidth = 210;
             const pageHeight = 297;
             const contentWidth = pageWidth - (2 * margin);
-            
+
             // Header
             doc.setFontSize(30);
             doc.setFont(undefined, 'bold');
-            doc.text('ARAVALI PUBLICATION', pageWidth/2, margin + 25, { align: 'center' });
-            
+            doc.text('ARAVALI PUBLICATION', pageWidth / 2, margin + 25, { align: 'center' });
+
             doc.setFontSize(24);
-            doc.text('INVOICE', pageWidth/2, margin + 40, { align: 'center' });
-            
+            doc.text('INVOICE', pageWidth / 2, margin + 40, { align: 'center' });
+
             // Invoice details
-            doc.setFontSize(15);
+            doc.setFontSize(12);
             doc.setFont(undefined, 'normal');
-            doc.text(`Invoice #: INV-${order.orderId || order._id}`, margin, margin + 60);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, margin, margin + 70);
-            doc.text(`Order ID: ${order.orderId || order._id}`, margin, margin + 80);
-            
+
+            let leftColumnY = margin + 60;
+            doc.text(`Invoice #: INV-${order.orderId || order._id}`, margin, leftColumnY);
+            leftColumnY += 7;
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, margin, leftColumnY);
+            leftColumnY += 7;
+            doc.text(`Order ID: ${order.orderId || order._id}`, margin, leftColumnY);
+
             // Company details (right side)
-           
-            doc.text('ARAVALI PUBLICATION', margin + 105, margin + 60);
-            doc.text('Plot number 1, Rajeev Nagar,', margin + 105, margin + 70);
-            doc.text('Vidhyadhar Nagar Sector 3,', margin + 105, margin + 80);
-            doc.text('Jaipur 302038', margin + 105, margin + 90);
-            doc.text('Phone: 9351324018', margin + 105, margin + 100);
-            doc.text('Email: ancp012@gmail.com', margin + 105, margin + 120);
-            
-            // Customer details
+            let rightColumnY = margin + 60;
+            const rightColumnX = margin + 105;
+
             doc.setFont(undefined, 'bold');
-            doc.text('BILL TO:', margin, margin + 125);
+            doc.text('ARAVALI PUBLICATION', rightColumnX, rightColumnY);
+            rightColumnY += 7;
+
             doc.setFont(undefined, 'normal');
-            doc.text(order.deliveryDetails.fullName, margin, margin + 135);
-            doc.text(order.deliveryDetails.address, margin, margin + 145);
-            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, margin, margin + 155);
-            doc.text(`PIN: ${order.deliveryDetails.pincode}`, margin, margin + 165);
-            doc.text(`Phone: ${order.deliveryDetails.mobile}`, margin, margin + 175);
+            doc.text('Plot number 1, Rajeev Nagar,', rightColumnX, rightColumnY);
+            rightColumnY += 7;
+            doc.text('Vidhyadhar Nagar Sector 3,', rightColumnX, rightColumnY);
+            rightColumnY += 7;
+            doc.text('Jaipur 302038', rightColumnX, rightColumnY);
+            rightColumnY += 7;
+            doc.text('Phone: 9351324018', rightColumnX, rightColumnY);
+            rightColumnY += 7;
+            doc.text('Email: ancp012@gmail.com', rightColumnX, rightColumnY);
+
+            // Customer details
+            let currentY = Math.max(leftColumnY, rightColumnY) + 15;
+
+            doc.setFont(undefined, 'bold');
+            doc.text('BILL TO:', margin, currentY);
+            currentY += 7;
+
+            doc.setFont(undefined, 'normal');
+            doc.text(order.deliveryDetails.fullName, margin, currentY);
+            currentY += 7;
+
+            // Handle long address with wrapping
+            const addressWidth = contentWidth / 2; // Use half page width for address
+            const addressLines = doc.splitTextToSize(order.deliveryDetails.address, addressWidth);
+            doc.text(addressLines, margin, currentY);
+            currentY += (addressLines.length * 7);
+
+            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, margin, currentY);
+            currentY += 7;
+            doc.text(`PIN: ${order.deliveryDetails.pincode}`, margin, currentY);
+            currentY += 7;
+            doc.text(`Phone: ${order.deliveryDetails.mobile}`, margin, currentY);
+            currentY += 7;
             if (order.deliveryDetails.email) {
-                doc.text(`Email: ${order.deliveryDetails.email}`, margin, margin + 185);
+                doc.text(`Email: ${order.deliveryDetails.email}`, margin, currentY);
+                currentY += 7;
             }
-            
+
             // Items table
-            const tableStartY = margin + 205;
-            
+            const tableStartY = currentY + 15;
+
             // Table headers
             doc.setFont(undefined, 'bold');
-            doc.rect(margin, tableStartY, contentWidth, 8);
-            doc.text('S.No', margin + 5, tableStartY + 5);
-            doc.text('Description', margin + 25, tableStartY + 5);
-            doc.text('Qty', margin + 100, tableStartY + 5);
-            doc.text('Rate', margin + 120, tableStartY + 5);
-            doc.text('Amount', margin + 145, tableStartY + 5);
-            
+            doc.setFillColor(240, 240, 240);
+            doc.rect(margin, tableStartY, contentWidth, 10, 'F');
+            doc.rect(margin, tableStartY, contentWidth, 10, 'S');
+
+            doc.text('S.No', margin + 5, tableStartY + 7);
+            doc.text('Description', margin + 25, tableStartY + 7);
+            doc.text('Qty', margin + 115, tableStartY + 7); // Adjusted position
+            doc.text('Rate', margin + 135, tableStartY + 7); // Adjusted position
+            doc.text('Amount', margin + 160, tableStartY + 7); // Adjusted position
+
             // Table rows
             doc.setFont(undefined, 'normal');
-            let currentY = tableStartY + 8;
+            let tableCurrentY = tableStartY + 10;
             let totalAmount = 0;
-            
+
             order.books.forEach((book, index) => {
                 const amount = book.price * book.quantity;
                 totalAmount += amount;
-                
-                doc.rect(margin, currentY, contentWidth, 8);
-                doc.text((index + 1).toString(), margin + 5, currentY + 5);
-                doc.text(book.title.substring(0, 30), margin + 25, currentY + 5);
-                doc.text(book.quantity.toString(), margin + 105, currentY + 5);
-                doc.text(`Rs.${book.price}`, margin + 125, currentY + 5);
-                doc.text(`Rs.${amount}`, margin + 150, currentY + 5);
-                
-                currentY += 8;
+
+                // Handle long book titles
+                const titleWidth = 85; // Width allocated for title
+                const titleLines = doc.splitTextToSize(book.title, titleWidth);
+                const rowHeight = Math.max(10, titleLines.length * 7 + 3); // Dynamic row height
+
+                doc.rect(margin, tableCurrentY, contentWidth, rowHeight);
+
+                doc.text((index + 1).toString(), margin + 5, tableCurrentY + 7);
+                doc.text(titleLines, margin + 25, tableCurrentY + 7);
+                doc.text(book.quantity.toString(), margin + 120, tableCurrentY + 7, { align: 'center' });
+                doc.text(`Rs.${book.price}`, margin + 145, tableCurrentY + 7, { align: 'right' });
+                doc.text(`Rs.${amount}`, margin + 175, tableCurrentY + 7, { align: 'right' });
+
+                tableCurrentY += rowHeight;
             });
-            
+
             // Total
             doc.setFont(undefined, 'bold');
-            doc.rect(margin, currentY, contentWidth, 8);
-            doc.text('TOTAL', margin + 100, currentY + 5);
-            doc.text(`Rs.${totalAmount}`, margin + 150, currentY + 5);
-            
+            doc.rect(margin, tableCurrentY, contentWidth, 10);
+            doc.text('TOTAL', margin + 120, tableCurrentY + 7);
+            doc.text(`Rs.${totalAmount}`, margin + 175, tableCurrentY + 7, { align: 'right' });
+
             // Footer
             doc.setFont(undefined, 'normal');
-            doc.setFontSize(12);
-            doc.text('Thank you for your business!', pageWidth/2, pageHeight - 30, { align: 'center' });
-            doc.text('This is a computer generated invoice.', pageWidth/2, pageHeight - 20, { align: 'center' });
+            doc.setFontSize(10);
+            doc.text('Thank you for your business!', pageWidth / 2, pageHeight - 30, { align: 'center' });
+            doc.text('This is a computer generated invoice.', pageWidth / 2, pageHeight - 20, { align: 'center' });
         }
 
         function generatePackingSlipPage(doc, order, orderNumber) {
@@ -731,113 +807,150 @@
             const pageWidth = 210;
             const pageHeight = 297;
             const contentWidth = pageWidth - (2 * margin);
-            
+
             // Header
             doc.setFontSize(30);
             doc.setFont(undefined, 'bold');
-            doc.text('ARAVALI PUBLICATION', pageWidth/2, margin + 25, { align: 'center' });
-            
+            doc.text('ARAVALI PUBLICATION', pageWidth / 2, margin + 25, { align: 'center' });
+
             doc.setFontSize(24);
-            doc.text('PACKING SLIP', pageWidth/2, margin + 40, { align: 'center' });
-            
+            doc.text('PACKING SLIP', pageWidth / 2, margin + 40, { align: 'center' });
+
             // Packing slip details
-            doc.setFontSize(15);
+            doc.setFontSize(12);
             doc.setFont(undefined, 'normal');
-            doc.text(`Packing Slip #: PS-${order.orderId || order._id}`, margin, margin + 60);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, margin, margin + 70);
-            doc.text(`Order ID: ${order.orderId || order._id}`, margin, margin + 80);
-            
+
+            let currentY = margin + 60;
+            doc.text(`Packing Slip #: PS-${order.orderId || order._id}`, margin, currentY);
+            currentY += 7;
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, margin, currentY);
+            currentY += 7;
+            doc.text(`Order ID: ${order.orderId || order._id}`, margin, currentY);
+            currentY += 15;
+
             // Shipping details
+            const leftColumnX = margin;
+            const rightColumnX = margin + 100;
+            let leftY = currentY;
+            let rightY = currentY;
+
+            // SHIP TO
             doc.setFont(undefined, 'bold');
-            doc.text('SHIP TO:', margin, margin + 95);
+            doc.text('SHIP TO:', leftColumnX, leftY);
+            leftY += 7;
+
             doc.setFont(undefined, 'normal');
-            doc.text(order.deliveryDetails.fullName, margin, margin + 105);
-            doc.text(order.deliveryDetails.address, margin, margin + 115);
-            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, margin, margin + 125);
-            doc.text(`PIN: ${order.deliveryDetails.pincode}`, margin, margin + 135);
-            doc.text(`Phone: ${order.deliveryDetails.mobile}`, margin, margin + 145);
-            
-            // Shipping from
+            doc.text(order.deliveryDetails.fullName, leftColumnX, leftY);
+            leftY += 7;
+
+            // Address wrapping
+            const addressWidth = 80;
+            const addressLines = doc.splitTextToSize(order.deliveryDetails.address, addressWidth);
+            doc.text(addressLines, leftColumnX, leftY);
+            leftY += (addressLines.length * 7);
+
+            doc.text(`${order.deliveryDetails.city}, ${order.deliveryDetails.state}`, leftColumnX, leftY);
+            leftY += 7;
+            doc.text(`PIN: ${order.deliveryDetails.pincode}`, leftColumnX, leftY);
+            leftY += 7;
+            doc.text(`Phone: ${order.deliveryDetails.mobile}`, leftColumnX, leftY);
+            leftY += 7;
+
+            // SHIP FROM
             doc.setFont(undefined, 'bold');
-            doc.text('SHIP FROM:', margin + 100, margin + 95);
+            doc.text('SHIP FROM:', rightColumnX, rightY);
+            rightY += 7;
+
             doc.setFont(undefined, 'normal');
-            doc.text('ARAVALI PUBLICATION', margin + 100, margin + 105);
-            doc.text('Plot number 1, Rajeev Nagar,', margin + 100, margin + 115);
-            doc.text('Vidhyadhar Nagar Sector 3,', margin + 100, margin + 125);
-            doc.text('Jaipur 302038', margin + 100, margin + 135);
-            doc.text('Phone: 9351324018', margin + 100, margin + 145);
-        
+            doc.text('ARAVALI PUBLICATION', rightColumnX, rightY);
+            rightY += 7;
+            doc.text('Plot number 1, Rajeev Nagar,', rightColumnX, rightY);
+            rightY += 7;
+            doc.text('Vidhyadhar Nagar Sector 3,', rightColumnX, rightY);
+            rightY += 7;
+            doc.text('Jaipur 302038', rightColumnX, rightY);
+            rightY += 7;
+            doc.text('Phone: 9351324018', rightColumnX, rightY);
+            rightY += 7;
+
             // Package details
-            const packageStartY = margin + 165;
-            
+            currentY = Math.max(leftY, rightY) + 15;
+
             doc.setFont(undefined, 'bold');
-            doc.text('PACKAGE DETAILS:', margin, margin + 160);
-            
+            doc.text('PACKAGE DETAILS:', margin, currentY);
+            currentY += 10;
+
             // Calculate total weight
             let totalWeight = 0;
-            
             order.books.forEach(book => {
                 const bookWeight = book.weight || 0.5;
                 totalWeight += bookWeight * book.quantity;
             });
-            
+
             // Package info table
-            doc.rect(margin, packageStartY, contentWidth, 8);
-            doc.text('Package Information', margin + 5, packageStartY + 5);
-            
-            let currentY = packageStartY + 8;
-            
-            doc.rect(margin, currentY, contentWidth, 8);
+            doc.setFillColor(240, 240, 240);
+            doc.rect(margin, currentY, contentWidth, 10, 'F');
+            doc.rect(margin, currentY, contentWidth, 10, 'S');
+            doc.text('Package Information', margin + 5, currentY + 7);
+            currentY += 10;
+
             doc.setFont(undefined, 'normal');
-            doc.text(`Total Weight: ${totalWeight.toFixed(2)} kg`, margin + 5, currentY + 5);
-            currentY += 8;
-            
-            doc.rect(margin, currentY, contentWidth, 8);
-            doc.text(`Total Items: ${order.books.reduce((sum, book) => sum + book.quantity, 0)}`, margin + 5, currentY + 5);
-            currentY += 15;
-            
+            doc.rect(margin, currentY, contentWidth, 10);
+            doc.text(`Total Weight: ${totalWeight.toFixed(2)} kg`, margin + 5, currentY + 7);
+            currentY += 10;
+
+            doc.rect(margin, currentY, contentWidth, 10);
+            doc.text(`Total Items: ${order.books.reduce((sum, book) => sum + book.quantity, 0)}`, margin + 5, currentY + 7);
+            currentY += 20;
+
             // Items list
             doc.setFont(undefined, 'bold');
             doc.text('ITEMS IN THIS PACKAGE:', margin, currentY);
             currentY += 10;
-            
+
             // Items table headers
-            doc.rect(margin, currentY, contentWidth, 8);
-            doc.text('S.No', margin + 5, currentY + 5);
-            doc.text('Book Title', margin + 25, currentY + 5);
-            doc.text('Quantity', margin + 120, currentY + 5);
-            doc.text('Weight', margin + 150, currentY + 5);
-            currentY += 8;
-            
+            doc.setFillColor(240, 240, 240);
+            doc.rect(margin, currentY, contentWidth, 10, 'F');
+            doc.rect(margin, currentY, contentWidth, 10, 'S');
+
+            doc.text('S.No', margin + 5, currentY + 7);
+            doc.text('Book Title', margin + 25, currentY + 7);
+            doc.text('Quantity', margin + 125, currentY + 7, { align: 'center' });
+            doc.text('Weight', margin + 165, currentY + 7, { align: 'center' });
+            currentY += 10;
+
             // Items table rows
             doc.setFont(undefined, 'normal');
             order.books.forEach((book, index) => {
                 const bookWeight = book.weight || 0.5;
                 const totalBookWeight = bookWeight * book.quantity;
-                
-                doc.rect(margin, currentY, contentWidth, 8);
-                doc.text((index + 1).toString(), margin + 5, currentY + 5);
-                doc.text(book.title.substring(0, 35), margin + 25, currentY + 5);
-                doc.text(book.quantity.toString(), margin + 125, currentY + 5);
-                doc.text(`${totalBookWeight.toFixed(2)} kg`, margin + 155, currentY + 5);
-                currentY += 8;
+
+                // Handle long book titles
+                const titleWidth = 90;
+                const titleLines = doc.splitTextToSize(book.title, titleWidth);
+                const rowHeight = Math.max(10, titleLines.length * 7 + 3);
+
+                doc.rect(margin, currentY, contentWidth, rowHeight);
+
+                doc.text((index + 1).toString(), margin + 5, currentY + 7);
+                doc.text(titleLines, margin + 25, currentY + 7);
+                doc.text(book.quantity.toString(), margin + 125, currentY + 7, { align: 'center' });
+                doc.text(`${totalBookWeight.toFixed(2)} kg`, margin + 165, currentY + 7, { align: 'center' });
+
+                currentY += rowHeight;
             });
-            
+
             // Special instructions
-            currentY += 10;
+            currentY += 15;
             doc.setFont(undefined, 'bold');
             doc.text('SPECIAL INSTRUCTIONS:', margin, currentY);
             currentY += 10;
             doc.setFont(undefined, 'normal');
             doc.text('• Handle with care', margin + 5, currentY);
-            currentY += 8;
+            currentY += 7;
             doc.text('• Keep books dry and away from moisture', margin + 5, currentY);
-            currentY += 8;
+            currentY += 7;
             doc.text('• Verify contents before accepting delivery', margin + 5, currentY);
-            
-            // Footer
-       
-            
         }
 
         async function updateOrderStatus(orderId, status) {
@@ -880,7 +993,7 @@
                 const resOrder = await fetch(`/admin/order/${orderId}`);
                 const order = await resOrder.json();
                 const email = order.userEmail || (order.deliveryDetails && order.deliveryDetails.email);
-                
+
                 if (!email) {
                     Swal.fire({
                         icon: "error",
@@ -925,4 +1038,5 @@
     </script>
     <script src="script.js"></script>
 </body>
+
 </html>

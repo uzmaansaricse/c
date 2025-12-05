@@ -734,7 +734,7 @@ document.getElementById("checkout").addEventListener("click", function () {
     let totalAmount = parseInt(document.getElementById("cart-total").innerText) || 0;
     let deliveryDetails = getDeliveryDetails();
 
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
 
     try {
         // Step 1: Create order in DB with Pending status
@@ -742,51 +742,54 @@ document.getElementById("checkout").addEventListener("click", function () {
             method: "POST",
             headers: { 
                 'Authorization': 'Bearer ' + token,
-                "Content-Type": "application/json" },
+                "Content-Type": "application/json" 
+            },
             body: JSON.stringify({ cart, totalAmount, deliveryDetails })
         });
+        
         let data = await response.json();
-        let key = await getRazorpayKey();
 
-        // Step 2: Get database orderId for later use
-        let dbOrderId = data.dbOrderId; // <-- backend should return this
+        if (!data.success) {
+             Swal.fire({ icon: "error", title: "Order Creation Failed", text: data.error || "Could not create order." });
+             return;
+        }
+
+        let key = data.key; // Get key from backend response
+        let dbOrderId = data.dbOrderId; // MongoDB Order ID
 
         if (data.orderId) {
             let rzp = new Razorpay({
                 key: key,
                 amount: data.amount,
                 currency: "INR",
-                order_id: data.orderId,
-                handler: function (response) {
-                    // Payment success: update order status to Paid
-                    saveOrder(response.razorpay_payment_id, deliveryDetails, cart, totalAmount, dbOrderId);
+                order_id: data.orderId, // Razorpay Order ID
+                name: "Aravali Publication",
+                description: "Book Purchase",
+                image: "img/Aravli-final-logo.jpg",
+                handler: async function (response) {
+                    // Step 2: Verify Payment on Backend
+                    await verifyPayment(response, dbOrderId, deliveryDetails, cart, totalAmount);
+                },
+                prefill: {
+                    name: deliveryDetails.fullName,
+                    email: deliveryDetails.email,
+                    contact: deliveryDetails.mobile
+                },
+                theme: {
+                    color: "#2c6e31"
                 },
                 modal: {
                     ondismiss: function () {
-                        // Payment cancelled or failed: save order details for repayment
-                        Swal.fire({
-                            icon: "warning",
-                            title: "Payment Not Completed",
-                            text: "Your order has been saved. You can complete the payment from your orders page.",
-                            confirmButtonText: "Go to Orders",
-                            showCancelButton: true,
-                            cancelButtonText: "Stay Here"
-                        }).then((result) => {
-                            // Save failed order regardless of user choice
-                            handlePaymentFailure(dbOrderId, deliveryDetails, cart, totalAmount);
-                            
-                            if (result.isConfirmed) {
-                                window.location.href = "UserStatusOrderMobleNumber.html";
-                            }
-                        });
+                        console.log("Payment modal closed");
                     }
                 }
             });
+            
             rzp.on('payment.failed', function (response) {
-                // Explicit payment failure
                 console.error('Payment failed:', response.error);
-                handlePaymentFailure(dbOrderId, deliveryDetails, cart, totalAmount);
+                Swal.fire({ icon: "error", title: "Payment Failed", text: response.error.description });
             });
+            
             rzp.open();
         } else {
             Swal.fire({ icon: "error", title: "Payment initiation failed", text: "Unable to generate order. Please try again." });
@@ -797,69 +800,66 @@ document.getElementById("checkout").addEventListener("click", function () {
     }
 });
 
-  async function saveOrder(paymentId, deliveryDetails, cart, totalAmount, dbOrderId) {
-
-    const token = localStorage.getItem('token')
-
-    let response = await fetch(`${API_BASE}/api/save-order`, {
-        method: "POST",
-        headers: { 'Authorization': 'Bearer ' + token , "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentId, deliveryDetails, cart, totalAmount,dbOrderId })
-    });
-
-    let data = await response.json();
-    if (data.success) {
-        localStorage.removeItem("cart");
-
-        const orderId = data.orderId;
-        const bookIds = data.bookIds.join(",");
-
+async function verifyPayment(razorpayResponse, dbOrderId, deliveryDetails, cart, totalAmount) {
+    const token = localStorage.getItem('token');
+    
+    try {
         Swal.fire({
-            icon: "success",
-            title: "✅ Order Confirmed!",
-            text: "Redirecting to review page...",
-            timer: 1500,
-            showConfirmButton: false
+            title: 'Verifying Payment...',
+            text: 'Please wait while we confirm your payment.',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
         });
 
-        // Send order confirmation email
-        fetch(`${API_BASE}/order/send-confirmation-email`, {
+        let response = await fetch(`${API_BASE}/api/verify-payment`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                'Authorization': 'Bearer ' + token, 
+                "Content-Type": "application/json" 
+            },
             body: JSON.stringify({
-                email: deliveryDetails.email,
-                fullName: deliveryDetails.fullName,
-                orderId: orderId,
-                items: cart.map(item => ({
-                    title: item.title,
-                    quantity: item.quantity,
-                    netPrice: item.price
-                })),
-                shippingCharges: 0,
-                totalAmount: totalAmount,
-                shippingInfo: {
-                    fullName: deliveryDetails.fullName,
-                    address: deliveryDetails.address + ", " + deliveryDetails.city + ", " + deliveryDetails.state + " - " + deliveryDetails.pincode,
-                    mobile: deliveryDetails.mobile
-                }
+                razorpay_order_id: razorpayResponse.razorpay_order_id,
+                razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                razorpay_signature: razorpayResponse.razorpay_signature,
+                dbOrderId: dbOrderId
             })
-        }).then(res => res.json())
-          .then(data => {
-              if (!data.success) {
-                  console.error("Failed to send order confirmation email:", data.message);
-              }
-          }).catch(err => {
-              console.error("Error sending order confirmation email:", err);
-          });
+        });
 
-        setTimeout(() => {
-            window.location.href = `rating-review.html?orderId=${orderId}&bookIds=${bookIds}`;
-        }, 1500);
-    } else {
+        let data = await response.json();
+
+        if (data.success) {
+            localStorage.removeItem("cart");
+            
+            // Success!
+            Swal.fire({
+                icon: "success",
+                title: "✅ Order Confirmed!",
+                text: "Your payment was successful.",
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+            // Redirect to rating/review page
+            const bookIds = cart.map(item => item.id).join(",");
+            setTimeout(() => {
+                window.location.href = `rating-review.html?orderId=${data.orderId}&bookIds=${bookIds}`;
+            }, 2000);
+
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "❌ Payment Verification Failed",
+                text: data.message || "Please contact support if money was deducted."
+            });
+        }
+    } catch (error) {
+        console.error("Verification Error:", error);
         Swal.fire({
             icon: "error",
-            title: "❌ Order save failed!",
-            text: "Please try again."
+            title: "❌ Error",
+            text: "Network error during verification. Please check your orders page."
         });
     }
 }
